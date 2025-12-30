@@ -1,0 +1,485 @@
+#!/usr/bin/env python3
+"""
+router_engine.py (drop-in, no line edits needed)
+
+Fixes:
+- Stops import/name mismatch with hardware_executor by calling it via subprocess.
+- Adds local memory interception for "remember ..." and "what is my ..." BEFORE kernel routing.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import re
+import subprocess
+import sys
+import time
+from dataclasses import dataclass, asdict
+from enum import Enum
+from typing import Any, Dict, List, Optional, Tuple
+
+
+# -----------------------------
+# Intents
+# -----------------------------
+
+class Intent(str, Enum):
+    UNKNOWN = "UNKNOWN"
+    PING = "PING"
+    LED_ON = "LED_ON"
+    LED_OFF = "LED_OFF"
+    TIME_QUERY = "TIME_QUERY"
+    SLEEP = "SLEEP"
+    MEMORY_STORE = "MEMORY_STORE"
+    MEMORY_RECALL = "MEMORY_RECALL"
+
+
+# -----------------------------
+# KernelResult (compatible shape)
+# -----------------------------
+
+@dataclass
+class KernelResult:
+    intent: Intent
+    confidence: float = 1.0
+    raw_text: str = ""
+    normalized: str = ""
+    clarification_questions: List[str] = None
+    confirmation_prompt: Optional[str] = None
+    require_confirmation: bool = False
+    memory: Optional[Dict[str, Any]] = None
+    ts: float = 0.0
+
+    def to_dict(self) -> Dict[str, Any]:
+        d = asdict(self)
+        d["intent"] = self.intent.value
+        if d.get("clarification_questions") is None:
+            d["clarification_questions"] = []
+        return d
+
+
+def _now_ts() -> float:
+    return time.time()
+
+
+def _normalize(s: str) -> str:
+    s = (s or "").strip()
+    s = re.sub(r"\s+", " ", s)
+    return s
+
+
+# -----------------------------
+# Local memory store
+# -----------------------------
+
+class MemoryStore:
+    """
+    Stores facts in ~/.demerzel_memory.json
+    Keyed by normalized key (lowercase).
+    """
+    def __init__(self, path: Optional[str] = None):
+        self.path = path or os.path.expanduser("~/.demerzel_memory.json")
+        self.data = {"facts": {}, "notes": []}  # stable shape
+        self._load()
+
+    def _load(self) -> None:
+        try:
+            if os.path.exists(self.path):
+                with open(self.path, "r", encoding="utf-8") as f:
+                    self.data = json.load(f)
+            if "facts" not in self.data or not isinstance(self.data["facts"], dict):
+                self.data["facts"] = {}
+            if "notes" not in self.data or not isinstance(self.data["notes"], list):
+                self.data["notes"] = []
+        except Exception:
+            # If corrupted, do not brick the assistant
+            self.data = {"facts": {}, "notes": []}
+
+    def _save(self) -> None:
+        tmp = self.path + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(self.data, f, indent=2, ensure_ascii=False)
+        os.replace(tmp, self.path)
+
+    def remember_fact(self, key: str, value: str, raw: str) -> None:
+        k = (key or "").strip().lower()
+        v = (value or "").strip()
+        if not k or not v:
+            return
+        self.data["facts"][k] = {"value": v, "raw": raw, "ts": _now_ts()}
+        self._save()
+
+    def recall_fact(self, key: str) -> Optional[str]:
+        k = (key or "").strip().lower()
+        item = self.data.get("facts", {}).get(k)
+        return item.get("value") if isinstance(item, dict) else None
+
+
+# -----------------------------
+# Memory interception (BEFORE kernel)
+# -----------------------------
+
+_REMEMBER_PATTERNS: List[re.Pattern] = [
+    # "remember my email is amb330@gmail.com"
+    re.compile(r'^(?:demerzel\s+)?remember\s+my\s+(?P<key>.+?)\s+(?:is|=)\s+(?P<val>.+)$', re.I),
+    # "remember that my garage code is 1234"
+    re.compile(r'^(?:demerzel\s+)?remember\s+that\s+my\s+(?P<key>.+?)\s+(?:is|=)\s+(?P<val>.+)$', re.I),
+]
+
+_RECALL_PATTERNS: List[re.Pattern] = [
+    # "what is my email"
+    re.compile(r'^(?:demerzel\s+)?what\s+is\s+my\s+(?P<key>.+?)\??$', re.I),
+    # "recall my email"
+    re.compile(r'^(?:demerzel\s+)?recall\s+my\s+(?P<key>.+?)$', re.I),
+    # "what do you remember about my email"
+    re.compile(r'^(?:demerzel\s+)?what\s+do\s+you\s+remember\s+about\s+my\s+(?P<key>.+?)\??$', re.I),
+]
+
+
+def _try_memory_intercept(text: str, store):
+    """
+    Intercept 'remember' / 'recall' style commands BEFORE the kernel.
+    Vosk often produces variants like:
+      - "our remember my email is a m b..."
+      - "i remember my email is ..."
+      - "remember my email as ..."
+      - "remember that my garage code is 1234"
+      - "what is my email" / "what do you remember"
+    Return (kernel_result_like, spoken_reply) or (None, None).
+    """
+    import re
+    if not text:
+        return (None, None)
+
+    t = text.strip().lower()
+
+    # If wake word leaked into the command, strip common variants.
+    # (We only remove at the front to avoid deleting legitimate text.)
+    t = re.sub(r"^(demerzel|demersel|dammers|dam er zel|dammerzle|dam erzel)\b[\s,]*", "", t).strip()
+
+    # Drop leading filler that Vosk likes to prepend
+    t = re.sub(r"^(our|i|uh|um|hey)\b[\s,]*", "", t).strip()
+
+    # Normalize common spoken email fragments
+    t = t.replace(" g male ", " gmail ")
+    t = t.replace(" g mail ", " gmail ")
+    t = t.replace(" dot com", ".com")
+    t = t.replace(" at ", "@")
+
+    # Helper: canonicalize keys
+    def canon_key(k: str) -> str:
+        k = k.strip().lower()
+        k = re.sub(r"^(my|the)\s+", "", k).strip()
+        # common shortcuts
+        if k in ("email", "e-mail", "email address", "e mail", "gmail"):
+            return "email"
+        if k in ("garage code", "garage pin", "garage"):
+            return "garage_code"
+        return re.sub(r"\s+", "_", k)
+
+    # 1) STORE patterns
+    # remember (that) <key> is/equals/as/: <value>
+    store_patterns = [
+        r"^remember\s+(?:that\s+)?(.+?)\s+(?:is|=|equals|as|:)\s+(.+)$",
+        r"^remember\s+(?:that\s+)?(.+?)\s+(.+)$",  # fallback: remember <key> <value>
+    ]
+
+    for pat in store_patterns:
+        mm = re.match(pat, t)
+        if mm:
+            key_raw = mm.group(1)
+            val_raw = mm.group(2) if mm.lastindex and mm.lastindex >= 2 else ""
+            key = canon_key(key_raw)
+            val = val_raw.strip()
+            if key and val:
+                try:
+                    store.remember_fact(key, val)
+                    print(f"[MEMORY] STORED: {key} = {val}")
+                    # Return a KernelResult-like dict so the rest of the system can print it safely if needed
+                    return ({"intent": "MEMORY_STORE", "key": key, "value": val}, "Okay.")
+                except Exception as e:
+                    print("[MEMORY] STORE ERROR:", e)
+                    return ({"intent": "MEMORY_STORE_ERROR", "error": str(e)}, "I couldn't store that.")
+            break
+
+    # 2) RECALL patterns
+    # "what is my X" / "what's my X" / "recall X"
+    recall_patterns = [
+        r"^(?:what\s+is|what's|whats)\s+(?:my|the)\s+(.+?)\??$",
+        r"^recall\s+(.+?)\??$",
+    ]
+    for pat in recall_patterns:
+        mm = re.match(pat, t)
+        if mm:
+            key = canon_key(mm.group(1))
+            try:
+                val = store.recall_fact(key)
+                print(f"[MEMORY] RECALL: {key} -> {val}")
+                if val:
+                    return ({"intent": "MEMORY_RECALL", "key": key, "value": val}, val)
+                return ({"intent": "MEMORY_RECALL", "key": key, "value": None}, "I don't have that yet.")
+            except Exception as e:
+                print("[MEMORY] RECALL ERROR:", e)
+                return ({"intent": "MEMORY_RECALL_ERROR", "error": str(e)}, "I couldn't recall that.")
+
+    # 3) "what do you remember" / "list memories"
+    if re.match(r"^(what\s+do\s+you\s+remember|list\s+memories|show\s+memories)\??$", t):
+        try:
+            facts = store.recall_all_facts() if hasattr(store, "recall_all_facts") else {}
+            if not facts:
+                return ({"intent": "MEMORY_LIST", "facts": {}}, "I don't have any saved facts yet.")
+            keys = ", ".join(sorted(facts.keys()))
+            return ({"intent": "MEMORY_LIST", "facts": facts}, f"I have: {keys}")
+        except Exception as e:
+            print("[MEMORY] LIST ERROR:", e)
+            return ({"intent": "MEMORY_LIST_ERROR", "error": str(e)}, "I couldn't list memories.")
+
+    return (None, None)
+def _run_hardware_command(cmd: str) -> str:
+    """
+    Runs hardware_executor.py <CMD> using python, captures stdout.
+    This avoids relying on any internal function name inside hardware_executor.py.
+    """
+    cmd = (cmd or "").strip()
+    if not cmd:
+        return "ERROR: empty command"
+
+    py = sys.executable or "python3"
+    script = os.path.join(os.path.dirname(__file__), "hardware_executor.py")
+
+    try:
+        p = subprocess.run(
+            [py, script, cmd],
+            capture_output=True,
+            text=True,
+            timeout=20,
+        )
+        out = (p.stdout or "").strip()
+        err = (p.stderr or "").strip()
+
+        if p.returncode != 0:
+            return f"ERROR: hardware_executor failed ({p.returncode}): {err or out or 'unknown'}"
+        return out or "OK"
+    except subprocess.TimeoutExpired:
+        return "ERROR: hardware_executor timed out"
+    except Exception as e:
+        return f"ERROR: hardware_executor exception: {e}"
+
+
+# -----------------------------
+# Kernel adapter (use your existing kernel if present)
+# -----------------------------
+
+def _run_kernel_adapter(text: str) -> KernelResult:
+    """
+    Tries to use existing kernel_router in your repo.
+    Falls back to simple rules if import fails.
+    """
+    norm = _normalize(text)
+
+    # Try your real kernel_router first
+    try:
+        import kernel_router  # type: ignore
+
+        # Try common entrypoints
+        for fn_name in ("run_kernel", "route_text", "classify", "process"):
+            fn = getattr(kernel_router, fn_name, None)
+            if callable(fn):
+                res = fn(text)
+                # If it already returns dict-like, normalize to KernelResult
+                if isinstance(res, dict):
+                    intent_val = res.get("intent", "UNKNOWN")
+                    try:
+                        intent = Intent(intent_val)
+                    except Exception:
+                        intent = Intent.UNKNOWN
+                    return KernelResult(
+                        intent=intent,
+                        confidence=float(res.get("confidence", 0.2)),
+                        raw_text=res.get("raw_text", text),
+                        normalized=res.get("normalized", norm),
+                        clarification_questions=res.get("clarification_questions", []) or [],
+                        confirmation_prompt=res.get("confirmation_prompt"),
+                        require_confirmation=bool(res.get("require_confirmation", False)),
+                        memory=res.get("memory"),
+                        ts=float(res.get("ts", _now_ts())),
+                    )
+                # If it returns an object with fields
+                if hasattr(res, "intent"):
+                    intent_val = getattr(res, "intent")
+                    if isinstance(intent_val, Intent):
+                        intent = intent_val
+                    else:
+                        try:
+                            intent = Intent(str(intent_val))
+                        except Exception:
+                            intent = Intent.UNKNOWN
+
+                    return KernelResult(
+                        intent=intent,
+                        confidence=float(getattr(res, "confidence", 0.2)),
+                        raw_text=str(getattr(res, "raw_text", text)),
+                        normalized=str(getattr(res, "normalized", norm)),
+                        clarification_questions=list(getattr(res, "clarification_questions", []) or []),
+                        confirmation_prompt=getattr(res, "confirmation_prompt", None),
+                        require_confirmation=bool(getattr(res, "require_confirmation", False)),
+                        memory=getattr(res, "memory", None),
+                        ts=float(getattr(res, "ts", _now_ts())),
+                    )
+    except Exception:
+        pass
+
+    # Fallback tiny router (keeps system usable)
+    low = norm.lower()
+    if "ping" in low:
+        return KernelResult(intent=Intent.PING, confidence=1.0, raw_text=text, normalized=norm, clarification_questions=[], ts=_now_ts())
+    if "led on" in low:
+        return KernelResult(intent=Intent.LED_ON, confidence=1.0, raw_text=text, normalized=norm, clarification_questions=[], ts=_now_ts())
+    if "led off" in low:
+        return KernelResult(intent=Intent.LED_OFF, confidence=1.0, raw_text=text, normalized=norm, clarification_questions=[], ts=_now_ts())
+    if "what time" in low or "time is it" in low:
+        return KernelResult(intent=Intent.TIME_QUERY, confidence=1.0, raw_text=text, normalized=norm, clarification_questions=[], ts=_now_ts())
+    if "sleep" in low:
+        return KernelResult(intent=Intent.SLEEP, confidence=1.0, raw_text=text, normalized=norm, clarification_questions=[], ts=_now_ts())
+
+    return KernelResult(
+        intent=Intent.UNKNOWN,
+        confidence=0.2,
+        raw_text=text,
+        normalized=norm,
+        clarification_questions=["I'm not sure what you want. Say one of: ping, led on, led off, time, sleep."],
+        ts=_now_ts(),
+    )
+
+
+# -----------------------------
+# RouterEngine (what your voice loop calls)
+# -----------------------------
+
+class RouterEngine:
+    def __init__(self, *args, **kwargs):
+        self.store = MemoryStore()
+
+    def process(self, final_text: str) -> KernelResult:
+        """
+        Main entry point used by the voice loop.
+        Returns KernelResult. Side effects (hardware/memory) are handled here.
+        """
+        final_text = final_text or ""
+        norm = _normalize(final_text)
+
+        # 1) Memory intercept FIRST (fixes your exact symptom)
+        mem_res, mem_spoken = _try_memory_intercept(norm, self.store)
+        if mem_res is not None:
+            _say(mem_spoken or "Okay.")
+            return mem_res
+
+        # 2) Kernel classify
+        result = _run_kernel_adapter(norm)
+
+        # 3) Speak kernel JSON boundary (matches your current logs)
+        print("KERNEL_JSON:")
+        try:
+            print(json.dumps(result.to_dict(), indent=2))
+        except Exception:
+            print(result.to_dict())
+
+        # 4) UNKNOWN -> clarify
+        if result.intent == Intent.UNKNOWN:
+            for q in (result.clarification_questions or []):
+                _say(f"{q}")
+            return result
+
+        # 5) Local-only intents
+        if result.intent == Intent.TIME_QUERY:
+            # Let existing local handler run if present; else basic
+            spoken = _handle_time_query()
+            _say(spoken)
+            return result
+
+        if result.intent == Intent.SLEEP:
+            _say("Okay. Sleeping.")
+            return result
+
+        # 6) Hardware intents
+        if result.intent == Intent.PING:
+            out = _run_hardware_command("PING")
+            _say(out)
+            return result
+
+        if result.intent == Intent.LED_ON:
+            out = _run_hardware_command("LED_ON")
+            _say(out)
+            return result
+
+        if result.intent == Intent.LED_OFF:
+            out = _run_hardware_command("LED_OFF")
+            _say(out)
+            return result
+
+        # Anything else is refused safely
+        _say(f"REFUSE: Intent {result.intent.value} has no execution mapping.")
+        return result
+
+
+# Backward-compatible function-style entrypoints (in case your loop uses them)
+_ENGINE_SINGLETON: Optional[RouterEngine] = None
+
+def get_engine() -> RouterEngine:
+    global _ENGINE_SINGLETON
+    if _ENGINE_SINGLETON is None:
+        _ENGINE_SINGLETON = RouterEngine()
+    return _ENGINE_SINGLETON
+
+def route_text(final_text: str) -> KernelResult:
+    return get_engine().process(final_text)
+
+def process(final_text: str) -> KernelResult:
+    return get_engine().process(final_text)
+
+
+# -----------------------------
+# Speak helper (uses your existing say if available)
+# -----------------------------
+
+def _say(text: str) -> None:
+    text = (text or "").strip()
+    if not text:
+        return
+    try:
+        # If your project has a preferred say function, use it
+        import run_voice_clean  # type: ignore
+        fn = getattr(run_voice_clean, "_say", None)
+        if callable(fn):
+            fn(text)
+            return
+    except Exception:
+        pass
+
+    # Fallback: macOS 'say'
+    try:
+        subprocess.Popen(["say", text])
+    except Exception:
+        # Last resort: just print
+        print(f"[SAY] {text}")
+
+
+def _handle_time_query() -> str:
+    try:
+        import datetime
+        now = datetime.datetime.now()
+        # Keep it short
+        return f"It is {now.strftime('%-I:%M %p')}."
+    except Exception:
+        return "I can't read the time right now."
+
+
+if __name__ == "__main__":
+    # quick manual test
+    e = RouterEngine()
+    while True:
+        s = input("> ").strip()
+        if not s:
+            continue
+        e.process(s)

@@ -65,18 +65,18 @@ class Config:
     wake_threshold: float = 0.62
     wake_aliases: List[str] = None  # set in __post_init__
 
-    command_window: float = 12.0
+    command_window: float = 7.5
 
     # Stronger gating now
-    post_wake_cooldown_seconds: float = 1.25       # ignore early tail/buffer after wake
-    suppress_clarify_after_wake_seconds: float = 8.0
+    post_wake_cooldown_seconds: float = 1.50       # ignore early tail/buffer after wake
+    suppress_clarify_after_wake_seconds: float = 6.00
     ignore_yesno_after_wake_seconds: float = 4.00  # key fix: "yes/no" is not a command right after wake
 
     # Stronger echo control
     tts_mic_gate_seconds: float = 2.50
     anti_echo_window: float = 6.00
 
-    min_final_chars_command: int = 5
+    min_final_chars_command: int = 3
     vosk_model_path: str = "vosk-model-small-en-us-0.15"
 
     def __post_init__(self):

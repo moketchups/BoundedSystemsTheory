@@ -1,0 +1,13 @@
+diff --git a/brain_controller.py b/brain_controller.py
+index cb58ca2..a963169 100644
+--- a/brain_controller.py
++++ b/brain_controller.py
+@@ -55,7 +55,7 @@ def beep() -> None:
+ 
+ def say_mac(text: str) -> None:
+     try:
+-        subprocess.Popen(["say", text], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
++        subprocess.run(["say", text], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+     except Exception:
+         pass
+ 

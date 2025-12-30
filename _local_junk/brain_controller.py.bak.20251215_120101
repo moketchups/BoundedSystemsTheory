@@ -1,0 +1,514 @@
+#!/usr/bin/env python3
+"""
+Demerzel: wake -> command -> confirm -> followup state machine.
+
+Fixes based on your screenshot:
+- FOLLOWUP now accepts "and/then/so + command" (e.g. "and remember buy milk").
+- Adds an IDLE cooldown so we don't immediately re-wake from tail-end speech.
+- Slightly longer windows (less racing).
+- SQLite tasks schema auto-migration (fixes missing status column).
+- Safer PyAudio input opening (avoid invalid channels crash).
+"""
+
+import argparse
+import json
+import os
+import re
+import sqlite3
+import subprocess
+import time
+from dataclasses import dataclass
+from typing import Optional, Tuple, Dict, Any, List
+
+import pyaudio
+from vosk import Model, KaldiRecognizer
+from rapidfuzz import fuzz
+
+
+# -----------------------------
+# Utilities
+# -----------------------------
+
+def now_ts() -> str:
+    return time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime())
+
+
+def say(text: str) -> None:
+    text = (text or "").strip()
+    if not text:
+        return
+    try:
+        subprocess.run(["say", text], check=False)
+    except Exception:
+        pass
+    print(f"[SAY] {text}")
+
+
+def clamp(x: float, lo: float, hi: float) -> float:
+    return max(lo, min(hi, x))
+
+
+def normalize_text(s: str) -> str:
+    s = (s or "").strip().lower()
+    s = re.sub(r"[^a-z0-9\s']", " ", s)
+    s = re.sub(r"\s+", " ", s).strip()
+    return s
+
+
+def strip_leading_fillers(t: str) -> str:
+    """
+    Allow natural speech like:
+      "and remember buy milk"
+      "then what time is it"
+      "so list my tasks"
+    by stripping a small set of leading fillers.
+    """
+    t = normalize_text(t)
+    if not t:
+        return t
+
+    fillers = ("and", "then", "so", "okay", "ok", "hey", "yo", "um", "uh")
+    # strip multiple fillers if user stacks them
+    changed = True
+    while changed:
+        changed = False
+        parts = t.split(" ", 1)
+        if parts and parts[0] in fillers:
+            t = (parts[1] if len(parts) > 1 else "").strip()
+            changed = True
+    return t
+
+
+# -----------------------------
+# Database (tasks)
+# -----------------------------
+
+DEFAULT_DB_PATH = os.path.join(os.getcwd(), "demerzel_memory.db")
+
+
+def db_connect(path: str) -> sqlite3.Connection:
+    conn = sqlite3.connect(path)
+    conn.execute("PRAGMA journal_mode=WAL;")
+    conn.execute("PRAGMA synchronous=NORMAL;")
+    return conn
+
+
+def db_init_and_migrate(conn: sqlite3.Connection) -> None:
+    cur = conn.cursor()
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS tasks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            text TEXT NOT NULL,
+            created_at TEXT NOT NULL
+        );
+    """)
+    conn.commit()
+
+    cur.execute("PRAGMA table_info(tasks);")
+    cols = [row[1] for row in cur.fetchall()]
+
+    if "status" not in cols:
+        cur.execute("ALTER TABLE tasks ADD COLUMN status TEXT NOT NULL DEFAULT 'open';")
+        conn.commit()
+
+    cur.execute("PRAGMA table_info(tasks);")
+    cols = [row[1] for row in cur.fetchall()]
+    if "completed_at" not in cols:
+        cur.execute("ALTER TABLE tasks ADD COLUMN completed_at TEXT;")
+        conn.commit()
+
+
+def db_add_task(conn: sqlite3.Connection, text: str) -> int:
+    text = text.strip()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO tasks (text, created_at, status) VALUES (?, ?, 'open');",
+        (text, now_ts())
+    )
+    conn.commit()
+    return int(cur.lastrowid)
+
+
+def db_list_open_tasks(conn: sqlite3.Connection) -> List[Tuple[int, str]]:
+    cur = conn.cursor()
+    cur.execute("SELECT id, text FROM tasks WHERE status='open' ORDER BY id ASC;")
+    return [(int(r[0]), str(r[1])) for r in cur.fetchall()]
+
+
+# -----------------------------
+# Intent parsing (simple, local)
+# -----------------------------
+
+def parse_intent(raw_text: str) -> Dict[str, Any]:
+    t = strip_leading_fillers(raw_text)
+
+    if re.search(r"\b(what\s+time\s+is\s+it|time\s+is\s+it|the\s+time)\b", t):
+        return {"intent_type": "time", "payload": {}}
+
+    m = re.match(r"^(remember( to)?|add( a)? task|note|remind me to)\s+(.*)$", t)
+    if m:
+        task = (m.group(4) or "").strip()
+        task = re.sub(r"^to\s+", "", task).strip()
+        if task:
+            return {"intent_type": "remember_task", "payload": {"text": task}}
+
+    if re.search(r"\b(what are my tasks|list tasks|my tasks|open tasks|what do i have to do)\b", t):
+        return {"intent_type": "list_tasks", "payload": {}}
+
+    return {"intent_type": "unknown", "payload": {"raw": raw_text}}
+
+
+def render_time() -> str:
+    return time.strftime("%-I:%M %p", time.localtime()).replace(" 0", " ")
+
+
+# -----------------------------
+# FOLLOWUP filter (Option 1, fixed)
+# -----------------------------
+
+COMMAND_STARTERS = (
+    "what", "whats", "what's", "when", "where", "why", "how",
+    "remember", "remind", "add", "note",
+    "list", "show", "tell",
+    "time",
+)
+
+ACKS = {
+    "ok", "okay", "yeah", "yep", "yup", "sure", "thanks", "thank you",
+    "got it", "cool", "alright", "right", "mm", "mhm", "uh huh",
+}
+
+
+def followup_accepts(text: str) -> bool:
+    t0 = normalize_text(text)
+    if not t0:
+        return False
+
+    # strip "and/then/so/ok/um..." etc before deciding
+    t = strip_leading_fillers(t0)
+    if not t:
+        return False
+
+    if t in ACKS:
+        return False
+
+    first = t.split(" ", 1)[0]
+    if first in COMMAND_STARTERS:
+        return True
+
+    # common forms
+    if t.startswith("what time"):
+        return True
+    if t.startswith("what are my"):
+        return True
+    if t.startswith("list my"):
+        return True
+
+    return False
+
+
+# -----------------------------
+# Wake word matching
+# -----------------------------
+
+def wake_score(heard: str, wake: str, aliases: List[str]) -> Tuple[float, str]:
+    h = normalize_text(heard)
+    best = 0.0
+    best_alias = wake
+    for a in [wake] + list(aliases):
+        a_n = normalize_text(a)
+        if not a_n or not h:
+            continue
+        s = fuzz.partial_ratio(h, a_n) / 100.0
+        if s > best:
+            best = s
+            best_alias = a
+    return best, best_alias
+
+
+# -----------------------------
+# Audio capture
+# -----------------------------
+
+def list_input_devices(pa: pyaudio.PyAudio) -> None:
+    print("\n=== INPUT DEVICES ===")
+    for i in range(pa.get_device_count()):
+        info = pa.get_device_info_by_index(i)
+        if int(info.get("maxInputChannels", 0)) > 0:
+            name = info.get("name", "")
+            ch = int(info.get("maxInputChannels", 0))
+            sr = int(info.get("defaultSampleRate", 0))
+            print(f"[{i}] ch={ch} sr={sr} name={name}")
+    print("=== END ===\n")
+
+
+def open_input_stream(pa: pyaudio.PyAudio, device_index: int, rate: int = 16000, frames_per_buffer: int = 4000):
+    info = pa.get_device_info_by_index(device_index)
+    max_ch = int(info.get("maxInputChannels", 1)) or 1
+
+    candidates = [1, min(2, max_ch), max_ch]
+    tried = set()
+    last_err = None
+
+    for ch in candidates:
+        if ch in tried:
+            continue
+        tried.add(ch)
+        try:
+            stream = pa.open(
+                format=pyaudio.paInt16,
+                channels=ch,
+                rate=rate,
+                input=True,
+                input_device_index=device_index,
+                frames_per_buffer=frames_per_buffer,
+            )
+            return stream, ch
+        except Exception as e:
+            last_err = e
+
+    raise RuntimeError(f"Failed to open input stream for device {device_index}: {last_err}")
+
+
+# -----------------------------
+# Brain Controller
+# -----------------------------
+
+@dataclass
+class Config:
+    model_path: str
+    device_index: int
+    wake_threshold: float
+    wake_name: str = "Demerzel"
+
+    # forgiving aliases (keep wake easy)
+    wake_aliases: Tuple[str, ...] = (
+        "demer zel",
+        "damerzel",
+        "dam ezell",
+        "dam ezel",
+        "dammerzel",
+        "damers",
+        "dam ezell",
+        "dam ezel",
+    )
+
+    # slightly longer windows (less racing)
+    command_window_s: float = 8.0
+    followup_window_s: float = 10.0
+    confirm_window_s: float = 10.0
+
+    # NEW: idle cooldown after timing out / dropping states
+    idle_cooldown_s: float = 1.2
+
+    db_path: str = DEFAULT_DB_PATH
+
+
+class BrainController:
+    def __init__(self, cfg: Config):
+        self.cfg = cfg
+        self.pa = pyaudio.PyAudio()
+        self.model = Model(cfg.model_path)
+
+        self.conn = db_connect(cfg.db_path)
+        db_init_and_migrate(self.conn)
+
+        self.state = "IDLE"     # IDLE, COMMAND, CONFIRM, FOLLOWUP
+        self.deadline = None
+
+        self.pending_task_text: Optional[str] = None
+
+        # NEW: block wake for a short time (prevents instant re-wake on tail-end speech)
+        self.wake_block_until = 0.0
+
+    def close(self):
+        try:
+            self.conn.close()
+        except Exception:
+            pass
+        try:
+            self.pa.terminate()
+        except Exception:
+            pass
+
+    def set_state(self, state: str, window_s: Optional[float] = None):
+        self.state = state
+        if window_s is None:
+            self.deadline = None
+            print(f"[STATE] {state}")
+        else:
+            self.deadline = time.time() + window_s
+            print(f"[STATE] {state} ({int(self.deadline - time.time())}s left)")
+
+    def timed_out(self) -> bool:
+        return self.deadline is not None and time.time() > self.deadline
+
+    def back_to_idle(self):
+        self.pending_task_text = None
+        self.set_state("IDLE", None)
+        # block wake briefly so we don't re-trigger on trailing words/noise
+        self.wake_block_until = time.time() + self.cfg.idle_cooldown_s
+
+    def handle_text(self, raw_text: str, source: str = "voice") -> None:
+        raw_text = (raw_text or "").strip()
+        if not raw_text:
+            return
+
+        if self.state == "FOLLOWUP":
+            if not followup_accepts(raw_text):
+                return
+
+        intent = parse_intent(raw_text)
+
+        evt = {
+            "ts": now_ts(),
+            "source": source,
+            "wake": {"name": self.cfg.wake_name.upper()},
+            "raw_text": raw_text,
+            "normalized": normalize_text(raw_text),
+            "intent_type": intent["intent_type"],
+            "payload": intent.get("payload", {}),
+        }
+        print("[INTENT]", json.dumps(evt, indent=2))
+
+        it = intent["intent_type"]
+
+        if it == "time":
+            say(f"It is {render_time()}.")
+            self.set_state("FOLLOWUP", self.cfg.followup_window_s)
+            return
+
+        if it == "list_tasks":
+            tasks = db_list_open_tasks(self.conn)
+            if not tasks:
+                say("You have no open tasks.")
+            else:
+                items = "; ".join([f"{tid}: {txt}" for tid, txt in tasks[:5]])
+                say(f"You have {len(tasks)} open tasks. {items}.")
+            self.set_state("FOLLOWUP", self.cfg.followup_window_s)
+            return
+
+        if it == "remember_task":
+            text = intent["payload"]["text"].strip()
+            self.pending_task_text = text
+            say(f"You want me to remember: {text}. Say confirm to save, or cancel.")
+            self.set_state("CONFIRM", self.cfg.confirm_window_s)
+            return
+
+        say("I heard you, but I don't have an action for that yet.")
+        self.set_state("FOLLOWUP", self.cfg.followup_window_s)
+
+    def handle_confirm(self, raw_text: str) -> None:
+        t = normalize_text(raw_text)
+
+        if t not in ("confirm", "cancel"):
+            return
+
+        if t == "cancel":
+            say("Cancelled.")
+            self.pending_task_text = None
+            self.set_state("FOLLOWUP", self.cfg.followup_window_s)
+            return
+
+        if not self.pending_task_text:
+            say("Nothing to save.")
+            self.set_state("FOLLOWUP", self.cfg.followup_window_s)
+            return
+
+        tid = db_add_task(self.conn, self.pending_task_text)
+        say(f"Saved. Task {tid}: {self.pending_task_text}.")
+        self.pending_task_text = None
+        self.set_state("FOLLOWUP", self.cfg.followup_window_s)
+
+    def run(self):
+        stream, ch = open_input_stream(self.pa, self.cfg.device_index, rate=16000, frames_per_buffer=4000)
+
+        rec = KaldiRecognizer(self.model, 16000)
+        rec.SetWords(False)
+
+        print(f"[READY] Say '{self.cfg.wake_name.lower()}' to wake. Ctrl+C to exit.")
+        print(f"[WAKE] threshold={self.cfg.wake_threshold:.2f} aliases={len(self.cfg.wake_aliases)}")
+        print(f"[WINDOWS] command={self.cfg.command_window_s:.1f}s followup={self.cfg.followup_window_s:.1f}s confirm={self.cfg.confirm_window_s:.1f}s")
+        print(f"[AUDIO] device={self.cfg.device_index} channels={ch} sr=16000 frame=4000")
+        print(f"[IDLE] wake cooldown={self.cfg.idle_cooldown_s:.1f}s\n")
+
+        try:
+            while True:
+                if self.timed_out():
+                    if self.state in ("COMMAND", "FOLLOWUP", "CONFIRM"):
+                        print(f"[{self.state}] window timeout -> IDLE")
+                    self.back_to_idle()
+
+                data = stream.read(4000, exception_on_overflow=False)
+                if not data:
+                    continue
+
+                if rec.AcceptWaveform(data):
+                    j = json.loads(rec.Result() or "{}")
+                    text = (j.get("text") or "").strip()
+                    if not text:
+                        continue
+
+                    print(f"[FINAL] {text}")
+
+                    if self.state == "IDLE":
+                        # NEW: prevent instant re-wake right after we drop back to IDLE
+                        if time.time() < self.wake_block_until:
+                            continue
+
+                        score, alias = wake_score(text, self.cfg.wake_name, list(self.cfg.wake_aliases))
+                        if score >= self.cfg.wake_threshold:
+                            print(f"[WAKE] heard='{text}' best_alias='{alias}' score={score:.3f}")
+                            say("Awake.")
+                            self.set_state("COMMAND", self.cfg.command_window_s)
+
+                    elif self.state == "COMMAND":
+                        self.handle_text(text, source="voice")
+
+                    elif self.state == "CONFIRM":
+                        self.handle_confirm(text)
+
+                    elif self.state == "FOLLOWUP":
+                        self.handle_text(text, source="voice")
+
+        except KeyboardInterrupt:
+            print("\n[STOP] Ctrl+C received. Exiting cleanly...")
+        finally:
+            try:
+                stream.stop_stream()
+                stream.close()
+            except Exception:
+                pass
+            self.close()
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--list-devices", action="store_true", help="List input devices and exit")
+    ap.add_argument("--device", type=int, default=0, help="Input device index")
+    ap.add_argument("--model", type=str, default="vosk-model-small-en-us-0.15", help="Path to Vosk model dir")
+    ap.add_argument("--wake-threshold", type=float, default=0.62, help="Wake match threshold (0-1)")
+    ap.add_argument("--db", type=str, default=DEFAULT_DB_PATH, help="SQLite DB path")
+    args = ap.parse_args()
+
+    pa = pyaudio.PyAudio()
+    if args.list_devices:
+        list_input_devices(pa)
+        pa.terminate()
+        return
+    pa.terminate()
+
+    cfg = Config(
+        model_path=args.model,
+        device_index=args.device,
+        wake_threshold=clamp(args.wake_threshold, 0.0, 1.0),
+        db_path=args.db,
+    )
+
+    bc = BrainController(cfg)
+    bc.run()
+
+
+if __name__ == "__main__":
+    main()
+

@@ -1,0 +1,129 @@
+#!/usr/bin/env python3
+"""
+hardware_executor.py (Mac side)
+
+Sends a command string to the Arduino via the Raspberry Pi, and returns the
+ACK line.
+
+Pipeline:
+  Mac -> SSH -> Pi -> python3 ~/arduino_cmd.py "<CMD>" -> Arduino -> "ACK ..."
+
+Usage:
+  python3 hardware_executor.py "PING"
+  python3 hardware_executor.py "LED ON"
+  python3 hardware_executor.py "LED OFF"
+
+Exit codes:
+  0 success
+  1 failure
+"""
+
+from __future__ import annotations
+
+import os
+import shlex
+import subprocess
+import sys
+from dataclasses import dataclass
+
+
+# ======== CONFIG (edit if needed) ========
+PI_USER = os.environ.get("DEMERZEL_PI_USER", "moketchups")
+PI_HOST = os.environ.get("DEMERZEL_PI_HOST", "192.168.0.161")
+PI_CMD_PATH = os.environ.get("DEMERZEL_PI_CMD_PATH", "~/arduino_cmd.py")
+SSH_TIMEOUT_SEC = int(os.environ.get("DEMERZEL_SSH_TIMEOUT", "8"))
+# =========================================
+
+
+class HardwareError(RuntimeError):
+    pass
+
+
+@dataclass
+class RunResult:
+    rc: int
+    out: str
+    err: str
+
+
+def _run(cmd: list[str]) -> RunResult:
+    p = subprocess.run(
+        cmd,
+        capture_output=True,
+        text=True,
+        timeout=SSH_TIMEOUT_SEC,
+    )
+    out = (p.stdout or "").strip()
+    err = (p.stderr or "").strip()
+    return RunResult(p.returncode, out, err)
+
+
+def _extract_ack(output: str) -> str:
+    """
+    arduino_cmd.py may print multiple lines (e.g., READY + ACK ...).
+    We return the last line that starts with 'ACK '.
+    """
+    lines = [ln.strip() for ln in (output or "").splitlines() if ln.strip()]
+    for ln in reversed(lines):
+        if ln.startswith("ACK "):
+            return ln
+    return ""
+
+
+def send(cmd: str) -> str:
+    cmd = (cmd or "").strip()
+    if not cmd:
+        raise HardwareError("Empty hardware command")
+
+    # Safely pass the command as a single shell argument on the remote side.
+    quoted = shlex.quote(cmd)
+
+    remote = f"python3 {PI_CMD_PATH} {quoted}"
+    ssh = [
+        "ssh",
+        "-o",
+        "BatchMode=yes",
+        "-o",
+        f"ConnectTimeout={SSH_TIMEOUT_SEC}",
+        f"{PI_USER}@{PI_HOST}",
+        remote,
+    ]
+
+    r = _run(ssh)
+
+    if r.rc != 0:
+        raise HardwareError(
+            f"SSH/remote command failed (rc={r.rc}).\nSTDOUT:\n{r.out}\nSTDERR:\n{r.err}"
+        )
+
+    ack = _extract_ack(r.out)
+    if not ack:
+        raise HardwareError(
+            f"No ACK line found.\nSTDOUT:\n{r.out}\nSTDERR:\n{r.err}"
+        )
+
+    return ack
+
+
+def _self_test() -> None:
+    for c in ["PING", "LED ON", "LED OFF"]:
+        print(send(c))
+
+
+def main(argv: list[str]) -> int:
+    if len(argv) < 2:
+        print('Usage: python3 hardware_executor.py "PING"', file=sys.stderr)
+        return 1
+
+    cmd = " ".join(argv[1:])
+    try:
+        print(send(cmd))
+        return 0
+    except Exception as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))
+

@@ -1,0 +1,50 @@
+On branch main
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   brain_controller.py
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.demerzel_key
+	_lab/
+	_local_junk/
+	brain.py
+	brain_contract.py
+	brain_controller.BASELINE_OK.py
+	brain_controller.py.BAK_SELFTALK_20251230_103326
+	brain_controller.py.BAK_tts_block_20251230_104620
+	confirm_test.py
+	decision_ledger.py
+	decision_leger.py
+	demerzel.py
+	demo_brain_cli.py
+	gate.py
+	hardware_backend.py
+	hardware_backend.py.BAK_20251230_102125
+	hardware_executor.py
+	kernel_contract.py
+	ledger_view.py
+	memory_store.py
+	mic_test.py
+	reasoning_kernel.py
+	router_engine.BASELINE_OK.py
+	run_voice_R_memory.py
+	run_voice_clean.BASELINE_OK.py
+	run_voice_memory_polish.py
+	run_voice_memory_polish_v2.py
+	run_voice_memory_polish_v3.py
+	run_voice_memory_polish_v4.py
+	run_voice_memory_polish_v5.py
+	run_voice_memory_polish_v6.py
+	run_voice_memory_polish_v7.py
+	run_voice_wake_polish.py
+	smoke_test.sh
+	test_kernel_contract.py
+	test_tool_gate.py
+	tool_audit.jsonl
+	tool_gate.py
+	tool_gate.py.BAK_20251230_102125
+	turnlock.py
+
+no changes added to commit (use "git add" and/or "git commit -a")

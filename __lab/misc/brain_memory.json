@@ -1,0 +1,23 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "text": "buy milk",
+      "done": true,
+      "ts": "2025-12-14T17:07:22"
+    },
+    {
+      "id": 2,
+      "text": "by mail",
+      "done": false,
+      "ts": "2025-12-15T08:55:42"
+    },
+    {
+      "id": 3,
+      "text": "buy milk",
+      "done": false,
+      "ts": "2025-12-15T08:56:37"
+    }
+  ],
+  "turn_index": 10
+}

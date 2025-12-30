@@ -1,0 +1,80 @@
+#!/usr/bin/env python3
+import subprocess
+import sys
+from typing import Tuple
+
+PI_HOST = "192.168.0.161"
+PI_USER = "moketchups"
+
+# Absolute path on the Pi to the command script you already validated
+PI_CMD = "/home/moketchups/arduino_cmd.py"
+
+
+def run_ssh(command: str, timeout_sec: int = 8) -> Tuple[int, str, str]:
+    """
+    Runs a single command on the Pi over SSH.
+    Returns (returncode, stdout, stderr).
+    """
+    ssh = [
+        "ssh",
+        "-o", "BatchMode=yes", # fail fast if keys aren't working
+        "-o", "ConnectTimeout=3", # quick network fail
+        f"{PI_USER}@{PI_HOST}",
+        command
+    ]
+    p = subprocess.run(
+        ssh,
+        capture_output=True,
+        text=True, # decode as text (fine for our ACK lines)
+        timeout=timeout_sec
+    )
+    return p.returncode, p.stdout.strip(), p.stderr.strip()
+
+
+def send_arduino(cmd: str) -> str:
+    """
+    Sends a command string to Arduino via the Pi and returns the response line.
+    """
+    cmd = cmd.strip()
+    if not cmd:
+        raise ValueError("Command is empty.")
+
+    # Quote safely for remote shell: wrap in single-quotes and escape any internal single quote.
+    safe = cmd.replace("'", r"'\''")
+    remote = f"python3 {PI_CMD} '{safe}'"
+
+    rc, out, err = run_ssh(remote)
+
+    if rc != 0:
+        raise RuntimeError(
+            f"Hardware call failed (rc={rc}).\n"
+            f"Remote cmd: {remote}\n"
+            f"STDOUT: {out}\n"
+            f"STDERR: {err}"
+        )
+
+    # Expecting: "ACK PING", "ACK LED ON", etc.
+    if not out:
+        raise RuntimeError("Hardware call succeeded but returned empty output.")
+
+    return out
+
+
+def main():
+    if len(sys.argv) < 2:
+        print('Usage: python3 hardware_executor.py "PING"')
+        sys.exit(2)
+
+    cmd = " ".join(sys.argv[1:])
+    try:
+        resp = send_arduino(cmd)
+        print(resp)
+        sys.exit(0)
+    except Exception as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
+

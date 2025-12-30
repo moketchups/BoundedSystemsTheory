@@ -1,0 +1,159 @@
+# router_engine.py
+# Deterministic router/executor for Demerzel.
+# Voice is a shell; correctness is in the kernel.
+# This version adds an explicit, safe "R memory" intercept BEFORE the kernel.
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from typing import List, Optional
+import re, os, datetime, io, contextlib, subprocess
+
+from kernel_router import RouterState, route_text
+from kernel_contract import Intent
+
+# ---------- R memory helpers ----------
+from memory_store import MemoryStore
+
+_STORE_PATH = os.path.expanduser("~/.demerzel/memory.json")
+_STORE = MemoryStore(_STORE_PATH)
+try:
+    _STORE.load()
+except Exception:
+    # If load fails, keep a fresh store (R must never crash routing)
+    _STORE = MemoryStore(_STORE_PATH)
+
+def _say(line: str) -> None:
+    try:
+        subprocess.run(["say", line], check=False)
+    except Exception:
+        pass
+
+# Patterns: simple, deterministic, human-friendly
+_REMEMBER_FACT = [
+    re.compile(r"^\s*(remember|note)\s+(that\s+)?(?P<k>my\s+[\w\s\-]+?)\s+(is|=)\s+(?P<v>.+)\s*$", re.IGNORECASE),
+    re.compile(r"^\s*(?P<k>my\s+[\w\s\-]+?)\s+(is|=)\s+(?P<v>.+)\s*$", re.IGNORECASE),
+]
+_REMEMBER_NOTE = [
+    re.compile(r"^\s*(remember|note)\s+(that\s+)?(?P<text>.+)\s*$", re.IGNORECASE),
+]
+_RECALL = [
+    re.compile(r"^\s*(what do you remember|list memories|list memory)\s*$", re.IGNORECASE),
+    re.compile(r"^\s*(what is|what's)\s+(?P<k>my\s+[\w\s\-]+?)\s*\??\s*$", re.IGNORECASE),
+    re.compile(r"^\s*(recall|remember)\s+(?P<k>my\s+[\w\s\-]+?)\s*\??\s*$", re.IGNORECASE),
+    re.compile(r"^\s*(recent notes|last notes|what did i say)\s*$", re.IGNORECASE),
+]
+
+def _try_r_memory(raw_text: str) -> Optional[List[str]]:
+    """Return printable/speakable lines if R handled it; otherwise None."""
+    t = (raw_text or "").strip()
+    if not t:
+        return None
+
+    # 1) Recall first (so questions don't get stored by mistake)
+    for pat in _RECALL:
+        m = pat.match(t)
+        if not m:
+            continue
+        gd = m.groupdict()
+        if gd.get("k"):
+            key = gd["k"]
+            val = _STORE.recall_fact(key)
+            if val:
+                reply = f"Your {key.replace('my ', '')} is {val}."
+            else:
+                reply = f"I don't have your {key.replace('my ', '')} yet."
+            _say(reply)
+            return [f"[R] recall fact: {key} -> {val}", reply]
+
+        s = pat.pattern.lower()
+        if "what do you remember" in s or "list memory" in s:
+            facts = _STORE.recall_all_facts()
+            if not facts:
+                reply = "I don't have any saved facts yet."
+            else:
+                keys = sorted(facts.keys())[:10]
+                reply = "I remember: " + ", ".join(k.replace("my ", "") for k in keys) + "."
+            _say(reply)
+            return [f"[R] recall all facts: {len(facts)}", reply]
+
+        if "notes" in s or "what did i say" in s:
+            notes = _STORE.recall_recent_notes(5)
+            reply = "No recent notes." if not notes else ("Recent notes: " + " ... ".join(notes[:3]))
+            _say(reply)
+            return [f"[R] recall notes: {len(notes)}", reply]
+
+    # 2) Remember fact (key/value)
+    for pat in _REMEMBER_FACT:
+        m = pat.match(t)
+        if not m:
+            continue
+        k = m.group("k").strip()
+        v = m.group("v").strip()
+        _STORE.remember_fact(k, v)
+        reply = f"Got it. I'll remember your {k.replace('my ', '')}."
+        _say(reply)
+        return [f"[R] remember fact: {k} = {v}", reply]
+
+    # 3) Remember note (freeform)
+    for pat in _REMEMBER_NOTE:
+        m = pat.match(t)
+        if not m:
+            continue
+        payload = m.group("text").strip()
+        # If it looked like "my X is Y", the fact rules above would have caught it first
+        _STORE.remember_note(payload)
+        reply = "Noted."
+        _say(reply)
+        return [f"[R] remember note: {payload}", reply]
+
+    return None
+# ---------- end R memory helpers ----------
+
+
+def _intent_from_state(state: RouterState) -> Optional[Intent]:
+    # Defensive: some versions store the kernel result under different names
+    for attr in ("kernel_result", "last_result", "result", "kernel_out"):
+        obj = getattr(state, attr, None)
+        if obj is not None:
+            intent = getattr(obj, "intent", None)
+            if intent is not None:
+                return intent
+    return None
+
+
+@dataclass
+class RouterEngine:
+    high_conf_threshold: float = 0.85
+    state: RouterState = field(default_factory=RouterState)
+
+    def process(self, raw_text: str) -> List[str]:
+        lines: List[str] = []
+
+        # ---------- R memory intercept (safe, deterministic, optional) ----------
+        r_lines = _try_r_memory(raw_text)
+        if r_lines is not None:
+            lines.extend(r_lines)
+            return lines
+        # -----------------------------------------------------------------------
+
+        # Otherwise, run the normal kernel/router path and forward its prints.
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            self.state = route_text(
+                raw_text,
+                self.state,
+                high_conf_threshold=self.high_conf_threshold,
+            )
+        kernel_output = [l for l in buf.getvalue().splitlines() if l.strip()]
+        lines.extend(kernel_output)
+
+        # Execute SAFE intents (e.g., TIME_QUERY speaking)
+        intent = _intent_from_state(self.state)
+        if intent == Intent.TIME_QUERY:
+            now = datetime.datetime.now()
+            spoken = now.strftime("It is %I:%M %p").lstrip("0")
+            lines.append(spoken)
+            _say(spoken)
+
+        return lines
