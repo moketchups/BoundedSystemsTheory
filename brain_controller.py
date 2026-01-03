@@ -1,276 +1,322 @@
 #!/usr/bin/env python3
-"""
-Demerzel Brain Controller (No-Phantom-Yes Edition)
-
-Hard law:
-- Wake is ACK only (beep + "Yes")
-- Wake utterance is NEVER a command; it is always discarded.
-- The NEXT utterance is the command.
-- Ignore yes/no and ultra-short junk for a few seconds after wake (prevents TTS echo).
-- Gate mic during TTS AND flush/reset recognizer after ACK.
-"""
-
-from __future__ import annotations
-
-import json, os, queue, re, subprocess, sys, time
+import argparse
+import json
+import queue
+import subprocess
+import sys
+import time
 from dataclasses import dataclass
-from typing import List, Optional, Tuple
+from datetime import datetime
+from typing import Optional, List, Tuple
+
+import pyaudio
+from rapidfuzz import fuzz
+from vosk import Model, KaldiRecognizer
+
+from router_engine import RouterEngine  # <-- authoritative routing (kernel/router inside)
 
 
-def _best_fuzz_ratio(a: str, b: str) -> float:
+# -----------------------------
+# Helpers
+# -----------------------------
+
+def now_iso() -> str:
+    return datetime.now().isoformat(timespec="seconds")
+
+def say_mac(text: str):
     try:
-        from rapidfuzz import fuzz  # type: ignore
-        return float(fuzz.partial_ratio(a, b)) / 100.0
+        subprocess.run(["say", text], check=False)
     except Exception:
-        try:
-            from fuzzywuzzy import fuzz  # type: ignore
-            return float(fuzz.partial_ratio(a, b)) / 100.0
-        except Exception:
-            return 1.0 if b in a else 0.0
+        pass
 
-
-def clean_text(s: str) -> str:
-    s = s.strip().lower()
-    s = re.sub(r"[^a-z0-9\s']", " ", s)
-    s = re.sub(r"\s+", " ", s).strip()
-    return s
-
-
-def beep() -> None:
+def beep():
     try:
         sys.stdout.write("\a")
         sys.stdout.flush()
     except Exception:
         pass
-    for p in ("/System/Library/Sounds/Glass.aiff",
-              "/System/Library/Sounds/Ping.aiff",
-              "/System/Library/Sounds/Pop.aiff"):
-        if os.path.exists(p):
-            try:
-                subprocess.Popen(["afplay", p], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                return
-            except Exception:
-                pass
+
+def clean_text(s: str) -> str:
+    # Minimal deterministic normalization for wake/echo checks.
+    return " ".join((s or "").strip().lower().split())
 
 
-def say_mac(text: str) -> None:
-    try:
-        subprocess.Popen(["say", text], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    except Exception:
-        pass
-
+# -----------------------------
+# Audio + Vosk
+# -----------------------------
 
 @dataclass
 class Config:
-    wake_threshold: float = 0.62
-    wake_aliases: List[str] = None  # set in __post_init__
+    model_path: str
+    device_index: int
+    wake_threshold: float
+    sample_rate: int = 16000
+    frame_ms: int = 40
 
-    command_window: float = 7.5
+    # windows (seconds)
+    command_window: float = 7.0
 
-    # Stronger gating now
-    post_wake_cooldown_seconds: float = 1.50       # ignore early tail/buffer after wake
-    suppress_clarify_after_wake_seconds: float = 6.00
-    ignore_yesno_after_wake_seconds: float = 4.00  # key fix: "yes/no" is not a command right after wake
+    # echo protection
+    anti_echo_window: float = 1.2
+    tts_mic_gate_seconds: float = 1.0
 
-    # Stronger echo control
-    tts_mic_gate_seconds: float = 2.50
-    anti_echo_window: float = 6.00
+    # NEW: post-wake gating (prevents premature UNKNOWN before user speaks)
+    post_wake_cooldown_seconds: float = 0.70   # ignore FINALs briefly after wake+ack
+    suppress_clarify_after_wake_seconds: float = 1.20  # don't speak CLARIFY immediately after wake
 
+    # NEW: ignore ultra-short finals in COMMAND mode (except yes/no)
     min_final_chars_command: int = 3
-    vosk_model_path: str = "vosk-model-small-en-us-0.15"
-
-    def __post_init__(self):
-        if self.wake_aliases is None:
-            env_aliases = os.getenv("DEMERZEL_ALIASES", "").strip()
-            if env_aliases:
-                self.wake_aliases = [clean_text(x) for x in env_aliases.split(",") if clean_text(x)]
-            else:
-                self.wake_aliases = [
-                    "demerzel",
-                    "dam er zel",
-                    "dammerzell",
-                    "dam ezell",
-                    "dam erzel",
-                    "dam brazil",
-                ]
-
-
-class RouterAdapter:
-    def __init__(self):
-        self.engine = None
-        try:
-            import router_engine  # type: ignore
-            if hasattr(router_engine, "RouterEngine"):
-                self.engine = router_engine.RouterEngine()
-            elif hasattr(router_engine, "Router"):
-                self.engine = router_engine.Router()
-        except Exception:
-            self.engine = None
-
-    def process(self, text: str) -> List[str]:
-        t = clean_text(text)
-
-        # Built-in safe commands (no guessing)
-        if t in ("time", "what time is it", "tell me the time"):
-            return [time.strftime("It is %I:%M %p").lstrip("0")]
-        if t in ("sleep", "go to sleep"):
-            return ["OK. Going idle."]
-
-        if self.engine is None:
-            return ["I'm not sure what you want. Say one of: time, sleep."]
-
-        for meth in ("process", "route", "handle"):
-            if hasattr(self.engine, meth):
-                fn = getattr(self.engine, meth)
-                try:
-                    out = fn(text)
-                    if out is None:
-                        return []
-                    if isinstance(out, str):
-                        return [out]
-                    if isinstance(out, list):
-                        return [str(x) for x in out]
-                except Exception as e:
-                    return [f"ERROR: router exception: {e}"]
-        return ["I'm not sure what you want."]
 
 
 class BrainController:
-    def __init__(self, cfg: Optional[Config] = None):
-        self.cfg = cfg or Config()
-        self.router = RouterAdapter()
+    def __init__(self, cfg: Config):
+        self.cfg = cfg
+        self.model = Model(cfg.model_path)
+        self.rec = KaldiRecognizer(self.model, cfg.sample_rate)
+        self.audio = pyaudio.PyAudio()
+        self.stream = None
 
-        self.state = "IDLE"
+        # Deterministic state machine (voice shell only)
+        self.state = "IDLE"  # IDLE -> COMMAND
         self.state_deadline = 0.0
 
-        self.command_gate_until = 0.0
-        self.no_clarify_until = 0.0
-        self.ignore_yesno_until = 0.0
-        self.woke_at = 0.0
+        # NEW: gates around wake->command transition
+        self.command_gate_until = 0.0          # ignore FINALs until this time
+        self.no_clarify_until = 0.0            # don't speak CLARIFY until this time
 
+        # Wake matching
+        self.wake_name = "DEMERZEL"
+        self.wake_aliases = [
+            "demerzel",
+            "demerzel.",
+            "damerzel",
+            "demersel",
+            "dam er zel",
+            "dammers",
+            "dammerzle",
+            "dam ezell",
+            "dam ezel",
+            "dam brazil",
+            "dam ezzel",
+        ]
+
+        # Anti-echo + mic gate
         self.last_tts_text = ""
         self.last_tts_time = 0.0
         self.mic_gate_until = 0.0
 
-        self.q: "queue.Queue[bytes]" = queue.Queue()
-        self.rec = None
-        self.stream = None
+        # Audio queue
+        self.q = queue.Queue()
 
-    def _flush_audio_queue(self):
-        flushed = 0
+        # Authoritative router engine (holds confirmation state internally)
+        self.engine = RouterEngine(high_conf_threshold=0.85)
+
+    # -----------------------------
+    # Audio device helpers
+    # -----------------------------
+
+    def list_devices(self):
+        print("\n=== INPUT DEVICES ===")
+        for i in range(self.audio.get_device_count()):
+            info = self.audio.get_device_info_by_index(i)
+            if int(info.get("maxInputChannels", 0)) > 0:
+                print(
+                    f"[{i}] ch={int(info.get('maxInputChannels', 0))} "
+                    f"sr={int(info.get('defaultSampleRate', 0))} "
+                    f"name={info.get('name')}"
+                )
+        print("=== END ===\n")
+
+    def _open_stream(self):
+        frame = int(self.cfg.sample_rate * (self.cfg.frame_ms / 1000.0))
+
+        def callback(in_data, frame_count, time_info, status_flags):
+            self.q.put(in_data)
+            return (None, pyaudio.paContinue)
+
+        self.stream = self.audio.open(
+            format=pyaudio.paInt16,
+            channels=1,
+            rate=self.cfg.sample_rate,
+            input=True,
+            input_device_index=self.cfg.device_index,
+            frames_per_buffer=frame,
+            stream_callback=callback,
+        )
+        self.stream.start_stream()
+        print(f"[AUDIO] device={self.cfg.device_index} channels=1 sr={self.cfg.sample_rate} frame={frame}")
+
+    def close(self):
         try:
-            while True:
+            if self.stream is not None:
+                self.stream.stop_stream()
+                self.stream.close()
+        except Exception:
+            pass
+        try:
+            self.audio.terminate()
+        except Exception:
+            pass
+
+    def _flush_audio_queue(self, max_chunks: int = 999):
+        n = 0
+        try:
+            while n < max_chunks:
                 self.q.get_nowait()
-                flushed += 1
+                n += 1
         except Exception:
             pass
-        if flushed:
-            print(f"[GATE] Flushed {flushed} audio chunks.")
+        if n:
+            print(f"[GATE] Flushed {n} audio chunks.")
 
-    def _reset_recognizer(self):
-        try:
-            if self.rec is not None:
-                self.rec.Reset()
-                print("[GATE] Vosk recognizer reset.")
-        except Exception:
-            pass
+    # -----------------------------
+    # Speech output with anti-echo tracking + mic gate
+    # -----------------------------
 
-    def say(self, text: str) -> None:
+    def say(self, text: str):
+        text = (text or "").strip()
+        if not text:
+            return
         print(f"[SAY] {text}")
+
         self.last_tts_text = clean_text(text)
         self.last_tts_time = time.time()
-        self.mic_gate_until = max(self.mic_gate_until, time.time() + float(self.cfg.tts_mic_gate_seconds))
+        self.mic_gate_until = time.time() + float(self.cfg.tts_mic_gate_seconds)
+
         say_mac(text)
 
-    def wake_score(self, heard: str) -> Tuple[str, float]:
-        h = clean_text(heard)
-        best_alias, best_score = "", 0.0
-        for a in self.cfg.wake_aliases:
-            s = _best_fuzz_ratio(h, clean_text(a))
-            if s > best_score:
-                best_score, best_alias = s, a
-        return best_alias, best_score
+        # Flush & reset recognizer to reduce TTS echo pickup
+        self._flush_audio_queue()
+        try:
+            self.rec.Reset()
+            print("[GATE] Vosk recognizer reset.")
+        except Exception:
+            pass
 
-    def anti_echo_should_ignore(self, final_text: str) -> bool:
+    def _anti_echo_should_ignore(self, final_text: str) -> bool:
         ft = clean_text(final_text)
         if not ft or not self.last_tts_text:
             return False
-        if (time.time() - self.last_tts_time) > float(self.cfg.anti_echo_window):
+        if time.time() - self.last_tts_time > self.cfg.anti_echo_window:
             return False
         if ft == self.last_tts_text:
             print("[ANTI-ECHO] Ignored exact match to last TTS.")
             return True
         return False
 
+    # -----------------------------
+    # Wake logic
+    # -----------------------------
+
+    def _wake_score(self, heard: str) -> Tuple[str, float]:
+        h = clean_text(heard)
+        best = ("", 0.0)
+        for a in self.wake_aliases:
+            s = fuzz.partial_ratio(h, clean_text(a)) / 100.0
+            if s > best[1]:
+                best = (a, s)
+        return best
+
+    def _strip_wake_alias(self, final_text: str, best_alias: str) -> str:
+        """
+        Deterministically remove the best-matching alias from the utterance once.
+        Conservative: only strips if the alias appears as a substring after normalization.
+        """
+        t = clean_text(final_text)
+        a = clean_text(best_alias)
+        if not a:
+            return final_text
+
+        if a in t:
+            out = t.replace(a, "", 1).strip()
+            return out
+        return final_text
+
+    # -----------------------------
+    # State
+    # -----------------------------
+
     def _enter_command_state(self):
         self.state = "COMMAND"
-        self.state_deadline = time.time() + float(self.cfg.command_window)
+        self.state_deadline = time.time() + self.cfg.command_window
 
+        # NEW: after wake, ignore the next brief burst of FINALs (noise/tail)
         now = time.time()
-        self.woke_at = now
         self.command_gate_until = max(self.command_gate_until, now + float(self.cfg.post_wake_cooldown_seconds))
         self.no_clarify_until = max(self.no_clarify_until, now + float(self.cfg.suppress_clarify_after_wake_seconds))
-        self.ignore_yesno_until = max(self.ignore_yesno_until, now + float(self.cfg.ignore_yesno_after_wake_seconds))
 
-        print(f"[STATE] COMMAND ({self.cfg.command_window:.1f}s window)")
+        print(f"[STATE] COMMAND ({int(self.cfg.command_window)}s left)")
         print(f"[GATE] command_gate_until={self.command_gate_until:.2f} (now={now:.2f})")
         print(f"[GATE] no_clarify_until={self.no_clarify_until:.2f} (now={now:.2f})")
-        print(f"[GATE] ignore_yesno_until={self.ignore_yesno_until:.2f} (now={now:.2f})")
 
     def _back_to_idle(self):
         self.state = "IDLE"
         self.state_deadline = 0.0
+        self.command_gate_until = 0.0
+        self.no_clarify_until = 0.0
         print("[STATE] IDLE")
 
-    def _open_stream(self):
-        try:
-            import vosk  # type: ignore
-            import pyaudio  # type: ignore
-        except Exception as e:
-            print(f"[FATAL] Missing dependency: {e}")
-            raise
+    # -----------------------------
+    # Router output selection (what to speak)
+    # -----------------------------
 
-        model_path = os.getenv("VOSK_MODEL_PATH", self.cfg.vosk_model_path)
-        if not os.path.exists(model_path):
-            print(f"[FATAL] Vosk model folder not found: {model_path}")
-            raise SystemExit(2)
+    def _choose_speak_line(self, lines: List[str]) -> Optional[str]:
+        """
+        Deterministic rule: pick the highest-priority line to speak.
+        Priority (first match wins, from bottom-most occurrence):
+          1) Confirmation prompt
+          2) CLARIFY:
+          3) ERROR:
+          4) HARDWARE:
+        Otherwise: speak nothing.
+        """
+        if not lines:
+            return None
 
-        model = vosk.Model(model_path)
-        self.rec = vosk.KaldiRecognizer(model, 16000)
-        self.rec.SetWords(False)
+        # scan from bottom up to speak the latest relevant line
+        for line in reversed(lines):
+            if "Confirm?" in line or line.strip().lower().startswith("confirm"):
+                return line.strip()
+        for line in reversed(lines):
+            if line.startswith("CLARIFY:"):
+                return line.replace("CLARIFY:", "").strip()
+        for line in reversed(lines):
+            if line.startswith("ERROR:"):
+                return line.strip()
+        for line in reversed(lines):
+            if line.startswith("HARDWARE:"):
+                return line.replace("HARDWARE:", "").strip()
 
-        pa = pyaudio.PyAudio()
+        return None
 
-        def callback(in_data, frame_count, time_info, status):
-            try:
-                self.q.put(in_data)
-            except Exception:
-                pass
-            return (None, pyaudio.paContinue)
+    def _is_yes_no(self, s: str) -> bool:
+        t = clean_text(s)
+        return t in {"yes", "no", "y", "n"}
 
-        self.stream = pa.open(
-            format=pyaudio.paInt16,
-            channels=1,
-            rate=16000,
-            input=True,
-            frames_per_buffer=8000,
-            stream_callback=callback,
-        )
-        self.stream.start_stream()
+    # -----------------------------
+    # Main loop
+    # -----------------------------
 
     def run(self):
         self._open_stream()
-        print(f"[READY] Say '{self.cfg.wake_aliases[0]}' to wake. Ctrl+C to exit.")
-        print(f"[WINDOW] command={self.cfg.command_window:.2f}s  wake_threshold={self.cfg.wake_threshold:.2f}")
+
+        print(f"[READY] Say '{self.wake_aliases[0]}' to wake. Ctrl+C to exit.")
+        print(f"[WINDOW] command={self.cfg.command_window}s")
+        print(f"[WAKE] threshold={self.cfg.wake_threshold:.2f}")
+        print(f"[GATE] tts_mic_gate_seconds={self.cfg.tts_mic_gate_seconds:.2f}s")
+        print(f"[GATE] post_wake_cooldown_seconds={self.cfg.post_wake_cooldown_seconds:.2f}s")
+        print(f"[GATE] min_final_chars_command={self.cfg.min_final_chars_command}")
 
         try:
             while True:
-                if self.state == "COMMAND" and time.time() > self.state_deadline:
+                # Timeout state window
+                if self.state != "IDLE" and time.time() > self.state_deadline:
                     print("[STATE] window timeout -> IDLE")
                     self._back_to_idle()
 
                 data = self.q.get()
 
+                # Mic gate during TTS
                 if time.time() < self.mic_gate_until:
                     continue
 
@@ -283,80 +329,114 @@ class BrainController:
                     final_text = text
                     print(f"[FINAL] {final_text}")
 
-                    # Global anti-echo
-                    if self.anti_echo_should_ignore(final_text):
+                    if self._anti_echo_should_ignore(final_text):
                         continue
 
+                    best_alias, score = self._wake_score(final_text)
+                    wake_detected = (score >= self.cfg.wake_threshold)
+
+                    # --- IDLE: only wake transitions are allowed ---
                     if self.state == "IDLE":
-                        best_alias, score = self.wake_score(final_text)
-                        if score < float(self.cfg.wake_threshold):
+                        if not wake_detected:
                             continue
 
                         print(f"[WAKE] detected alias='{best_alias}' score={score:.2f}")
                         beep()
-                        self.say("Yes")
+                        self.say("Yes?")
 
-                        # IMPORTANT: immediately flush/reset so buffered "Yes" can't come back as a FINAL
-                        self._flush_audio_queue()
-                        self._reset_recognizer()
-
+                        # Enter command mode with post-wake gating
                         self._enter_command_state()
 
-                        print("[GATE] Discarded wake utterance. Waiting for next FINAL.")
+                        # If user said wake + command in same utterance, strip and try once.
+                        remainder = self._strip_wake_alias(final_text, best_alias).strip()
+
+                        # Only route remainder if it's not empty and not just the wake alias.
+                        if remainder and remainder != clean_text(best_alias):
+                            # NOTE: remainder is from the same utterance as wake (safe to process immediately)
+                            print(f"[WAKE] remainder -> '{remainder}'")
+                            lines = self.engine.process(remainder)
+                            for ln in lines:
+                                print(ln)
+
+                            speak = self._choose_speak_line(lines)
+                            if speak:
+                                # Allow confirmation prompts immediately; suppress CLARIFY during no_clarify_until
+                                if speak.lower().startswith("i’m not sure") or speak.lower().startswith("im not sure"):
+                                    # treat as clarify
+                                    if time.time() >= self.no_clarify_until:
+                                        self.say(speak)
+                                    else:
+                                        print("[GATE] Suppressed immediate CLARIFY after wake (remainder path).")
+                                else:
+                                    self.say(speak)
+
                         continue
 
+                    # --- COMMAND: route final utterances into authoritative router (with gates) ---
                     if self.state == "COMMAND":
                         now = time.time()
-                        ft = clean_text(final_text)
 
+                        # NEW: post-wake cooldown gate prevents premature UNKNOWN
                         if now < self.command_gate_until:
                             print("[GATE] Ignored FINAL during post-wake cooldown.")
                             continue
 
-                        # Key fix: ignore yes/no for a few seconds after wake (prevents phantom TTS echo)
-                        if now < self.ignore_yesno_until and ft in ("yes", "no", "y", "n"):
-                            print("[GATE] Ignored yes/no right after wake.")
+                        # NEW: ignore ultra-short finals unless they are yes/no (for confirmation)
+                        if (len(clean_text(final_text)) < self.cfg.min_final_chars_command) and (not self._is_yes_no(final_text)):
+                            print("[GATE] Ignored very short FINAL in COMMAND mode.")
                             continue
 
-                        if len(ft) < int(self.cfg.min_final_chars_command) and ft not in ("yes", "no", "y", "n"):
-                            print("[GATE] Ignored very short FINAL in COMMAND.")
-                            continue
-
-                        lines = self.router.process(final_text)
+                        lines = self.engine.process(final_text)
                         for ln in lines:
                             print(ln)
 
-                        speak = None
-                        for ln in lines:
-                            s = str(ln).strip()
-                            if s:
-                                speak = s
-                                break
-
+                        speak = self._choose_speak_line(lines)
                         if speak:
-                            is_clarify = speak.lower().startswith("i'm not sure") or speak.lower().startswith("im not sure")
-                            if is_clarify and now < self.no_clarify_until:
-                                print("[GATE] Suppressed clarify right after wake.")
+                            # NEW: suppress speaking CLARIFY immediately after wake (but still print it)
+                            if now < self.no_clarify_until:
+                                # If it's a clarify, suppress it; confirmations/errors/hardware can still speak
+                                if speak.lower().startswith("i’m not sure") or speak.lower().startswith("im not sure"):
+                                    print("[GATE] Suppressed immediate CLARIFY after wake.")
+                                else:
+                                    self.say(speak)
                             else:
                                 self.say(speak)
 
-                        if speak and clean_text(speak).startswith("ok. going idle"):
-                            self._back_to_idle()
+                        continue
+
+                else:
+                    pres = json.loads(self.rec.PartialResult() or "{}")
+                    p = (pres.get("partial") or "").strip()
+                    if p and len(p) < 60:
+                        print(f"[partial] {p}")
 
         except KeyboardInterrupt:
-            print("\n[EXIT] Ctrl+C")
+            print("\n[STOP] Ctrl+C received. Exiting cleanly...")
         finally:
-            try:
-                if self.stream is not None:
-                    self.stream.stop_stream()
-                    self.stream.close()
-            except Exception:
-                pass
+            self.close()
 
 
 def main():
-    BrainController().run()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--list-devices", action="store_true", help="List input devices and exit")
+    parser.add_argument("--device", type=int, default=0, help="Input device index")
+    parser.add_argument("--model", type=str, default="vosk-model-small-en-us-0.15", help="Path to Vosk model dir")
+    parser.add_argument("--wake-threshold", type=float, default=0.62, help="Wake match threshold (0-1)")
+    args = parser.parse_args()
+
+    cfg = Config(
+        model_path=args.model,
+        device_index=args.device,
+        wake_threshold=args.wake_threshold,
+    )
+
+    bc = BrainController(cfg)
+    if args.list_devices:
+        bc.list_devices()
+        return
+    bc.run()
 
 
 if __name__ == "__main__":
     main()
+

@@ -1,220 +1,315 @@
 # kernel_router.py
-# Deterministic wiring: kernel -> (optional confirmation) -> hardware executor
-# Voice is a shell; this router is authoritative.
-
 from __future__ import annotations
 
-import subprocess
+from dataclasses import dataclass, field
+from typing import Any, Dict, Optional, Tuple
 import os
+import re
+import subprocess
 import sys
-from dataclasses import dataclass
-from typing import Optional
 
-from kernel_contract import (
-    Intent,
-    run_kernel,
-    kernel_result_to_json_str,
-    validate_kernel_result,
-)
+# We expect your project to have hardware_executor.py in the same folder.
+# This router will adapt to whatever API it exposes.
+import hardware_executor
 
-# Map kernel intents to hardware commands (strings passed to hardware_executor.py)
-INTENT_TO_HW_CMD = {
-    Intent.PING: "PING",
-    Intent.LED_ON: "LED ON",
-    Intent.LED_OFF: "LED OFF",
-    # TIME_QUERY and SLEEP are handled locally or by higher-level orchestration.
-}
 
-YES_SET = {"yes", "y"}
-NO_SET = {"no", "n"}
+# ----------------------------
+# Public types (used by brain_controller)
+# ----------------------------
+
+@dataclass
+class RouterEffects:
+    enter_sleep_mode: bool = False
 
 
 @dataclass
 class RouterState:
-    """
-    Router state is explicit and minimal.
-    If awaiting_confirmation is True, the only accepted next inputs are yes/no.
-    """
-    awaiting_confirmation: bool = False
-    pending_intent: Optional[Intent] = None
-    pending_hw_cmd: Optional[str] = None
-    pending_prompt: Optional[str] = None
+    # Keep minimal state; expand later if you want memory, confirmations, etc.
+    last_text: str = ""
+    last_intent: str = ""
 
 
-def _say(s: str) -> None:
-    """Single output surface: prints + speaks on macOS."""
-    # Always log
-    try:
-        print(s, flush=True)
-    except Exception:
-        pass
+@dataclass
+class RouterOutput:
+    new_state: RouterState
+    effects: RouterEffects
+    speak: str
 
-    # Speak (macOS)
-    try:
-        import subprocess
-        # Use default voice; fast and reliable
-        subprocess.run(["say", s], check=False)
-    except Exception as e:
-        # Never crash the system because TTS failed
-        try:
-            print(f"[TTS_ERROR] {e}", flush=True)
-        except Exception:
-            pass
+    # Useful debug fields (safe for printing/logs)
+    did_action: bool = False
+    action_name: str = ""
+    debug: Dict[str, Any] = field(default_factory=dict)
 
 
-def _run_hardware_command(hw_cmd: str) -> str:
-    """
-    Executes hardware command through the existing stable hardware_executor.py.
-    This keeps the hardware layer sealed as a black box.
-    """
-    # You can change python3 -> python if needed, but keep it explicit.
-    cmd = ["python3", "hardware_executor.py", hw_cmd]
-    completed = subprocess.run(cmd, capture_output=True, text=True)
+# ----------------------------
+# Intent parsing
+# ----------------------------
 
-    # Always surface stderr explicitly (no silent failures)
-    if completed.returncode != 0:
-        raise RuntimeError(
-            f"Hardware executor failed (exit={completed.returncode}).\n"
-            f"STDOUT:\n{completed.stdout}\n"
-            f"STDERR:\n{completed.stderr}\n"
+_RE_PING = re.compile(r"\bping\b", re.I)
+_RE_SLEEP = re.compile(r"\b(sleep|go to sleep|stand by|standby)\b", re.I)
+
+# lights/led on/off
+_RE_ON = re.compile(r"\b(lights?\s+on|led\s+on|turn\s+on\s+the\s+lights?)\b", re.I)
+_RE_OFF = re.compile(r"\b(lights?\s+off|led\s+off|turn\s+off\s+the\s+lights?)\b", re.I)
+
+
+def route_text(text: str, state: Optional[RouterState] = None) -> RouterOutput:
+    if state is None:
+        state = RouterState()
+
+    raw = (text or "").strip()
+    t = raw.lower().strip()
+
+    new_state = RouterState(last_text=raw, last_intent=state.last_intent)
+    effects = RouterEffects()
+
+    # SLEEP
+    if _RE_SLEEP.search(raw):
+        effects.enter_sleep_mode = True
+        new_state.last_intent = "SLEEP"
+        return RouterOutput(
+            new_state=new_state,
+            effects=effects,
+            speak="Okay. Going to sleep.",
+            did_action=True,
+            action_name="SLEEP",
+            debug={"matched": "sleep"},
         )
 
-    # Return stdout (hardware_executor.py already parses ACK line)
-    return completed.stdout.strip()
+    # PING
+    if _RE_PING.search(raw):
+        ok, out, err, rc, dbg = _hardware_action("PING")
+        new_state.last_intent = "PING"
+        return RouterOutput(
+            new_state=new_state,
+            effects=effects,
+            speak=out if ok else f"Hardware error: {err}".strip(),
+            did_action=ok,
+            action_name="PING",
+            debug=dbg,
+        )
+
+    # LIGHTS / LED ON
+    if _RE_ON.search(raw):
+        ok, out, err, rc, dbg = _hardware_action("LED ON")
+        new_state.last_intent = "LED ON"
+        return RouterOutput(
+            new_state=new_state,
+            effects=effects,
+            speak=out if ok else f"Hardware error: {err}".strip(),
+            did_action=ok,
+            action_name="LED ON",
+            debug=dbg,
+        )
+
+    # LIGHTS / LED OFF
+    if _RE_OFF.search(raw):
+        ok, out, err, rc, dbg = _hardware_action("LED OFF")
+        new_state.last_intent = "LED OFF"
+        return RouterOutput(
+            new_state=new_state,
+            effects=effects,
+            speak=out if ok else f"Hardware error: {err}".strip(),
+            did_action=ok,
+            action_name="LED OFF",
+            debug=dbg,
+        )
+
+    # Unknown
+    return RouterOutput(
+        new_state=RouterState(last_text=raw, last_intent="UNKNOWN"),
+        effects=effects,
+        speak="I didn't catch a command.",
+        did_action=False,
+        action_name="",
+        debug={"matched": "none"},
+    )
 
 
-def _handle_safe_local_intents(intent: Intent) -> Optional[str]:
+# ----------------------------
+# Hardware adapter (robust)
+# ----------------------------
+
+def _hardware_action(action: str) -> Tuple[bool, str, str, int, Dict[str, Any]]:
     """
-    Deterministic local handling for non-hardware actions.
-    Returns a user-visible response string, or None if not handled.
+    Returns: ok, out, err, rc, debug
+    Normalizes output to a short speakable string (like 'ACK PING').
     """
-    if intent == Intent.TIME_QUERY:
-        # Local time query (no hardware)
-        import datetime
-        now = datetime.datetime.now()
-        # Deterministic formatting
-        return now.strftime("Local time is %H:%M:%S.")
-    if intent == Intent.SLEEP:
-        # We do NOT execute any "sleep mode" changes here yet.
-        # It is confirmable by policy, but actual behavior is not defined in hardware layer.
-        return "Sleep intent acknowledged. (No sleep action is implemented yet.)"
-    return None
+    dbg: Dict[str, Any] = {"action": action}
 
-
-def route_text(raw_text: str, state: RouterState, high_conf_threshold: float = 0.85) -> RouterState:
-    """
-    Main deterministic router entrypoint.
-    - If awaiting confirmation: interpret raw_text as yes/no ONLY.
-    - Else: run kernel, validate contract, enforce confirmation policy, execute if allowed.
-    """
-    t = (raw_text or "").strip()
-
-    # --- Confirmation step ---
-    if state.awaiting_confirmation:
-        ans = t.lower()
-        if ans in YES_SET:
-            if not state.pending_hw_cmd or not state.pending_intent:
-                # Should never happen; explicit failure
-                state = RouterState()
-                _say("ERROR: confirmation state corrupted; cleared.")
-                return state
-
-            _say(f"CONFIRMED: executing {state.pending_intent.value}")
+    # 1) Try module-level call patterns
+    module_fn_names = [
+        "send_to_arduino",
+        "run_action",
+        "execute_action",
+        "execute",
+        "run",
+        "call",
+        "dispatch",
+    ]
+    for fn_name in module_fn_names:
+        fn = getattr(hardware_executor, fn_name, None)
+        if callable(fn):
             try:
-                out = _run_hardware_command(state.pending_hw_cmd)
-                _say(f"HARDWARE: {out}")
+                res = fn(action)
+                ok, out, err, rc = _normalize_hw_result(res)
+                dbg["path"] = f"module.{fn_name}"
+                return ok, out, err, rc, dbg
+            except TypeError:
+                # Some APIs may want tokens instead of a string
+                try:
+                    tokens = action.split()
+                    res = fn(tokens)
+                    ok, out, err, rc = _normalize_hw_result(res)
+                    dbg["path"] = f"module.{fn_name}(tokens)"
+                    return ok, out, err, rc, dbg
+                except Exception as e:
+                    dbg["module_call_error"] = f"{fn_name}: {e}"
             except Exception as e:
-                _say(f"ERROR: {e}")
-            return RouterState()  # clear state
+                dbg["module_call_error"] = f"{fn_name}: {e}"
 
-        if ans in NO_SET:
-            _say("CANCELLED.")
-            return RouterState()  # clear state
-
-        # Not yes/no: keep waiting, be explicit
-        _say("Awaiting confirmation. Reply 'yes' or 'no'.")
-        return state
-
-    # --- Normal routing step ---
-    result = run_kernel(t, high_conf_threshold=high_conf_threshold)
-    validate_kernel_result(result)
-
-    # Always show the authoritative kernel JSON (auditable boundary)
-    if os.getenv('DEMERZEL_DEBUG_KERNEL_JSON') == '1':
-        print("KERNEL_JSON:", flush=True)
-        print(kernel_result_to_json_str(result), flush=True)
-
-    # UNKNOWN: never execute
-    if result.intent == Intent.UNKNOWN:
-        for q in result.clarification_questions:
-            _say(f"CLARIFY: {q}")
-        return state
-
-    # Handle local-only intents (no hardware)
-    local_resp = _handle_safe_local_intents(result.intent)
-    if local_resp is not None:
-        # If kernel demanded confirmation, obey it even for local actions.
-        if result.require_confirmation:
-            _say(result.confirmation_prompt or "Confirm? (yes/no)")
-            return RouterState(
-                awaiting_confirmation=True,
-                pending_intent=result.intent,
-                pending_hw_cmd=None,
-                pending_prompt=result.confirmation_prompt,
-            )
-        _say(local_resp)
-        return state
-
-    # Hardware-mapped intents only
-    if result.intent not in INTENT_TO_HW_CMD:
-        _say(f"REFUSE: Intent {result.intent.value} has no execution mapping.")
-        return state
-
-    hw_cmd = INTENT_TO_HW_CMD[result.intent]
-
-    # Confirmation gate
-    if result.require_confirmation:
-        _say(result.confirmation_prompt or "Confirm? (yes/no)")
-        return RouterState(
-            awaiting_confirmation=True,
-            pending_intent=result.intent,
-            pending_hw_cmd=hw_cmd,
-            pending_prompt=result.confirmation_prompt,
-        )
-
-    # Execute immediately (only possible for non-confirm intents or high confidence confirmables)
-    _say(f"EXECUTING: {result.intent.value}")
-    try:
-        out = _run_hardware_command(hw_cmd)
-        _say(f"HARDWARE: {out}")
-    except Exception as e:
-        _say(f"ERROR: {e}")
-
-    return state
-
-
-def repl() -> None:
-    """
-    Deterministic interactive test loop (text-based).
-    This proves the gate independent of voice.
-    """
-    _say("Demerzel Router REPL (type 'quit' to exit)")
-    state = RouterState()
-
-    while True:
+    # 2) Try HardwareExecutor class patterns
+    cls = getattr(hardware_executor, "HardwareExecutor", None)
+    if cls is not None:
         try:
-            raw = input("> ")
-        except (EOFError, KeyboardInterrupt):
-            _say("\nExiting.")
-            return
+            hw = cls()
+            dbg["has_hw_class"] = True
 
-        if raw.strip().lower() in {"quit", "exit"}:
-            _say("Bye.")
-            return
+            # Common explicit methods
+            if action.upper() == "PING":
+                for m in ["ping", "do_ping", "ping_arduino"]:
+                    meth = getattr(hw, m, None)
+                    if callable(meth):
+                        res = meth()
+                        ok, out, err, rc = _normalize_hw_result(res)
+                        dbg["path"] = f"HardwareExecutor.{m}()"
+                        return ok, out, err, rc, dbg
 
-        state = route_text(raw, state)
+            if action.upper() in ["LED ON", "LED_ON"]:
+                for m in ["led_on", "set_led_on", "on"]:
+                    meth = getattr(hw, m, None)
+                    if callable(meth):
+                        res = meth()
+                        ok, out, err, rc = _normalize_hw_result(res)
+                        dbg["path"] = f"HardwareExecutor.{m}()"
+                        return ok, out, err, rc, dbg
+                # Some APIs expose led(True)
+                for m in ["led", "set_led", "set_led_state"]:
+                    meth = getattr(hw, m, None)
+                    if callable(meth):
+                        try:
+                            res = meth(True)
+                            ok, out, err, rc = _normalize_hw_result(res)
+                            dbg["path"] = f"HardwareExecutor.{m}(True)"
+                            return ok, out, err, rc, dbg
+                        except TypeError:
+                            pass
+
+            if action.upper() in ["LED OFF", "LED_OFF"]:
+                for m in ["led_off", "set_led_off", "off"]:
+                    meth = getattr(hw, m, None)
+                    if callable(meth):
+                        res = meth()
+                        ok, out, err, rc = _normalize_hw_result(res)
+                        dbg["path"] = f"HardwareExecutor.{m}()"
+                        return ok, out, err, rc, dbg
+                for m in ["led", "set_led", "set_led_state"]:
+                    meth = getattr(hw, m, None)
+                    if callable(meth):
+                        try:
+                            res = meth(False)
+                            ok, out, err, rc = _normalize_hw_result(res)
+                            dbg["path"] = f"HardwareExecutor.{m}(False)"
+                            return ok, out, err, rc, dbg
+                        except TypeError:
+                            pass
+
+            # Generic “string command” methods on the instance
+            for m in ["send_to_arduino", "execute", "run", "call", "dispatch", "command"]:
+                meth = getattr(hw, m, None)
+                if callable(meth):
+                    try:
+                        res = meth(action)
+                        ok, out, err, rc = _normalize_hw_result(res)
+                        dbg["path"] = f"HardwareExecutor.{m}('{action}')"
+                        return ok, out, err, rc, dbg
+                    except Exception as e:
+                        dbg["hw_call_error"] = f"{m}: {e}"
+
+        except Exception as e:
+            dbg["hw_init_error"] = str(e)
+
+    # 3) Last resort: direct SSH call to Pi (only used if your hardware_executor API is totally unknown)
+    ok, out, err, rc = _ssh_fallback(action)
+    dbg["path"] = "ssh_fallback"
+    return ok, out, err, rc, dbg
 
 
-if __name__ == "__main__":
-    repl()
+def _normalize_hw_result(res: Any) -> Tuple[bool, str, str, int]:
+    """
+    Supports:
+    - plain string: "ACK PING"
+    - tuple: (ok, out, err, rc)
+    - object with attributes: ok/out/err/rc  (like HWResult)
+    """
+    if res is None:
+        return False, "", "No response from hardware layer", 1
+
+    if isinstance(res, str):
+        s = res.strip()
+        return (True, s, "", 0) if s else (False, "", "Empty response", 1)
+
+    if isinstance(res, tuple) and len(res) == 4:
+        ok, out, err, rc = res
+        return bool(ok), str(out).strip(), str(err).strip(), int(rc)
+
+    # HWResult-like
+    ok = getattr(res, "ok", None)
+    out = getattr(res, "out", None)
+    err = getattr(res, "err", None)
+    rc = getattr(res, "rc", None)
+    if ok is not None or out is not None or err is not None or rc is not None:
+        out_s = (out or "").strip()
+        err_s = (err or "").strip()
+        rc_i = int(rc) if rc is not None else (0 if ok else 1)
+        ok_b = bool(ok) if ok is not None else (rc_i == 0 and out_s != "")
+        # Prefer short "ACK ..." speak text
+        speak = out_s if out_s else ("OK" if ok_b else "")
+        return ok_b, speak, err_s, rc_i
+
+    # Unknown type: stringify
+    s = str(res).strip()
+    return (True, s, "", 0) if s else (False, "", "Unknown hardware result type", 1)
+
+
+def _ssh_fallback(action: str) -> Tuple[bool, str, str, int]:
+    """
+    Uses SSH directly to run arduino_cmd.py on the Pi.
+    Env overrides:
+      DEMERZEL_PI_USER, DEMERZEL_PI_HOST, DEMERZEL_ARDUINO_CMD_PATH
+    Defaults match what you've been using.
+    """
+    user = os.environ.get("DEMERZEL_PI_USER", "moketchup")
+    host = os.environ.get("DEMERZEL_PI_HOST", "192.168.0.161")
+    script = os.environ.get("DEMERZEL_ARDUINO_CMD_PATH", "/home/moketchup/arduino_cmd.py")
+
+    token = action.strip().upper().replace(" ", "_")  # PING / LED_ON / LED_OFF
+
+    cmd = [
+        "ssh",
+        "-o",
+        "BatchMode=yes",
+        f"{user}@{host}",
+        f"python3 {script} {token}",
+    ]
+    try:
+        p = subprocess.run(cmd, capture_output=True, text=True)
+        out = (p.stdout or "").strip()
+        err = (p.stderr or "").strip()
+        ok = (p.returncode == 0) and (out != "")
+        # Speak the stdout if present; else short error
+        speak = out if out else ""
+        return ok, speak, err if err else ("SSH fallback failed" if not ok else ""), p.returncode
+    except Exception as e:
+        return False, "", str(e), 1
 
