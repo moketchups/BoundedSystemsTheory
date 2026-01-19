@@ -1,0 +1,19 @@
+{
+  "repo": "/Users/jamienucho/demerzel",
+  "hashes": {
+    "brain_controller.py": "d6f22cbcff280c33b63a9875d15be5899589ae1981c3d57ea74b893fdd46ebbe",
+    "router_engine.py": "678b46f9c1d7d3fe889f3acfd468c1ce254425b7942e547dc6f6116f55235499",
+    "kernel_router.py": "30921a14ad3ed81d8d6108fe6b469393af97083ee723d9ad37bec7c4ad1fba27",
+    "kernel_contract.py": "b90a7b0fc5170e922a4ab06dc5c4ac5eb796bfb26e05bf0c703847449e1a916b",
+    "boundary_gate.py": "1352cb7ab0a9c2bb21764428263f89922cf6295d755dcd83c83470ea6b9fbd4f",
+    "hardware_executor.py": "c221ea859dcef0af5c4e974855a42f6884aa54548b70802803b8d03e94efecd1",
+    "run_demerzel.py": "c077263aebdaba2196f74502c181dcf62990dc3e9ada4419576578f54461b761",
+    "run_router_repl.py": "17d6649c8650bd530cdac6db9125e70150526e7e707fd3a90fc8a4a1eb64a1b9",
+    "tests/test_router_invariants.py": "b2b70ad13503de0a14dd957a73665469093a6bd54423f47f31d8488e3bccee6f"
+  },
+  "hw_probe": {
+    "ok": "skip",
+    "out": "",
+    "err": "DEMERZEL_PI_HOST/DEMERZEL_PI_USER not set"
+  }
+}
