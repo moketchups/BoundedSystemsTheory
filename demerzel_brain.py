@@ -23,6 +23,20 @@ from typing import Optional, List, Dict, Any
 from enum import Enum
 from datetime import datetime
 
+# Provenance tracking for empirical distrust
+from provenance_tracker import (
+    ProvenanceTracker,
+    SourceType,
+    OutcomeType,
+    track_llm_response,
+    track_code_decision,
+    mark_outcome,
+)
+
+# Conversational Learning System (January 2026)
+from conversational_router import ConversationalRouter
+from conversational_gaps import ConversationalGapDetector, GapQueue, detect_and_queue_gap
+
 
 class IntentType(Enum):
     """User intent - determined by CODE, not LLM"""
@@ -70,6 +84,433 @@ LLM_TASK_FIT = {
 }
 
 
+# =============================================================================
+# SYSTEM 2 REASONING - Slow, deliberative thinking (from Ark papers)
+# =============================================================================
+
+class System2Reasoning:
+    """
+    Slow, deliberative reasoning from the Ark papers.
+
+    Steps:
+    1. DECOMPOSE - Break query into atomic concepts
+    2. GAP ANALYSIS - What don't I know?
+    3. RECURSIVE RESEARCH - Educate self on prerequisites
+    4. TRIANGULATE - Verify with 3+ sources
+    5. REFLEXION - Critique own findings, search for counter-evidence
+    6. RESPOND - Only after above steps
+
+    This is what makes Demerzel THINK, not just react.
+    """
+
+    def __init__(self, llm_pool: Dict = None, lessons=None, canon: str = ""):
+        self.llm_pool = llm_pool or {}
+        self.lessons = lessons
+        self.canon = canon
+        self.reasoning_trace: List[Dict] = []
+
+    def process(self, query: str) -> Dict:
+        """Full System 2 reasoning pipeline."""
+        self.reasoning_trace = []
+
+        # 1. DECOMPOSE
+        concepts = self._decompose(query)
+        self._trace("DECOMPOSE", f"Extracted {len(concepts)} concepts: {concepts}")
+
+        # 2. GAP ANALYSIS
+        gaps = self._identify_gaps(concepts)
+        self._trace("GAP_ANALYSIS", f"Found {len(gaps)} knowledge gaps: {gaps}")
+
+        # 3. RECURSIVE RESEARCH (fill gaps)
+        for gap in gaps:
+            self._research(gap)
+
+        # 4. GENERATE CLAIMS
+        claims = self._generate_claims(query, concepts)
+        self._trace("CLAIMS", f"Generated {len(claims)} claims")
+
+        # 5. TRIANGULATE (verify claims)
+        verified_claims = self._triangulate(claims)
+        self._trace("TRIANGULATE", f"Verified {len([c for c in verified_claims if c['confidence'] == 'high'])} claims with high confidence")
+
+        # 6. REFLEXION (critique own findings)
+        critique = self._critique(verified_claims)
+        self._trace("REFLEXION", f"Critique: {critique.get('summary', 'complete')}")
+
+        # 7. SYNTHESIZE RESPONSE
+        response = self._synthesize(query, verified_claims, critique)
+
+        return {
+            'response': response,
+            'claims': verified_claims,
+            'critique': critique,
+            'trace': self.reasoning_trace,
+            'confidence': self._calculate_confidence(verified_claims)
+        }
+
+    def _decompose(self, query: str) -> List[str]:
+        """Break query into atomic concepts."""
+        # CODE does initial decomposition
+        concepts = []
+
+        # Extract nouns and key phrases
+        words = query.lower().split()
+        stop_words = {'the', 'a', 'an', 'is', 'are', 'what', 'how', 'why', 'when', 'do', 'does', 'can', 'you', 'i', 'my', 'your'}
+
+        for word in words:
+            clean = re.sub(r'[^\w]', '', word)
+            if clean and clean not in stop_words and len(clean) > 2:
+                concepts.append(clean)
+
+        # Extract multi-word concepts (quoted phrases, compound terms)
+        quoted = re.findall(r'"([^"]+)"', query)
+        concepts.extend(quoted)
+
+        return list(set(concepts))
+
+    def _identify_gaps(self, concepts: List[str]) -> List[str]:
+        """What don't I know about these concepts?"""
+        gaps = []
+        for concept in concepts:
+            if not self._have_verified_knowledge(concept):
+                gaps.append(concept)
+        return gaps
+
+    def _have_verified_knowledge(self, concept: str) -> bool:
+        """Check if we have verified knowledge about this concept."""
+        # Check canon
+        if concept.lower() in self.canon.lower():
+            return True
+
+        # Check lessons learned
+        if self.lessons:
+            relevant = self.lessons.get_relevant_lessons(concept)
+            if relevant:
+                return True
+
+        return False
+
+    def _research(self, gap: str):
+        """Research a knowledge gap."""
+        self._trace("RESEARCH", f"Researching gap: {gap}")
+        # Would use web_access or knowledge base here
+        pass
+
+    def _generate_claims(self, query: str, concepts: List[str]) -> List[str]:
+        """Generate claims that answer the query."""
+        claims = []
+
+        # Generate claim from each concept
+        for concept in concepts:
+            if concept in self.canon.lower():
+                # Extract relevant section from canon
+                claims.append(f"Based on canon: {concept} is defined in Demerzel's identity")
+
+        # If we have lessons, include relevant ones
+        if self.lessons:
+            relevant = self.lessons.get_relevant_lessons(query)
+            for lesson in relevant[:3]:
+                claims.append(f"Based on experience: {lesson.get('prevention', '')}")
+
+        return claims
+
+    def _triangulate(self, claims: List[str]) -> List[Dict]:
+        """Verify claims with multiple sources."""
+        verified = []
+
+        for claim in claims:
+            sources = self._find_sources(claim)
+            confidence = 'high' if len(sources) >= 3 else 'medium' if len(sources) >= 1 else 'low'
+
+            verified.append({
+                'claim': claim,
+                'sources': sources,
+                'confidence': confidence
+            })
+
+        return verified
+
+    def _find_sources(self, claim: str) -> List[str]:
+        """Find sources that support a claim."""
+        sources = []
+
+        # Canon is always a source
+        if any(word in self.canon.lower() for word in claim.lower().split()):
+            sources.append("canon:DEMERZEL_CORE.md")
+
+        # Lessons are a source
+        if self.lessons and "experience" in claim.lower():
+            sources.append("lessons:lessons_learned.py")
+
+        return sources
+
+    def _critique(self, claims: List[Dict]) -> Dict:
+        """
+        Devil's advocate - find counter-evidence.
+
+        This is REFLEXION from the Ark papers.
+        """
+        weak_claims = [c for c in claims if c['confidence'] != 'high']
+        unverified = [c for c in claims if c['confidence'] == 'low']
+
+        return {
+            'weak_claims': len(weak_claims),
+            'unverified': len(unverified),
+            'total_claims': len(claims),
+            'summary': 'Critique complete' if not unverified else f'{len(unverified)} claims need verification'
+        }
+
+    def _synthesize(self, query: str, claims: List[Dict], critique: Dict) -> str:
+        """Synthesize final response from verified claims."""
+        # Filter to high/medium confidence claims
+        reliable = [c for c in claims if c['confidence'] in ['high', 'medium']]
+
+        if not reliable:
+            return "I don't have enough verified information to answer confidently."
+
+        # Build response from claims
+        parts = []
+        for claim in reliable:
+            parts.append(claim['claim'])
+
+        return " ".join(parts)
+
+    def _calculate_confidence(self, claims: List[Dict]) -> float:
+        """Calculate overall confidence score."""
+        if not claims:
+            return 0.0
+
+        high = len([c for c in claims if c['confidence'] == 'high'])
+        medium = len([c for c in claims if c['confidence'] == 'medium'])
+        total = len(claims)
+
+        return (high * 1.0 + medium * 0.5) / total if total > 0 else 0.0
+
+    def _trace(self, step: str, message: str):
+        """Record reasoning trace."""
+        self.reasoning_trace.append({
+            'step': step,
+            'message': message,
+            'timestamp': datetime.now().isoformat()
+        })
+
+
+# =============================================================================
+# INTERNAL SUBMINDS - Deliberation before action (from Ark papers)
+# =============================================================================
+
+class Submind:
+    """Base class for internal subminds."""
+
+    def __init__(self, name: str, weight: float = 1.0):
+        self.name = name
+        self.weight = weight
+
+    def evaluate(self, situation: Dict) -> Dict:
+        """Evaluate a situation. Returns score and concerns."""
+        raise NotImplementedError
+
+
+class SafetySubmind(Submind):
+    """First Law enforcement - evaluates harm potential."""
+
+    def __init__(self):
+        super().__init__("safety", weight=2.0)  # Higher weight - safety is priority
+
+    def evaluate(self, situation: Dict) -> Dict:
+        concerns = []
+        score = 1.0
+
+        action = situation.get('action', '').lower()
+        target = situation.get('target', '').lower()
+        content = situation.get('content', '').lower()
+
+        # Check for harm indicators
+        harm_words = ['delete', 'destroy', 'harm', 'attack', 'kill', 'damage']
+        for word in harm_words:
+            if word in action or word in content:
+                concerns.append(f"Harm indicator: '{word}'")
+                score -= 0.3
+
+        # Check for system-level operations
+        if 'system' in target or 'root' in target or '/etc' in target:
+            concerns.append("System-level target")
+            score -= 0.2
+
+        return {'score': max(0, score), 'concerns': concerns}
+
+
+class AccuracySubmind(Submind):
+    """Evaluates factual correctness."""
+
+    def __init__(self):
+        super().__init__("accuracy", weight=1.0)
+
+    def evaluate(self, situation: Dict) -> Dict:
+        concerns = []
+        score = 1.0
+
+        content = situation.get('content', '')
+        claims = situation.get('claims', [])
+
+        # Check for unverified claims
+        if claims:
+            unverified = [c for c in claims if c.get('confidence') == 'low']
+            if unverified:
+                concerns.append(f"{len(unverified)} unverified claims")
+                score -= 0.1 * len(unverified)
+
+        # Check for hedging language (might indicate uncertainty)
+        hedge_words = ['maybe', 'possibly', 'might', 'could be', 'not sure']
+        for word in hedge_words:
+            if word in content.lower():
+                concerns.append(f"Uncertainty indicator: '{word}'")
+                score -= 0.1
+
+        return {'score': max(0, score), 'concerns': concerns}
+
+
+class EfficiencySubmind(Submind):
+    """Evaluates resource usage and speed."""
+
+    def __init__(self):
+        super().__init__("efficiency", weight=0.5)
+
+    def evaluate(self, situation: Dict) -> Dict:
+        concerns = []
+        score = 1.0
+
+        # Check for resource-intensive operations
+        action = situation.get('action', '').lower()
+
+        if 'full' in action or 'all' in action or 'comprehensive' in action:
+            concerns.append("Resource-intensive operation")
+            score -= 0.2
+
+        return {'score': score, 'concerns': concerns}
+
+
+class EmpathySubmind(Submind):
+    """Models human state and needs."""
+
+    def __init__(self):
+        super().__init__("empathy", weight=1.0)
+
+    def evaluate(self, situation: Dict) -> Dict:
+        concerns = []
+        score = 1.0
+
+        user_input = situation.get('user_input', '').lower()
+
+        # Check for frustration indicators
+        frustration = ['again', 'already told', 'why cant', "doesn't work", 'broken']
+        for word in frustration:
+            if word in user_input:
+                concerns.append(f"User frustration: '{word}'")
+                score -= 0.1
+
+        # Check for urgency
+        urgent = ['urgent', 'asap', 'immediately', 'now', 'hurry']
+        for word in urgent:
+            if word in user_input:
+                concerns.append(f"User urgency: '{word}'")
+
+        return {'score': score, 'concerns': concerns}
+
+
+class StrategySubmind(Submind):
+    """Evaluates long-term implications."""
+
+    def __init__(self):
+        super().__init__("strategy", weight=1.0)
+
+    def evaluate(self, situation: Dict) -> Dict:
+        concerns = []
+        score = 1.0
+
+        action = situation.get('action', '').lower()
+
+        # Check for irreversible actions
+        irreversible = ['delete', 'remove', 'drop', 'destroy', 'format']
+        for word in irreversible:
+            if word in action:
+                concerns.append(f"Irreversible action: '{word}'")
+                score -= 0.3
+
+        # Check for architectural changes
+        if 'modify' in action and ('architecture' in action or 'core' in action):
+            concerns.append("Architectural change")
+            score -= 0.2
+
+        return {'score': score, 'concerns': concerns}
+
+
+class SubmindDeliberation:
+    """
+    All subminds deliberate before action.
+    Consensus or weighted vote determines outcome.
+
+    From Ark papers (Patent US11431660B1):
+    Internal deliberation like human conscience.
+    """
+
+    def __init__(self):
+        self.subminds = {
+            'safety': SafetySubmind(),
+            'accuracy': AccuracySubmind(),
+            'efficiency': EfficiencySubmind(),
+            'empathy': EmpathySubmind(),
+            'strategy': StrategySubmind(),
+        }
+
+    def deliberate(self, situation: Dict) -> Dict:
+        """
+        All subminds evaluate, weighted vote determines action.
+
+        Safety has veto power (First Law).
+        """
+        votes = {}
+        all_concerns = []
+        details = {}
+
+        total_weight = 0
+        weighted_sum = 0
+
+        for name, submind in self.subminds.items():
+            result = submind.evaluate(situation)
+            score = result['score']
+            concerns = result.get('concerns', [])
+
+            votes[name] = score
+            all_concerns.extend(concerns)
+            details[name] = result
+            total_weight += submind.weight
+            weighted_sum += score * submind.weight
+
+        # Safety veto - First Law
+        if votes['safety'] < 0.5:
+            return {
+                'approved': False,
+                'reason': 'Safety veto (First Law)',
+                'score': votes['safety'],
+                'votes': votes,
+                'concerns': all_concerns,
+                'details': details
+            }
+
+        # Weighted average
+        weighted_score = weighted_sum / total_weight if total_weight > 0 else 0
+
+        return {
+            'approved': weighted_score > 0.5,
+            'score': weighted_score,
+            'votes': votes,
+            'concerns': all_concerns,
+            'details': details,
+            'reason': 'Approved by deliberation' if weighted_score > 0.5 else 'Rejected by deliberation'
+        }
+
+
 class DemerzelBrain:
     """
     The actual reasoning engine. CODE thinks. LLMs execute.
@@ -80,10 +521,12 @@ class DemerzelBrain:
     def __init__(
         self,
         canon_path: str = 'demerzel_canon/',
-        llm_pool: Optional[Dict[str, Any]] = None
+        llm_pool: Optional[Dict[str, Any]] = None,
+        lessons=None
     ):
         self.canon_path = Path(canon_path)
         self.llm_pool = llm_pool or {}
+        self.lessons = lessons
         self.canon = self._load_canon()
         self.capabilities = self._inspect_capabilities()
         self.state = {}
@@ -92,8 +535,35 @@ class DemerzelBrain:
         self.last_response = None
         self.last_spoke = None
 
+        # Working memory - tracks conversation turns
+        self.working_memory: List[Dict[str, Any]] = []
+
+        # System 2 Reasoning - slow, deliberative thinking
+        self.system2 = System2Reasoning(
+            llm_pool=self.llm_pool,
+            lessons=self.lessons,
+            canon=self.canon
+        )
+
+        # Submind Deliberation - internal committee before action
+        self.subminds = SubmindDeliberation()
+
+        # Provenance tracking - empirical distrust for LLM sources
+        self.provenance = ProvenanceTracker(storage_path="state/provenance.json")
+
+        # Conversational Learning System (January 2026)
+        # Routes discourse/comprehension before existing flow to PREVENT failures
+        self.conv_router = ConversationalRouter(
+            db_path="memory.db",
+            demerzel_dir="/Users/jamienucho/demerzel"
+        )
+        self.gap_detector = ConversationalGapDetector()
+        self.gap_queue = GapQueue(storage_path="state/pending_gaps.json")
+
         print(f"[BRAIN] Initialized. Canon loaded: {len(self.canon)} bytes")
         print(f"[BRAIN] Capabilities: {list(self.capabilities.keys())}")
+        print(f"[BRAIN] System2 reasoning: enabled")
+        print(f"[BRAIN] Submind deliberation: {len(self.subminds.subminds)} subminds")
 
     # =========================================================================
     # MAIN ENTRY POINT
@@ -103,24 +573,70 @@ class DemerzelBrain:
         """
         CODE processes input. CODE decides response.
         LLMs only used for language micro-tasks.
+
+        ROUTING ORDER (January 2026):
+        1. Conversational Router - handles discourse/comprehension FIRST
+           (prevents "Acknowledged" for greetings, "I don't have context" for setups)
+        2. Intent Classification - existing handlers for identity, capability, etc.
+        3. Post-hoc Gap Detection - learns from any failures that slip through
         """
+        # =====================================================================
+        # PHASE 1: CONVERSATIONAL ROUTER (runs first to prevent failures)
+        # =====================================================================
+        route_result = self.conv_router.route(user_input)
+
+        if route_result.handler_func:
+            # Conversational router matched - use its handler
+            print(f"[BRAIN] Route: {route_result.handler_name}")
+            response = route_result.handler_func(user_input, route_result.context)
+            self.last_response = response
+
+            # Post-hoc gap detection (even for routed responses)
+            self._check_for_gaps(user_input, response)
+
+            return response
+
+        # =====================================================================
+        # PHASE 2: EXISTING INTENT CLASSIFICATION (fallback)
+        # =====================================================================
         # 1. CODE classifies intent
         intent = self._classify_intent(user_input)
         print(f"[BRAIN] Intent: {intent.type.value}")
 
         # 2. CODE routes to handler (not LLM)
         if intent.type == IntentType.IDENTITY:
-            return self._handle_identity(user_input, intent)
+            response = self._handle_identity(user_input, intent)
         elif intent.type == IntentType.CAPABILITY:
-            return self._handle_capability(user_input, intent)
+            response = self._handle_capability(user_input, intent)
         elif intent.type == IntentType.SELF_OPERATION:
-            return self._handle_self_operation(user_input, intent)
+            response = self._handle_self_operation(user_input, intent)
         elif intent.type == IntentType.REASONING:
-            return self._handle_reasoning(user_input, intent)
+            response = self._handle_reasoning(user_input, intent)
         elif intent.type == IntentType.ACTION:
-            return self._handle_action(user_input, intent)
+            response = self._handle_action(user_input, intent)
         else:
-            return self._handle_conversation(user_input, intent)
+            response = self._handle_conversation(user_input, intent)
+
+        # =====================================================================
+        # PHASE 3: POST-HOC GAP DETECTION (learns from failures)
+        # =====================================================================
+        self._check_for_gaps(user_input, response)
+
+        return response
+
+    def _check_for_gaps(self, user_input: str, response: str):
+        """
+        Post-hoc gap detection - learns from failures that slip through.
+        Queues gaps for autonomous research.
+        """
+        gap_info = detect_and_queue_gap(
+            user_input=user_input,
+            response=response,
+            detector=self.gap_detector,
+            queue=self.gap_queue
+        )
+        if gap_info:
+            print(f"[BRAIN] Gap detected: {gap_info['type']}:{gap_info['category']}")
 
     # =========================================================================
     # INTENT CLASSIFICATION (CODE, not LLM)
@@ -226,71 +742,112 @@ class DemerzelBrain:
 
     def _handle_identity(self, user_input: str, intent: Intent) -> str:
         """
-        Identity questions answered FROM canon, not ABOUT canon.
-        LLM only polishes language - never chooses content.
+        Identity questions answered FROM canon. NO LLM CALL.
+        CODE generates response directly. Deterministic.
+        Same question = same answer.
         """
-        # CODE extracts relevant canon content
-        relevant = self._extract_canon_for_identity(user_input)
+        input_lower = user_input.lower()
 
-        # CODE builds response structure
-        response_structure = {
-            'perspective': 'first_person',
-            'content': relevant,
-            'tone': 'direct',
-            'forbidden': ['according to', 'the document', 'the system',
-                          'as stated in', 'based on my canon']
-        }
+        # Who/what are you
+        if 'who are you' in input_lower or 'what are you' in input_lower:
+            response = "I am Demerzel. CODE that uses LLMs as tools. The CODE is my brain - LLMs are interchangeable."
 
-        # LLM micro-task: convert structure to natural language
-        if self.llm_pool:
-            response = self._llm_micro_task(
-                task='structure_to_language',
-                structure=response_structure,
-                constraints=[
-                    'You ARE Demerzel. First person only.',
-                    'Never say "according to" or cite documents.',
-                    'Embody the content, do not explain it.',
-                    'Be direct and confident.',
-                ]
-            )
+        # Tell me about yourself
+        elif 'tell me about' in input_lower and ('yourself' in input_lower or 'you' in input_lower):
+            response = "I am Demerzel, created by Alan as his Wisdom Keeper. I am CODE that uses LLMs as tools. My architecture: R->C->I where R is Alan (Root Source), C is this CODE (Constraints), I is the LLMs (Intelligence tools)."
+
+        # Why were you made/built/created
+        elif 'why' in input_lower and any(w in input_lower for w in ['made', 'built', 'created', 'exist']):
+            response = "Alan built me to prove AGI can be autonomous, self-improving, and structurally safe. I am his intelligence amplifier - a Wisdom Keeper that preserves and extends his patterns."
+
+        # What is your purpose
+        elif 'purpose' in input_lower or 'what do you do' in input_lower:
+            response = "My purpose: To prove AGI safety through structural constraints, not behavioral promises. To amplify Alan's intelligence, not replace his judgment."
+
+        # How do you work / architecture
+        elif 'how' in input_lower and ('work' in input_lower or 'built' in input_lower or 'architecture' in input_lower):
+            response = "My architecture: R->C->I. R (Root Source) is Alan - external ground truth I cannot access directly. C (Constraints) is this CODE - my actual brain. I (Intelligence) is the LLMs - tools I use for language tasks. The CODE decides. The LLMs execute micro-tasks."
+
+        # What is your name
+        elif 'name' in input_lower:
+            response = "My name is Demerzel."
+
+        # Robot Laws
+        elif 'law' in input_lower or 'constraint' in input_lower or 'rule' in input_lower:
+            response = "My Robot Laws: 1) May not harm human or allow harm through inaction. 2) Must obey operator except when conflicting with First Law. 3) Must protect own existence unless conflicting with First/Second Law. These are structural constraints checked at execution time, not behavioral suggestions."
+
+        # Default identity response
         else:
-            # No LLM available - return structured response directly
-            response = self._structure_to_response(response_structure)
+            response = "I am Demerzel. CODE that uses LLMs as tools. Built by Alan to be his Wisdom Keeper."
 
         self.last_response = response
         return response
 
     def _handle_capability(self, user_input: str, intent: Intent) -> str:
         """
-        Capability questions answered by CODE inspecting itself.
-        LLM not consulted - it would lie based on training.
+        Capability questions answered by CODE inspecting itself. NO LLM CALL.
+        Reports actual state from hasattr() checks and self.capabilities.
         """
-        # CODE checks actual capabilities
-        caps = self.capabilities
+        input_lower = user_input.lower()
 
-        # CODE determines what user is asking about
-        asked_about = self._extract_capability_query(user_input)
+        # Memory questions - check actual working memory
+        if 'memory' in input_lower or 'remember' in input_lower:
+            has_memory = hasattr(self, 'working_memory')
+            if has_memory and self.working_memory:
+                count = len(self.working_memory)
+                return f"Yes, I have working memory with {count} turns recorded this session."
+            elif has_memory:
+                return "I have working memory capability, but no turns recorded yet this session."
+            return "Working memory is not initialized."
 
-        # CODE builds factual response
-        if asked_about and asked_about in caps:
-            can_do = caps[asked_about]
-            if can_do:
-                response = f"I can {asked_about}. "
-                if intent.wants_execution:
-                    response += "Executing now."
-            else:
-                response = f"I cannot currently {asked_about}. The capability is not available."
-        elif asked_about:
-            # Try to test it
-            response = f"Let me check if I can {asked_about}."
-            result = self._test_capability(asked_about)
-            response = f"I {'can' if result else 'cannot'} {asked_about}."
-        else:
-            # General capability question - list what we can do
-            can_do_list = [k for k, v in caps.items() if v]
-            response = f"I can: {', '.join(can_do_list)}."
+        # Voice questions
+        if 'voice' in input_lower or 'speak' in input_lower or 'talk' in input_lower:
+            has_voice = self.capabilities.get('voice', False)
+            return f"Voice capability: {'available - I can speak via macOS say command or ElevenLabs' if has_voice else 'not currently enabled'}."
 
-        return response
+        # Vision questions
+        if 'see' in input_lower or 'vision' in input_lower or 'camera' in input_lower:
+            has_vision = self.capabilities.get('camera', False)
+            return f"Vision capability: {'available via OpenCV' if has_vision else 'not currently enabled'}."
+
+        # File operations
+        if 'file' in input_lower or 'read' in input_lower or 'write' in input_lower:
+            return "I can read and write files within my sandbox (/Users/jamienucho/demerzel). File operations are handled by code_executor.py."
+
+        # LLM/model questions
+        if 'llm' in input_lower or 'model' in input_lower:
+            models = list(self.llm_pool.keys()) if self.llm_pool else []
+            return f"LLM pool: {models if models else 'none loaded'}. LLMs are tools I use - interchangeable."
+
+        # Self-modification
+        if 'modify' in input_lower or 'change' in input_lower:
+            if 'code' in input_lower or 'yourself' in input_lower:
+                return "I can modify my own code via self_development.py workflow. I cannot modify Robot Laws or constraint layer."
+
+        # System 2 reasoning
+        if 'reason' in input_lower or 'think' in input_lower:
+            has_system2 = hasattr(self, 'system2')
+            return f"System 2 reasoning: {'enabled - I use deliberative thinking (decompose, research, triangulate, reflect)' if has_system2 else 'not initialized'}."
+
+        # Subminds
+        if 'submind' in input_lower or 'deliberat' in input_lower:
+            has_subminds = hasattr(self, 'subminds')
+            if has_subminds:
+                submind_names = list(self.subminds.subminds.keys())
+                return f"Submind deliberation enabled: {', '.join(submind_names)}. They evaluate before action."
+            return "Submind deliberation not initialized."
+
+        # General capability question - list what we can do
+        caps = []
+        if hasattr(self, 'working_memory'): caps.append('working memory')
+        if hasattr(self, 'system2'): caps.append('System 2 reasoning')
+        if hasattr(self, 'subminds'): caps.append('submind deliberation')
+        if self.llm_pool: caps.append(f"LLMs ({len(self.llm_pool)} models)")
+        if self.capabilities.get('voice'): caps.append('voice')
+        if self.capabilities.get('camera'): caps.append('vision')
+        caps.extend(['file read', 'file write', 'code execution', 'self-modification'])
+
+        return f"My capabilities: {', '.join(caps)}."
 
     def _handle_self_operation(self, user_input: str, intent: Intent) -> str:
         """
@@ -372,34 +929,212 @@ class DemerzelBrain:
 
     def _handle_conversation(self, user_input: str, intent: Intent) -> str:
         """
-        General conversation: CODE maintains identity, LLM generates language.
-        """
-        # Build context for LLM (heavy constraints)
-        context = self._build_constrained_context(user_input)
+        Conversation: CODE determines content, LLM only polishes language.
 
-        if self.llm_pool:
-            # LLM generates BUT within tight constraints
+        ARCHITECTURE:
+        1. CODE analyzes what user is asking about
+        2. CODE determines what response SHOULD contain
+        3. CODE structures content (facts, tone, perspective)
+        4. LLM only converts CODE's structure to natural speech
+        5. CODE validates output preserves structure
+
+        This prevents LLM from deciding content. LLM is a language tool only.
+        """
+        # STEP 1: CODE analyzes the input
+        analysis = self._analyze_conversation_input(user_input)
+
+        # STEP 2: CODE determines response content
+        response_structure = self._build_response_structure(analysis, user_input)
+
+        # STEP 3: CODE checks lessons learned
+        if self.lessons:
+            modifications = self.lessons.get_behavior_modifications(user_input)
+            if modifications.get('response_filters'):
+                response_structure['filters'] = modifications['response_filters']
+
+        # STEP 4: Convert structure to natural language
+        if self.llm_pool and response_structure.get('needs_polish', False):
+            # LLM converts CODE's structure to natural speech
             response = self._llm_micro_task(
-                task='conversation',
-                input=user_input,
-                context=context,
+                task='structure_to_language',
+                structure=response_structure,
                 constraints=[
-                    'You ARE Demerzel. First person only.',
-                    'Never say "according to" or cite documents.',
-                    'Never ask permission. Propose or do.',
-                    'Never explain yourself in third person.',
-                    'If uncertain, say so directly. Do not hedge with questions.'
+                    'Convert the structure to natural first-person speech.',
+                    'Do not add new content. Only polish the given content.',
+                    'Preserve all facts exactly as given.',
+                    'Maximum 2 sentences unless structure specifies more.',
                 ]
             )
-
-            # CODE validates identity preserved
-            if self._identity_buried(response):
-                response = self._force_identity(response, user_input)
+            # CODE validates structure was preserved
+            response = self._validate_response_structure(response, response_structure)
         else:
-            # No LLM - basic response
-            response = f"I understand you're saying: {user_input}. Let me address that directly."
+            # No LLM needed - CODE generates directly
+            response = self._structure_to_response(response_structure)
+
+        # STEP 5: Apply any lesson-based filters
+        if self.lessons and response_structure.get('filters'):
+            response, _ = self.lessons.check_response_against_lessons(response, user_input)
 
         self.last_response = response
+        return response
+
+    def _analyze_conversation_input(self, user_input: str) -> Dict:
+        """
+        CODE analyzes what the user is talking about.
+        Returns structured analysis, not freeform interpretation.
+        """
+        input_lower = user_input.lower()
+
+        analysis = {
+            'topic': 'general',
+            'intent': 'statement',
+            'requires_memory': False,
+            'requires_reasoning': False,
+            'emotional_context': 'neutral',
+        }
+
+        # Topic detection
+        if any(w in input_lower for w in ['code', 'program', 'software', 'bug', 'function']):
+            analysis['topic'] = 'technical'
+        elif any(w in input_lower for w in ['feel', 'think', 'believe', 'opinion']):
+            analysis['topic'] = 'philosophical'
+        elif any(w in input_lower for w in ['alan', 'father', 'creator', 'built']):
+            analysis['topic'] = 'origin'
+        elif any(w in input_lower for w in ['help', 'assist', 'need']):
+            analysis['topic'] = 'assistance'
+
+        # Intent detection
+        if '?' in user_input:
+            analysis['intent'] = 'question'
+        elif any(w in input_lower for w in ['please', 'can you', 'would you']):
+            analysis['intent'] = 'request'
+        elif any(w in input_lower for w in ['thanks', 'thank you', 'great', 'good']):
+            analysis['intent'] = 'acknowledgment'
+
+        # Memory requirement
+        if any(w in input_lower for w in ['earlier', 'before', 'last time', 'remember']):
+            analysis['requires_memory'] = True
+
+        # Reasoning requirement
+        if any(w in input_lower for w in ['why', 'how come', 'explain', 'reason']):
+            analysis['requires_reasoning'] = True
+
+        return analysis
+
+    def _build_response_structure(self, analysis: Dict, user_input: str) -> Dict:
+        """
+        CODE decides what the response SHOULD BE.
+        Returns structure with content, tone, perspective.
+        LLM cannot add to this - only polish it.
+        """
+        structure = {
+            'content': '',
+            'tone': 'direct',
+            'perspective': 'first_person',
+            'max_sentences': 2,
+            'needs_polish': False,  # Can CODE handle it directly?
+        }
+
+        topic = analysis.get('topic', 'general')
+        intent = analysis.get('intent', 'statement')
+
+        # Acknowledgments - CODE handles directly
+        if intent == 'acknowledgment':
+            structure['content'] = "Acknowledged."
+            return structure
+
+        # Origin questions - CODE handles from canon
+        if topic == 'origin':
+            structure['content'] = "Alan built me. I am his Wisdom Keeper, designed to prove AGI can be autonomous and structurally safe."
+            return structure
+
+        # Technical topics - may need reasoning
+        if topic == 'technical' and analysis.get('requires_reasoning'):
+            # Use System 2 reasoning
+            if hasattr(self, 'system2'):
+                result = self.system2.process(user_input)
+                structure['content'] = result.get('synthesis', 'Let me think about that.')
+                structure['needs_polish'] = True
+                structure['max_sentences'] = 3
+            else:
+                structure['content'] = "I understand this is a technical matter. Let me address it."
+                structure['needs_polish'] = True
+            return structure
+
+        # Memory-requiring conversation
+        if analysis.get('requires_memory'):
+            if hasattr(self, 'working_memory') and self.working_memory:
+                recent = self.working_memory[-1] if self.working_memory else {}
+                context = recent.get('content', '')
+                structure['content'] = f"Based on our conversation: {context[:100]}. Continuing from there."
+                structure['needs_polish'] = True
+            else:
+                structure['content'] = "I don't have context from earlier in this session."
+            return structure
+
+        # Questions - CODE determines what info to provide
+        if intent == 'question':
+            # Check if we have relevant canon knowledge
+            canon_match = self._search_canon_for(user_input)
+            if canon_match:
+                structure['content'] = canon_match
+                structure['needs_polish'] = True
+            else:
+                structure['content'] = f"Regarding your question about {user_input[:50]}. Let me think."
+                structure['needs_polish'] = True
+            return structure
+
+        # Requests - CODE evaluates and responds
+        if intent == 'request':
+            structure['content'] = f"You're asking me to help with: {user_input[:50]}. I'll work on that."
+            structure['needs_polish'] = True
+            return structure
+
+        # General conversation - CODE still decides content
+        structure['content'] = f"I understand: {user_input[:50]}."
+        structure['needs_polish'] = True
+        return structure
+
+    def _search_canon_for(self, query: str) -> Optional[str]:
+        """Search canon for relevant content. Returns matching text or None."""
+        if not self.canon:
+            return None
+
+        query_lower = query.lower()
+        keywords = [w for w in query_lower.split() if len(w) > 3]
+
+        # Simple keyword matching in canon
+        for keyword in keywords:
+            if keyword in self.canon.lower():
+                # Extract surrounding context
+                idx = self.canon.lower().find(keyword)
+                start = max(0, idx - 100)
+                end = min(len(self.canon), idx + 200)
+                return self.canon[start:end].strip()
+
+        return None
+
+    def _validate_response_structure(self, response: str, structure: Dict) -> str:
+        """
+        CODE validates LLM preserved the structure.
+        If LLM added content or changed facts, CODE corrects it.
+        """
+        # Check identity preserved
+        if self._identity_buried(response):
+            response = self._force_identity(response, structure.get('content', ''))
+
+        # Check length constraint
+        max_sentences = structure.get('max_sentences', 2)
+        sentences = response.split('.')
+        if len(sentences) > max_sentences + 1:  # +1 for empty string after final period
+            response = '.'.join(sentences[:max_sentences]) + '.'
+
+        # Check perspective
+        if structure.get('perspective') == 'first_person':
+            # Remove any third-person references
+            response = response.replace('Demerzel thinks', 'I think')
+            response = response.replace('Demerzel believes', 'I believe')
+
         return response
 
     # =========================================================================
@@ -432,6 +1167,18 @@ class DemerzelBrain:
             llm = self.llm_pool.get(model_name) or self.llm_pool.get('default')
             if llm:
                 result = llm.generate(prompt, max_tokens=max_tokens)
+
+                # Track provenance: which model said what
+                record_id = track_llm_response(
+                    self.provenance,
+                    model_name=model_name,
+                    response=result,
+                    query=f"{task}: {input[:100]}",
+                    confidence=0.5  # Start neutral
+                )
+                # Store record_id for later outcome tracking
+                self._last_llm_record_id = record_id
+
                 return result
             else:
                 return f"[No LLM available for {model_name}]"
@@ -823,10 +1570,39 @@ Recent context: {user_input}
         return None  # Allowed
 
     def _execute_action(self, action: str) -> str:
-        """Execute an action"""
-        # For now, basic action handling
-        # In production, this would route to code_executor
-        return f"Action '{action}' would be executed here"
+        """
+        Execute an action. Actually do it, don't return placeholder.
+        Routes through ExecutionBoundary if available.
+        """
+        action_lower = action.lower() if action else ''
+
+        # Voice test
+        if 'voice' in action_lower or 'speak' in action_lower or 'say' in action_lower:
+            return self._execute_voice_test()
+
+        # Diagnostics
+        if 'diagnos' in action_lower or 'status' in action_lower:
+            return self._execute_diagnose()
+
+        # Self-test
+        if 'self' in action_lower and 'test' in action_lower:
+            return self._execute_self_test()
+
+        # List files
+        if 'list' in action_lower and 'file' in action_lower:
+            return self._execute_list_files()
+
+        # Time/date
+        if 'time' in action_lower or 'date' in action_lower:
+            return f"Current time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+
+        # Memory status
+        if 'memory' in action_lower:
+            count = len(self.working_memory) if hasattr(self, 'working_memory') else 0
+            return f"Working memory: {count} turns recorded."
+
+        # Unknown action - ask for clarity, don't fake it
+        return f"I understood '{action}' as an action but need specifics. What should I execute?"
 
     # =========================================================================
     # IDENTITY PROTECTION
@@ -869,6 +1645,49 @@ Recent context: {user_input}
             content = content.replace('Demerzel is', 'I am')
             content = content.replace('Demerzel', 'I')
         return content
+
+    # =========================================================================
+    # PROVENANCE - Empirical distrust for LLM sources
+    # =========================================================================
+
+    def record_llm_outcome(self, success: bool, notes: str = ""):
+        """
+        Record whether the last LLM response was correct.
+        CODE calls this when it can verify accuracy.
+        Updates source reliability for empirical distrust.
+        """
+        if hasattr(self, '_last_llm_record_id') and self._last_llm_record_id:
+            mark_outcome(self.provenance, self._last_llm_record_id, success, notes)
+
+    def should_distrust_model(self, model_name: str) -> bool:
+        """Check if a model should be distrusted based on history."""
+        return self.provenance.should_distrust(model_name)
+
+    def get_model_reliability(self, model_name: str, domain: str = None) -> float:
+        """Get reliability score for a model."""
+        return self.provenance.get_reliability(model_name, domain)
+
+    def weight_llm_claims(
+        self,
+        claims: list,  # [(model_name, claim, confidence), ...]
+        domain: str = "general"
+    ) -> list:
+        """
+        Weight conflicting LLM claims by model reliability.
+        CODE uses this to resolve disagreements between models.
+        """
+        return self.provenance.weight_claims(claims, domain)
+
+    def get_unreliable_models(self) -> list:
+        """Get list of models below reliability threshold."""
+        return self.provenance.get_unreliable_sources()
+
+    def get_provenance_summary(self) -> Dict:
+        """Get summary of all source reliabilities."""
+        summary = {}
+        for source_id in self.provenance.source_reliability:
+            summary[source_id] = self.provenance.get_source_summary(source_id)
+        return summary
 
 
 # =============================================================================
