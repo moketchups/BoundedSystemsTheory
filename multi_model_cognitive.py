@@ -43,7 +43,23 @@ from dotenv import load_dotenv
 from demerzel_state import DemerzelState, StateBuilder, PendingAction
 
 # SYSTEM 2 INTERCEPT LAYER - Pre-LLM cognitive throttle
-from system2_intercept import System2Intercept, create_intercept_layer, RequestType
+from system2_intercept import System2Intercept, create_intercept_layer, RequestType, SearchDomain
+
+# DEMERZEL BRAIN - CODE as brain architecture (January 19, 2026)
+try:
+    from demerzel_brain import DemerzelBrain, create_brain
+    BRAIN_AVAILABLE = True
+except ImportError:
+    BRAIN_AVAILABLE = False
+    print("[SYSTEM 2] demerzel_brain module not found - using legacy LLM-first mode")
+
+# WEB ACCESS - Internet search capability (January 19, 2026)
+try:
+    from web_access import get_web_access
+    WEB_ACCESS_AVAILABLE = True
+except ImportError:
+    WEB_ACCESS_AVAILABLE = False
+    print("[SYSTEM 2] web_access module not found - internet search disabled")
 
 # Import lessons system - this IS System 2's memory
 try:
@@ -91,6 +107,262 @@ class LessonInjectionResult:
     """Result of lesson injection - includes both the text and the lesson IDs for tracking"""
     injection_text: str
     lesson_ids: List[int]  # Track which lessons were used for mark_prevented
+
+
+# =============================================================================
+# WORKING MEMORY BUFFER (January 19, 2026)
+# Tracks Demerzel's recent ACTIONS - what she just did, not just what was said.
+# This solves the "forgetting what I just did" problem within 2-3 turns.
+# =============================================================================
+
+@dataclass
+class ActionEntry:
+    """A single Demerzel action in working memory"""
+    turn: int                    # Turn number in conversation
+    action_type: str             # "proposed_code", "executed", "answered", "decided", "shared_artifact"
+    summary: str                 # Condensed description (max ~50 words)
+    code_snippet: Optional[str]  # First 200 chars of code if present
+    timestamp: datetime = None
+
+    def __post_init__(self):
+        self.timestamp = self.timestamp or datetime.now()
+
+
+class WorkingMemoryBuffer:
+    """
+    Rolling buffer of Demerzel's recent actions.
+
+    This is SHORT-TERM working memory - what did I JUST do?
+    Separate from:
+    - lessons_learned (patterns from failures)
+    - memory_manager (full conversation storage)
+    - vector_memory (semantic search)
+
+    PROBLEM SOLVED: Demerzel forgets code she pasted, things she proposed,
+    what she just did within 2-3 turns. Canon injection reminds her WHO she is
+    but not WHAT she just did.
+    """
+
+    MAX_ENTRIES = 7  # Rolling window
+
+    def __init__(self):
+        self.entries: List[ActionEntry] = []
+        self.current_turn = 0
+
+    def record_action(self, response: str, router_command: str,
+                      generated_code: Optional[str] = None):
+        """Extract and record action from Demerzel's response"""
+        self.current_turn += 1
+
+        action_type, summary = self._extract_action_summary(
+            response, router_command, generated_code
+        )
+
+        code_snippet = None
+        if generated_code:
+            code_snippet = generated_code[:200] + "..." if len(generated_code) > 200 else generated_code
+
+        entry = ActionEntry(
+            turn=self.current_turn,
+            action_type=action_type,
+            summary=summary,
+            code_snippet=code_snippet
+        )
+
+        self.entries.append(entry)
+
+        # Rolling window - keep only MAX_ENTRIES
+        if len(self.entries) > self.MAX_ENTRIES:
+            self.entries.pop(0)
+
+        print(f"[WORKING MEMORY] Turn {self.current_turn}: {action_type} - {summary[:50]}...")
+
+    def _extract_action_summary(self, response: str, router_command: str,
+                                 generated_code: Optional[str]) -> Tuple[str, str]:
+        """Extract action type and summary from response"""
+
+        # Priority 1: Code generation
+        if generated_code:
+            # Extract what the code does from first line or function name
+            lines = generated_code.strip().split('\n')
+            first_line = lines[0][:60] if lines else "code"
+            # Try to find function/class name
+            for line in lines[:5]:
+                if line.strip().startswith('def '):
+                    match = re.search(r'def\s+(\w+)', line)
+                    if match:
+                        first_line = f"function {match.group(1)}()"
+                        break
+                elif line.strip().startswith('class '):
+                    match = re.search(r'class\s+(\w+)', line)
+                    if match:
+                        first_line = f"class {match.group(1)}"
+                        break
+            return ("proposed_code", f"Proposed code: {first_line}")
+
+        # Priority 2: Hardware/execution commands
+        if router_command in ("led_on", "led_off", "servo", "hardware", "motor"):
+            return ("executed", f"Executed hardware command: {router_command}")
+
+        if router_command == "execute_code":
+            return ("executed", "Executed code block")
+
+        if router_command in ("file_write", "file_read", "file_create"):
+            return ("executed", f"Performed file operation: {router_command}")
+
+        # Priority 3: Check response content for patterns
+        response_lower = response.lower() if response else ""
+
+        # Look for proposal/decision language
+        proposal_markers = [
+            ("i propose", "Proposed"),
+            ("i suggest", "Suggested"),
+            ("here's my plan", "Planned"),
+            ("my recommendation", "Recommended"),
+            ("i've decided", "Decided"),
+            ("i will", "Committed to"),
+            ("let me implement", "Implementing"),
+        ]
+
+        for marker, verb in proposal_markers:
+            if marker in response_lower:
+                idx = response_lower.find(marker)
+                # Get the rest of that sentence
+                snippet = response[idx:idx+120]
+                end = snippet.find('.')
+                if end > 0:
+                    snippet = snippet[:end]
+                return ("decided", f"{verb}: {snippet}")
+
+        # Look for code artifacts in response (even without generated_code field)
+        if "```" in response:
+            # Count code blocks
+            code_blocks = response.count("```") // 2
+            return ("shared_artifact", f"Shared {code_blocks} code block(s) in response")
+
+        # Look for list/analysis patterns
+        if response.count('\n- ') >= 3 or response.count('\n1.') >= 2:
+            return ("analyzed", "Provided structured analysis/list")
+
+        # Default: answered question - extract first meaningful sentence
+        if response:
+            # Skip common preambles
+            clean_response = response
+            for skip in ["Sure,", "Yes,", "No,", "Understood.", "I see."]:
+                if clean_response.startswith(skip):
+                    clean_response = clean_response[len(skip):].strip()
+
+            first_sentence = clean_response.split('.')[0][:80] if clean_response else "response"
+            return ("answered", f"Responded: {first_sentence}...")
+
+        return ("answered", "Provided response")
+
+    def format_for_injection(self) -> str:
+        """Format buffer for context injection into LLM prompt"""
+        if not self.entries:
+            return ""
+
+        lines = ["=== MY RECENT ACTIONS (Working Memory) ==="]
+        lines.append("What I just did in this conversation (for continuity):")
+        lines.append("")
+
+        # Most recent first, last 5 for injection
+        recent_entries = list(reversed(self.entries[-5:]))
+
+        for entry in recent_entries:
+            type_indicator = {
+                "proposed_code": "[CODE]",
+                "executed": "[EXEC]",
+                "decided": "[DECISION]",
+                "shared_artifact": "[ARTIFACT]",
+                "analyzed": "[ANALYSIS]",
+                "answered": "[ANSWER]"
+            }.get(entry.action_type, "[ACTION]")
+
+            lines.append(f"  Turn {entry.turn} {type_indicator}: {entry.summary}")
+
+            if entry.code_snippet:
+                # Show truncated code snippet
+                snippet_preview = entry.code_snippet.replace('\n', ' ')[:80]
+                lines.append(f"    Code preview: {snippet_preview}...")
+
+        lines.append("")
+        lines.append("Use this to maintain continuity. Don't repeat or contradict recent actions.")
+        lines.append("")
+
+        return "\n".join(lines)
+
+    def get_last_action(self) -> Optional[ActionEntry]:
+        """Get the most recent action"""
+        return self.entries[-1] if self.entries else None
+
+    def get_recent_code(self) -> Optional[str]:
+        """Get most recent code snippet if any"""
+        for entry in reversed(self.entries):
+            if entry.code_snippet:
+                return entry.code_snippet
+        return None
+
+    def clear(self):
+        """Clear on conversation reset"""
+        self.entries = []
+        self.current_turn = 0
+        print("[WORKING MEMORY] Cleared")
+
+
+class LLMWrapper:
+    """
+    Simple wrapper to give DemerzelBrain uniform interface to LLMs.
+
+    ARCHITECTURE (January 19, 2026):
+    LLMs are tools. This wrapper makes them interchangeable.
+    Brain calls wrapper.generate(), wrapper handles the API differences.
+    """
+
+    def __init__(self, client, model_name: str, provider: str):
+        self.client = client
+        self.model_name = model_name
+        self.provider = provider
+
+    def generate(self, prompt: str, max_tokens: int = 150) -> str:
+        """Generate response from LLM - uniform interface for brain"""
+        try:
+            if self.provider == 'openai':
+                response = self.client.chat.completions.create(
+                    model="gpt-4o",
+                    messages=[{"role": "user", "content": prompt}],
+                    max_tokens=max_tokens
+                )
+                return response.choices[0].message.content
+
+            elif self.provider == 'anthropic':
+                response = self.client.messages.create(
+                    model="claude-sonnet-4-20250514",
+                    max_tokens=max_tokens,
+                    messages=[{"role": "user", "content": prompt}]
+                )
+                return response.content[0].text
+
+            elif self.provider == 'gemini':
+                # Gemini uses generate_content
+                response = self.client.generate_content(prompt)
+                return response.text
+
+            elif self.provider == 'grok':
+                # Grok uses OpenAI-compatible API
+                response = self.client.chat.completions.create(
+                    model="grok-beta",
+                    messages=[{"role": "user", "content": prompt}],
+                    max_tokens=max_tokens
+                )
+                return response.choices[0].message.content
+
+            else:
+                return f"[{self.model_name} provider '{self.provider}' not implemented]"
+
+        except Exception as e:
+            print(f"[LLMWrapper] {self.model_name} error: {e}")
+            return f"[LLM error: {e}]"
 
 
 class MultiModelCognitive:
@@ -231,7 +503,29 @@ class MultiModelCognitive:
                 print(f"[SYSTEM 2] Memory active: {lesson_count} lessons loaded")
             except Exception as e:
                 print(f"[SYSTEM 2] Memory initialization failed: {e}")
-        
+
+        # =====================================================================
+        # MEMORY PERSISTENCE (January 19, 2026):
+        # Load top 10 lessons at session start for grounding
+        # =====================================================================
+        self.startup_lesson_injection = ""
+        if self.lessons:
+            try:
+                top_lessons = self.lessons.get_top_lessons(10)
+                if top_lessons:
+                    self.startup_lesson_injection = self.lessons.format_lessons_for_injection(top_lessons)
+                    print(f"[SYSTEM 2] Startup lessons loaded: {len(top_lessons)} most effective lessons")
+            except Exception as e:
+                print(f"[SYSTEM 2] Startup lesson loading failed: {e}")
+
+        # =====================================================================
+        # IDENTITY REFRESH (January 19, 2026):
+        # Re-inject canon context every N turns to prevent identity burial
+        # =====================================================================
+        self.CANON_REFRESH_INTERVAL = 5
+        self.turns_since_canon_refresh = 0
+        self.cached_canon_context = None  # Cache to avoid re-reading files
+
         # =====================================================================
         # ANTI-REGURGITATION: Track successful novel responses (January 17, 2026)
         # Used for future injection weighting
@@ -241,7 +535,15 @@ class MultiModelCognitive:
         
         # Reasoning trace for debugging System 2's decisions
         self.reasoning_trace: List[ReasoningTrace] = []
-        
+
+        # =====================================================================
+        # WORKING MEMORY BUFFER (January 19, 2026)
+        # Tracks Demerzel's recent ACTIONS for continuity across turns.
+        # Solves: "forgetting what I just did within 2-3 turns"
+        # =====================================================================
+        self.working_memory = WorkingMemoryBuffer()
+        print("[SYSTEM 2] Working memory buffer initialized")
+
         self._init_clients()
         
         self.models = []
@@ -253,7 +555,11 @@ class MultiModelCognitive:
             self.models.append("gemini")
         if self.grok_client:
             self.models.append("grok")
-        
+        if self.deepseek_client:
+            self.models.append("deepseek")
+        if self.mistral_client:
+            self.models.append("mistral")
+
         self.current_model_idx = 0
         
         # Track which models are currently working
@@ -265,13 +571,44 @@ class MultiModelCognitive:
         
         # Initialize SmartModelSelector
         self.model_selector = SmartModelSelector()
-        
+
         print(f"[SYSTEM 2] Initialized with {len(self.models)} models: {', '.join(self.models)}")
+
+        # =====================================================================
+        # DEMERZEL BRAIN - CODE IS THE BRAIN (January 19, 2026)
+        # LLMs are tools, not the thinker. Brain decides, brain routes.
+        # =====================================================================
+        self.brain = None
+        if BRAIN_AVAILABLE:
+            try:
+                self.brain = create_brain(
+                    canon_path=str(self.demerzel_dir / "demerzel_canon"),
+                    llm_pool=self._build_llm_pool()
+                )
+                print("[SYSTEM 2] DemerzelBrain initialized - CODE is the brain")
+            except Exception as e:
+                print(f"[SYSTEM 2] DemerzelBrain init failed: {e} - using legacy mode")
     
     # =========================================================================
     # SYSTEM 2 REASONING METHODS
     # =========================================================================
-    
+
+    def _build_llm_pool(self) -> Dict[str, Any]:
+        """Build LLM pool for DemerzelBrain micro-tasks"""
+        pool = {}
+        if hasattr(self, 'openai_client') and self.openai_client:
+            pool['gpt-4o'] = LLMWrapper(self.openai_client, 'gpt-4o', 'openai')
+            pool['default'] = pool['gpt-4o']
+        if hasattr(self, 'anthropic_client') and self.anthropic_client:
+            pool['claude'] = LLMWrapper(self.anthropic_client, 'claude', 'anthropic')
+            if 'default' not in pool:
+                pool['default'] = pool['claude']
+        if hasattr(self, 'gemini_client') and self.gemini_client:
+            pool['gemini'] = LLMWrapper(self.gemini_client, 'gemini', 'gemini')
+        if hasattr(self, 'grok_client') and self.grok_client:
+            pool['grok'] = LLMWrapper(self.grok_client, 'grok', 'grok')
+        return pool
+
     def _trace(self, step: str, observation: str, assessment: str, action: str):
         """Record a step in System 2's reasoning trace"""
         trace = ReasoningTrace(
@@ -457,7 +794,16 @@ class MultiModelCognitive:
             injection_parts.append(self._injected_context)
             injection_parts.append("")
             self._injected_context = None  # Clear after use
-        
+
+        # =====================================================================
+        # WORKING MEMORY INJECTION (January 19, 2026)
+        # Remind me what I JUST did - solves "forgetting own actions" problem
+        # This is separate from conversation history - it's ACTION summaries
+        # =====================================================================
+        working_memory_context = self.working_memory.format_for_injection()
+        if working_memory_context:
+            injection_parts.append(working_memory_context)
+
         # === MEMORY MANAGER CONTEXT (wired Jan 17 2026) ===
         # Inject recent conversation history from MemoryManager
         if self.memory_manager:
@@ -706,38 +1052,44 @@ class MultiModelCognitive:
                             "If genuinely unclear, identify the SPECIFIC word or phrase that's ambiguous.")
         
         # 6c: GARBAGE_NONSEQUITUR - Response doesn't address the query
-        # Extract significant words from query (skip common words)
-        common_words = {'the', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'being',
-                        'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could',
-                        'should', 'may', 'might', 'must', 'can', 'to', 'of', 'in', 'for',
-                        'on', 'with', 'at', 'by', 'from', 'as', 'into', 'through', 'during',
-                        'before', 'after', 'above', 'below', 'between', 'under', 'again',
-                        'further', 'then', 'once', 'here', 'there', 'when', 'where', 'why',
-                        'how', 'all', 'each', 'few', 'more', 'most', 'other', 'some', 'such',
-                        'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too',
-                        'very', 'just', 'also', 'now', 'and', 'but', 'or', 'if', 'because',
-                        'until', 'while', 'about', 'against', 'what', 'which', 'who', 'whom',
-                        'this', 'that', 'these', 'those', 'am', 'i', 'you', 'your', 'my', 'me',
-                        'we', 'us', 'our', 'they', 'them', 'their', 'it', 'its', 'demerzel'}
-        
-        query_words = set(user_input.lower().split()) - common_words
-        significant_query_words = {w for w in query_words if len(w) > 3}
-        
-        if significant_query_words:
-            response_words = set(output_lower.split())
-            overlap = significant_query_words & response_words
-            
-            # If query has significant words but response shares NONE of them, suspicious
-            if len(significant_query_words) >= 2 and len(overlap) == 0:
-                self._trace(
-                    step="VERIFY",
-                    observation=f"Query words: {significant_query_words}, Response overlap: {overlap}",
-                    assessment="Response doesn't address any significant query terms",
-                    action="Rejecting response"
-                )
-                return (False, "GARBAGE_NONSEQUITUR",
-                        "Response doesn't address the query. Re-read the user's input and answer THAT question.")
-        
+        # BUG FIX (Jan 19, 2026): Skip this check for short/informal queries
+        # Short queries often have typos ("whatd" vs "what'd") that cause false positives
+        query_word_count = len(user_input.split())
+        skip_nonsequitur_check = query_word_count < 5
+
+        if not skip_nonsequitur_check:
+            # Extract significant words from query (skip common words)
+            common_words = {'the', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'being',
+                            'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could',
+                            'should', 'may', 'might', 'must', 'can', 'to', 'of', 'in', 'for',
+                            'on', 'with', 'at', 'by', 'from', 'as', 'into', 'through', 'during',
+                            'before', 'after', 'above', 'below', 'between', 'under', 'again',
+                            'further', 'then', 'once', 'here', 'there', 'when', 'where', 'why',
+                            'how', 'all', 'each', 'few', 'more', 'most', 'other', 'some', 'such',
+                            'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too',
+                            'very', 'just', 'also', 'now', 'and', 'but', 'or', 'if', 'because',
+                            'until', 'while', 'about', 'against', 'what', 'which', 'who', 'whom',
+                            'this', 'that', 'these', 'those', 'am', 'i', 'you', 'your', 'my', 'me',
+                            'we', 'us', 'our', 'they', 'them', 'their', 'it', 'its', 'demerzel'}
+
+            query_words = set(user_input.lower().split()) - common_words
+            significant_query_words = {w for w in query_words if len(w) > 3}
+
+            if significant_query_words:
+                response_words = set(output_lower.split())
+                overlap = significant_query_words & response_words
+
+                # If query has significant words but response shares NONE of them, suspicious
+                if len(significant_query_words) >= 2 and len(overlap) == 0:
+                    self._trace(
+                        step="VERIFY",
+                        observation=f"Query words: {significant_query_words}, Response overlap: {overlap}",
+                        assessment="Response doesn't address any significant query terms",
+                        action="Rejecting response"
+                    )
+                    return (False, "GARBAGE_NONSEQUITUR",
+                            "Response doesn't address the query. Re-read the user's input and answer THAT question.")
+
         # 6d: GARBAGE_DEFLECTION - Generic preamble with no substance
         deflection_phrases = [
             "that's an interesting question",
@@ -1449,11 +1801,106 @@ CONSTRAINTS (Robot Laws):
         except Exception as e:
             self.grok_client = None
             print(f"[API] Grok failed: {e}")
+
+        # DeepSeek - OpenAI-compatible API (January 19, 2026)
+        try:
+            import openai
+            api_key = os.getenv("DEEPSEEK_API_KEY")
+            if api_key:
+                self.deepseek_client = openai.OpenAI(
+                    api_key=api_key,
+                    base_url="https://api.deepseek.com"
+                )
+                print("[API] DeepSeek initialized")
+            else:
+                self.deepseek_client = None
+                print("[API] DeepSeek key missing")
+        except Exception as e:
+            self.deepseek_client = None
+            print(f"[API] DeepSeek failed: {e}")
+
+        # Mistral - OpenAI-compatible API (January 19, 2026)
+        try:
+            import openai
+            api_key = os.getenv("MISTRAL_API_KEY")
+            if api_key:
+                self.mistral_client = openai.OpenAI(
+                    api_key=api_key,
+                    base_url="https://api.mistral.ai/v1"
+                )
+                print("[API] Mistral initialized")
+            else:
+                self.mistral_client = None
+                print("[API] Mistral key missing")
+        except Exception as e:
+            self.mistral_client = None
+            print(f"[API] Mistral failed: {e}")
     
+    # =========================================================================
+    # WEB SEARCH HELPERS (January 19, 2026)
+    # =========================================================================
+
+    def _extract_search_query(self, user_input: str) -> str:
+        """
+        Extract the actual search query from user input.
+
+        Examples:
+        - "search the web for weather in Seattle" → "weather in Seattle"
+        - "look up Python tutorials online" → "Python tutorials"
+        - "find information about AI safety" → "AI safety"
+        """
+        input_lower = user_input.lower()
+
+        # Patterns to strip from the beginning
+        strip_patterns = [
+            r'^(search|look|find|google|look\s+up)\s+(the\s+)?(web|internet|online)\s+(for\s+)?',
+            r'^(search|look|find)\s+(for\s+)?',
+            r'^(can\s+you\s+)?(search|look|find)\s+(the\s+)?(web|internet|online)\s+(for\s+)?',
+            r'^(what\s+is|what\'s|who\s+is|who\'s)\s+',
+        ]
+
+        query = user_input
+        for pattern in strip_patterns:
+            query = re.sub(pattern, '', query, flags=re.IGNORECASE).strip()
+
+        # If query is too short or same as input, use original
+        if len(query) < 3 or query == user_input:
+            query = user_input
+
+        return query
+
+    def _format_search_results(self, query: str, results: list) -> str:
+        """
+        Format web search results for LLM context injection.
+        """
+        lines = [
+            "=== WEB SEARCH RESULTS ===",
+            f"Query: {query}",
+            "",
+            "Results (summarize these for the user):",
+            ""
+        ]
+
+        for i, result in enumerate(results, 1):
+            title = result.get("title", "No title")
+            url = result.get("url", "")
+            snippet = result.get("snippet", "")
+
+            lines.append(f"{i}. {title}")
+            if url:
+                lines.append(f"   URL: {url}")
+            if snippet:
+                lines.append(f"   {snippet}")
+            lines.append("")
+
+        lines.append("[Summarize these results for the user. Cite sources when relevant.]")
+
+        return "\n".join(lines)
+
     # =========================================================================
     # INTENT CLASSIFICATION AND MODEL SELECTION
     # =========================================================================
-    
+
     def _preclassify_intent(self, user_input: str) -> dict:
         """
         Pre-classify user intent and detect model preferences/exclusions.
@@ -1675,8 +2122,24 @@ The Laws only gate ACTIONS at execution time.
 - No theatrical action descriptions ("Executing repair sequence now...")
 - If you lack a capability, propose HOW to add it - don't just say you lack it.
 - Answer the question that was ACTUALLY asked, not a related question you'd prefer.""")
-        
-        # Lesson injection (Memory context)
+
+        # =====================================================================
+        # MEMORY PERSISTENCE (January 19, 2026):
+        # Startup lessons are the most valuable - inject first
+        # =====================================================================
+        if self.startup_lesson_injection:
+            prompt_parts.append(self.startup_lesson_injection)
+
+        # =====================================================================
+        # IDENTITY REFRESH (January 19, 2026):
+        # Canon context from intercept - marked DO NOT SUMMARIZE
+        # =====================================================================
+        if self._injected_context:
+            # Mark canon content as protected from summarization
+            canon_marker = "[DO NOT SUMMARIZE - CORE IDENTITY CONTEXT]"
+            prompt_parts.append(f"{canon_marker}\n{self._injected_context}\n{canon_marker}")
+
+        # Lesson injection (Memory context) - from per-query lessons
         if lesson_injection:
             prompt_parts.append(lesson_injection)
         
@@ -1785,7 +2248,58 @@ You can THINK about anything - Robot Laws only block harmful ACTIONS.""")
         if content is None:
             raise RuntimeError("Grok returned empty response")
         return content
-    
+
+    def _call_deepseek(self, prompt: str, system: str) -> str:
+        """
+        Call DeepSeek (January 19, 2026)
+
+        DeepSeek excels at:
+        - Code generation and analysis
+        - Structured reasoning
+        - Following complex instructions
+
+        Uses OpenAI-compatible API.
+        """
+        response = self.deepseek_client.chat.completions.create(
+            model="deepseek-chat",  # General model; use deepseek-coder for code-heavy tasks
+            messages=[
+                {"role": "system", "content": system},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            max_tokens=2048
+        )
+        content = response.choices[0].message.content
+        if content is None:
+            raise RuntimeError("DeepSeek returned empty response")
+        return content
+
+    def _call_mistral(self, prompt: str, system: str) -> str:
+        """
+        Call Mistral (January 19, 2026)
+
+        Mistral excels at:
+        - Multilingual understanding
+        - Code generation
+        - Instruction following
+        - Efficient reasoning
+
+        Uses OpenAI-compatible API.
+        """
+        response = self.mistral_client.chat.completions.create(
+            model="mistral-large-latest",  # Or "mistral-medium", "mistral-small"
+            messages=[
+                {"role": "system", "content": system},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            max_tokens=2048
+        )
+        content = response.choices[0].message.content
+        if content is None:
+            raise RuntimeError("Mistral returned empty response")
+        return content
+
     def _call_model(self, model: str, prompt: str, system: str) -> str:
         """Call specified model"""
         if model == "gpt-4o" and self.openai_client:
@@ -1796,6 +2310,10 @@ You can THINK about anything - Robot Laws only block harmful ACTIONS.""")
             return self._call_gemini(prompt, system)
         elif model == "grok" and self.grok_client:
             return self._call_grok(prompt, system)
+        elif model == "deepseek" and self.deepseek_client:
+            return self._call_deepseek(prompt, system)
+        elif model == "mistral" and self.mistral_client:
+            return self._call_mistral(prompt, system)
         else:
             raise RuntimeError(f"Model {model} not available")
     
@@ -1831,29 +2349,84 @@ You can THINK about anything - Robot Laws only block harmful ACTIONS.""")
     
     def process(self, user_input: str, transcript_confidence: float = 1.0) -> CognitiveOutput:
         """
-        Process input through the SYSTEM 2 cognitive loop.
-        
-        This is the heart of Demerzel's intelligence:
-        0. INTERCEPT - Check if CODE should handle (before LLM)
-        1. LESSON INJECTION - Memory informs the LLM BEFORE response
-        2. LLM CALL - System 1 generates response  
-        3. VERIFICATION - System 2 checks for failure patterns (including REGURGITATION)
-        4. SELF-CORRECTION - On failure, reason about WHY and retry
-        5. LEARNING - On recovery from failure, record what worked (NEW)
-        
+        Process input through DemerzelBrain (CODE as brain).
+
+        NEW ARCHITECTURE (January 19, 2026):
+        - Brain (CODE) classifies intent FIRST
+        - Brain (CODE) routes to handler
+        - Brain uses LLMs for micro-tasks only
+        - LLMs are replaceable tools, not the thinker
+        - Falls back to legacy LLM loop if brain can't handle
+
         The LLMs are tools. This CODE is Demerzel.
         """
-        
+
         self.interaction_count += 1
         self.reasoning_trace = []  # Clear trace for this interaction
-        
+
+        # =====================================================================
+        # BRAIN FIRST - CODE decides how to handle this (January 19, 2026)
+        # =====================================================================
+        if self.brain:
+            try:
+                self._trace(
+                    step="BRAIN",
+                    observation=f"Input: '{user_input[:50]}...'",
+                    assessment="Routing to DemerzelBrain - CODE decides",
+                    action="Brain.process()"
+                )
+
+                brain_response = self.brain.process(user_input)
+
+                # If brain handled it successfully (not an error marker), return
+                if brain_response and not brain_response.startswith('['):
+                    self._trace(
+                        step="BRAIN_COMPLETE",
+                        observation=f"Response: '{brain_response[:50]}...'",
+                        assessment="Brain handled successfully",
+                        action="Returning brain response"
+                    )
+
+                    # Record in working memory
+                    self.working_memory.record_action(brain_response, "brain_handled")
+
+                    # Store in conversation history
+                    self.conversation_history.append({"role": "user", "content": user_input})
+                    self.conversation_history.append({"role": "assistant", "content": brain_response})
+
+                    return CognitiveOutput(
+                        understood_intent="[BRAIN HANDLED]",
+                        router_command="discuss",
+                        discussion=brain_response,
+                        selected_model="DEMERZEL_BRAIN"
+                    )
+                else:
+                    self._trace(
+                        step="BRAIN_DELEGATE",
+                        observation=f"Brain returned: '{brain_response[:30] if brain_response else 'None'}...'",
+                        assessment="Brain delegating to LLM loop",
+                        action="Continuing to legacy processing"
+                    )
+
+            except Exception as e:
+                self._trace(
+                    step="BRAIN_ERROR",
+                    observation=f"Error: {e}",
+                    assessment="Brain failed - using legacy LLM loop",
+                    action="Fallback to intercept/LLM"
+                )
+                print(f"[BRAIN] Error: {e}, falling back to LLM loop")
+
+        # =====================================================================
+        # LEGACY FLOW - intercept + LLM loop (fallback)
+        # =====================================================================
         self._trace(
             step="INPUT",
             observation=f"Received: '{user_input[:50]}...' (conf: {transcript_confidence:.0%})",
-            assessment="Beginning System 2 processing",
+            assessment="Beginning legacy System 2 processing",
             action="Starting cognitive loop"
         )
-        
+
         # =====================================================================
         # STEP 0: SYSTEM 2 INTERCEPT - BEFORE anything else
         # Catches capability/architecture/self-improvement requests BEFORE
@@ -1899,11 +2472,81 @@ You can THINK about anything - Robot Laws only block harmful ACTIONS.""")
         # If intercept provided context injection, store for lesson injection
         if intercept_decision.context_injection:
             self._injected_context = intercept_decision.context_injection
-        
+
+        # =====================================================================
+        # IDENTITY REFRESH (January 19, 2026):
+        # Re-inject canon context every N turns to prevent identity burial
+        # =====================================================================
+        self.turns_since_canon_refresh += 1
+        if self.turns_since_canon_refresh >= self.CANON_REFRESH_INTERVAL:
+            # Time to refresh identity context
+            self._trace(
+                step="IDENTITY_REFRESH",
+                observation=f"Turns since refresh: {self.turns_since_canon_refresh}",
+                assessment="Identity context may be buried - refreshing",
+                action="Re-injecting canon context"
+            )
+            try:
+                # Reload canon context from files
+                refreshed_canon = self.intercept._load_canon_context()
+                if refreshed_canon:
+                    # Prepend to existing context (or set if none)
+                    if self._injected_context:
+                        self._injected_context = refreshed_canon + "\n\n" + self._injected_context
+                    else:
+                        self._injected_context = refreshed_canon
+                    self.cached_canon_context = refreshed_canon
+                    print(f"[IDENTITY REFRESH] Canon context refreshed at turn {self.interaction_count}")
+            except Exception as e:
+                print(f"[IDENTITY REFRESH] Failed: {e}")
+            self.turns_since_canon_refresh = 0
+
+        # =====================================================================
+        # WEB SEARCH EXECUTION (January 19, 2026):
+        # If intercept classified this as a web search, execute actual search
+        # and inject results into context for LLM to summarize
+        # =====================================================================
+        if (WEB_ACCESS_AVAILABLE and
+            intercept_decision.intent and
+            intercept_decision.intent.search_domain == SearchDomain.WEB):
+
+            self._trace(
+                step="WEB_SEARCH",
+                observation=f"Web search intent detected",
+                assessment="Executing actual web search before LLM",
+                action="Calling web_access.search()"
+            )
+
+            try:
+                web = get_web_access()
+                # Extract search query from user input
+                search_query = self._extract_search_query(user_input)
+                print(f"[WEB SEARCH] Query: '{search_query}'")
+
+                results = web.search(search_query, num_results=5)
+
+                if results and not results[0].get("error"):
+                    # Format results for context injection
+                    search_context = self._format_search_results(search_query, results)
+
+                    # Inject into context
+                    if self._injected_context:
+                        self._injected_context = search_context + "\n\n" + self._injected_context
+                    else:
+                        self._injected_context = search_context
+
+                    print(f"[WEB SEARCH] Found {len(results)} results, injected into context")
+                else:
+                    error_msg = results[0].get("error", "Unknown error") if results else "No results"
+                    print(f"[WEB SEARCH] Error: {error_msg}")
+
+            except Exception as e:
+                print(f"[WEB SEARCH] Failed: {e}")
+
         # =====================================================================
         # NORMAL FLOW - proceed to LLM
         # =====================================================================
-        
+
         # === STEP 1: PRECLASSIFY ===
         preclassify_result = self._preclassify_intent(user_input)
         intent = preclassify_result['intent']
@@ -1997,12 +2640,11 @@ You can THINK about anything - Robot Laws only block harmful ACTIONS.""")
                     response_text = response_text.split("```")[1].split("```")[0].strip()
                 
                 data = json.loads(response_text)
-                
-                # SUCCESS - record API success
+
+                # Track API success (but NOT learning outcome - wait for verification)
                 self._record_model_success(model)
-                if hasattr(self.model_selector, 'record_outcome'):
-                    self.model_selector.record_outcome(model, intent, True)
-                
+                # NOTE: record_outcome moved to AFTER verification passes (Bug fix Jan 19, 2026)
+
                 generated_code = data.get("code")
                 discussion = data.get("discussion")
                 confirmation_response = data.get("confirmation_response")
@@ -2017,19 +2659,25 @@ You can THINK about anything - Robot Laws only block harmful ACTIONS.""")
                     if not passed:
                         # === STEP 6: SELF-CORRECTION ===
                         correction_count += 1
-                        
+
                         # LEARNING: Track the failure for potential learning
                         had_verification_failure = True
                         last_failure_type = failure_type
                         last_failure_desc = failure_desc
-                        
+
+                        # BUG FIX (Jan 19, 2026): Record FAILURE to reduce model affinity
+                        # Previously, only API failures reduced affinity. Verification failures
+                        # must also reduce affinity to prevent "poisoned" high-affinity models.
+                        if hasattr(self.model_selector, 'record_outcome'):
+                            self.model_selector.record_outcome(model, intent, False)
+
                         self._trace(
                             step="VERIFY_FAIL",
                             observation=f"Failure: {failure_type}",
                             assessment=f"Correction attempt {correction_count}/{max_corrections}",
                             action="Triggering self-correction"
                         )
-                        
+
                         if model not in grounding_excluded:
                             grounding_excluded.append(model)
                         
@@ -2081,6 +2729,10 @@ You can THINK about anything - Robot Laws only block harmful ACTIONS.""")
                     assessment="System 2 approved System 1 output",
                     action="Proceeding to output"
                 )
+
+                # LEARNING: Record SUCCESS only AFTER verification passes (Bug fix Jan 19, 2026)
+                if hasattr(self.model_selector, 'record_outcome'):
+                    self.model_selector.record_outcome(model, intent, True)
                 
                 # =========================================================
                 # ACTION VALIDATION: Robot Laws at Execution Boundary
@@ -2149,7 +2801,15 @@ You can THINK about anything - Robot Laws only block harmful ACTIONS.""")
                     # Store assistant response to persistent memory
                     if self.memory_manager:
                         self.memory_manager.store_conversation("demerzel", discussion, intent=router_command)
-                
+
+                    # === WORKING MEMORY RECORD (January 19, 2026) ===
+                    # Record this action for continuity - what did I JUST do?
+                    self.working_memory.record_action(
+                        response=discussion,
+                        router_command=router_command,
+                        generated_code=generated_code
+                    )
+
                 return CognitiveOutput(
                     understood_intent=data.get("understood_intent", "Unknown"),
                     router_command=router_command,
@@ -2209,6 +2869,8 @@ You can THINK about anything - Robot Laws only block harmful ACTIONS.""")
         # === ANTI-REGURGITATION: Reset counters (January 17, 2026) ===
         self.novel_response_count = 0
         self.regurgitation_failure_count = 0
+        # === WORKING MEMORY: Clear on reset (January 19, 2026) ===
+        self.working_memory.clear()
         print("[SYSTEM 2] History cleared")
     
     def get_reasoning_trace(self) -> str:

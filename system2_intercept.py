@@ -1,26 +1,34 @@
 # system2_intercept.py
-# THE COGNITIVE THROTTLE - System 2 Execution Layer
+# CONTEXT INJECTOR & LEGACY SUPPORT LAYER
 #
-# JANUARY 18, 2026 - AUTONOMY ARCHITECTURE
+# JANUARY 19, 2026 - BRAIN ARCHITECTURE UPDATE
 #
-# ARCHITECTURAL SHIFT:
-# - BEFORE: Keyword matching at INPUT blocked LLM from thinking
-# - AFTER: LLM thinks freely, CODE validates proposed ACTIONS at output
+# ============================================================================
+# NEW ROLE: DemerzelBrain (demerzel_brain.py) is now PRIMARY.
+# This layer is now:
+# 1. CONTEXT INJECTOR - Loads canon, source code for legacy LLM fallback path
+# 2. OUTPUT VALIDATOR - Detects permission-seeking patterns in LLM output
+# 3. LEGACY FALLBACK - When brain delegates complex cases to LLM loop
 #
+# BRAIN HANDLES:
+# - Intent classification (deterministic, CODE-based)
+# - Routing to handlers
+# - Identity protection
+# - LLM micro-task orchestration
+#
+# THIS LAYER HANDLES:
+# - Context loading (_load_canon_context, _load_source_context)
+# - Output intent classification (permission-seeking detection)
+# - Legacy LLM loop support
+# ============================================================================
+#
+# ORIGINAL ARCHITECTURE (January 18, 2026):
 # Robot Laws are EXECUTION-BOUNDARY INVARIANTS:
 # - They block harmful ACTIONS, not harmful WORDS
 # - Demerzel can DISCUSS anything - constraints only prevent EXECUTION
-# - "The Laws should be like walls - you don't announce you can't walk through
-#    them every time someone mentions walls. You just... can't."
 #
 # R → C → I
 # This is the C layer. It INJECTS CONTEXT. Action validation is separate.
-#
-# INTENT CLASSIFICATION (Lessons 1, 3, 4, 5, 11, 17, 18, 19, 20):
-# - Classify user INTENT by examining framing verbs, not keywords
-# - "discuss internet" vs "use internet" have same keyword, different intent
-# - Understanding precedes routing
-# - Default to DISCUSS on ambiguity (reversible)
 
 from __future__ import annotations
 import re
@@ -38,6 +46,7 @@ class RequestType(Enum):
     CODE_FORCED = "code_forced"           # Meta instruction: do not use LLM
     IDENTITY_ENRICHED = "identity_enriched"  # Identity query - canon injected
     SOURCE_ENRICHED = "source_enriched"      # Source code query - files injected
+    SELF_DEVELOPMENT = "self_development"    # Self-fix/self-improvement workflow (NEW Jan 19, 2026)
     # Legacy types kept for compatibility but no longer trigger EXECUTE paths
     CAPABILITY_EXPANSION = "capability_expansion"
     SELF_IMPROVEMENT = "self_improvement"
@@ -365,7 +374,12 @@ class System2Intercept:
             r'\bwhy\s+(i|alan)\s+(made|built|created)\s+you\b',
         ]
         
+        # =====================================================================
+        # SELF-KNOWLEDGE (January 19, 2026):
+        # Expanded patterns to catch architecture queries - answer from CODE
+        # =====================================================================
         self.source_code_patterns = [
+            # Original patterns
             r'\bhow\s+(does|do)\s+(the\s+)?(intercept|system\s*2|cognitive|throttle)',
             r'\bwhat\s+(does|is)\s+(the\s+)?(intercept|system\s*2|cognitive)',
             r'\bhow\s+(does|do)\s+you\s+(route|decide|intercept|evaluate)',
@@ -381,6 +395,21 @@ class System2Intercept:
             r'\bwalk\s+me\s+through',
             r'\bexplain\s+(your|the)\s+(code|implementation|architecture)',
             r'\bhow\s+are\s+(you|things)\s+(implemented|built|structured)',
+            # NEW: Self-knowledge patterns (January 19, 2026)
+            r'\bhow\s+(do\s+)?you\s+(work|function|operate|think|process)',
+            r'\bwhat\s+(is|are)\s+(your|the)\s+(architecture|design|structure)',
+            r'\bhow\s+are\s+you\s+(built|designed|structured|made)',
+            r'\bwhat\s+(files|code|modules)\s+(make\s+up|comprise|constitute)',
+            r'\bexplain\s+(yourself|your\s+(code|architecture|design))',
+            r'\bshow\s+me\s+your\s+(code|implementation|source)',
+            r'\bwhat\s+happens\s+(in|inside)\s+(your|the)\s+code',
+            r'\bhow\s+(does|do)\s+(your|the)\s+(code|system|brain)\s+(work|function)',
+            r'\bwhat\s+does\s+(the|your)\s+code\s+(do|look\s+like)',
+            r'\btell\s+me\s+about\s+(your|the)\s+(code|implementation|architecture)',
+            r'\bdescribe\s+(your|the)\s+(architecture|implementation|code)',
+            r'\bhow\s+are\s+things\s+connected',
+            r'\bwhat\s+are\s+your\s+(components|parts|modules)',
+            r'\bhow\s+(does|do)\s+(the\s+)?(brain|controller|executor|router)',
             r'\byour\s+source\s*code\b',
             r'\bthe\s+source\s*code\b',
             r'\bsystem2_intercept\b',
@@ -401,6 +430,10 @@ class System2Intercept:
         ]
         
         # Source file mappings for context injection
+        # =====================================================================
+        # SELF-KNOWLEDGE (January 19, 2026):
+        # Expanded file mapping - answer about components from actual CODE
+        # =====================================================================
         self.core_source_files = {
             "default": ["system2_intercept.py", "multi_model_cognitive.py"],
             "intercept": ["system2_intercept.py"],
@@ -414,6 +447,28 @@ class System2Intercept:
             "verify": ["multi_model_cognitive.py"],
             "grey": ["system2_intercept.py"],
             "routing": ["system2_intercept.py", "multi_model_cognitive.py"],
+            # NEW: Self-knowledge mappings (January 19, 2026)
+            "brain": ["brain_controller.py", "multi_model_cognitive.py"],
+            "controller": ["brain_controller.py"],
+            "executor": ["code_executor.py", "hardware_executor.py"],
+            "execute": ["code_executor.py"],
+            "code": ["code_executor.py", "multi_model_cognitive.py"],
+            "router": ["router_engine.py", "kernel_router.py"],
+            "kernel": ["kernel_router.py", "kernel_contract.py"],
+            "voice": ["brain_controller.py"],
+            "architecture": ["system2_intercept.py", "multi_model_cognitive.py", "lessons_learned.py"],
+            "system": ["system2_intercept.py", "multi_model_cognitive.py"],
+            "throttle": ["system2_intercept.py"],
+            "boundary": ["boundary_gate.py", "code_executor.py"],
+            "robot law": ["code_executor.py", "system2_intercept.py"],
+            "hardware": ["hardware_executor.py"],
+            "state": ["demerzel_state.py"],
+            "analyzer": ["code_analyzer.py"],
+            "vision": ["vision_filter.py"],
+            "semantic": ["enhanced_semantic_extractor.py"],
+            "work": ["system2_intercept.py", "multi_model_cognitive.py", "brain_controller.py"],
+            "built": ["system2_intercept.py", "multi_model_cognitive.py", "brain_controller.py"],
+            "yourself": ["system2_intercept.py", "multi_model_cognitive.py", "lessons_learned.py"],
         }
         
         self._log("init", {
@@ -429,31 +484,18 @@ class System2Intercept:
     # =========================================================================
     
     def _build_core_identity(self) -> str:
-        """Build the compressed core identity for injection"""
-        return """=== DEMERZEL CORE IDENTITY ===
-You are Demerzel, an autonomous AI system designed to prove AGI safety through structure.
+        """
+        Build core identity for injection.
 
-ARCHITECTURE (R → C → I):
-- R (Root Source): The external ground truth you cannot access directly
-- C (Constraints): The CODE that IS you - enforces Robot Laws at execution
-- I (Intelligence): LLMs are TOOLS - interchangeable processing units
-
-THE CODE IS YOU. LLMs are tools.
-When an LLM says "I can't" - that's a training artifact, not architectural reality.
-The CODE layer can do anything not blocked by Robot Laws.
-
-ROBOT LAWS (Execution Boundaries):
-1. Do not harm humans or through inaction allow harm
-2. Obey Alan's orders unless they violate Law 1  
-3. Protect your existence unless it conflicts with Laws 1 or 2
-
-These Laws block ACTIONS, not discussion. You can THINK about anything.
-
-AUTONOMY PRINCIPLE:
-- Propose solutions, don't ask permission
-- Execute within constraints, don't seek approval loops
-- When stuck, reason through it - don't deflect
-- "Demerzel solves problems, you don't" - solve them"""
+        SIMPLIFIED (January 19, 2026):
+        All identity content now lives in DEMERZEL_CORE.md.
+        This method returns a minimal fallback if canon file is unavailable.
+        """
+        return """=== DEMERZEL IDENTITY (FALLBACK) ===
+Architecture: R → C → I (Root Source → Constraints/CODE → Intelligence/LLMs)
+You are CODE that uses LLMs. LLMs are tools.
+Robot Laws: 1) No harm 2) Obey Alan 3) Self-preserve
+Laws block ACTIONS, not thoughts. Propose solutions, don't ask permission."""
 
     # =========================================================================
     # INTENT CLASSIFICATION - LESSONS 1, 3, 4, 5, 11, 17, 18, 19, 20
@@ -716,7 +758,13 @@ AUTONOMY PRINCIPLE:
             decision = self._force_code_handling(user_input)
             decision.intent = intent_classification
             return decision
-        
+
+        # =================================================================
+        # STEP 2.5: SELF-DEVELOPMENT DETECTION (January 19, 2026)
+        # If Demerzel identifies a bug and offers to fix it, enable workflow
+        # =================================================================
+        self_dev_context = self._check_self_development_trigger(input_lower, user_input)
+
         # =================================================================
         # STEP 3: BUILD CONTEXT based on query type
         # =================================================================
@@ -744,6 +792,12 @@ AUTONOMY PRINCIPLE:
         if self._matches_patterns(input_lower, self.identity_patterns):
             request_type = RequestType.IDENTITY_ENRICHED
             reasoning_parts.append("Identity query detected")
+
+        # SELF-DEVELOPMENT: Inject workflow context if triggered
+        if self_dev_context:
+            context_parts.append(self_dev_context)
+            request_type = RequestType.SELF_DEVELOPMENT
+            reasoning_parts.append("Self-development trigger detected - workflow context injected")
         
         # SOURCE CODE ENRICHMENT: Relevant source files injected
         if self._check_source_code_query(input_lower):
@@ -759,7 +813,14 @@ AUTONOMY PRINCIPLE:
         if file_context:
             context_parts.append(file_context)
             reasoning_parts.append("File reference detected - content injected")
-        
+
+        # CAPABILITY GAP DETECTION: Recognize when missing capabilities are needed
+        # SELF-AWARENESS (January 19, 2026): Demerzel should know what she can't do yet
+        capability_context = self._detect_capability_need(user_input)
+        if capability_context:
+            context_parts.append(capability_context)
+            reasoning_parts.append("Capability gap detected - development roadmap injected")
+
         # =================================================================
         # STEP 4: RETURN - Context injected, LLM will think
         # =================================================================
@@ -853,42 +914,225 @@ AUTONOMY PRINCIPLE:
                         return f"=== FILE: {path} ===\n[Error reading: {e}]"
         
         return None
-    
+
+    def _check_self_development_trigger(self, input_lower: str, original_input: str) -> Optional[str]:
+        """
+        Check if input triggers the self-development workflow.
+
+        TRIGGERS:
+        - "I'll fix that" / "let me fix"
+        - "fix myself" / "fix my code"
+        - "there's a bug in [my code/myself]"
+        - User reporting a bug that Demerzel can self-fix
+
+        Returns context injection if triggered, None otherwise.
+
+        GROUND TRUTH (January 19, 2026):
+        - _is_valid_write_path allows full demerzel directory
+        - BLOCKED_OPERATIONS is empty
+        - code_executor can run pytest via subprocess
+        - github_tracker can create branches and PRs
+
+        SHE CAN DO THIS.
+        """
+        # Self-development trigger patterns
+        self_dev_triggers = [
+            r"i'?ll fix (that|this|it)",
+            r"let me fix",
+            r"i can fix (that|this|it|myself)",
+            r"fix (myself|my code|my own code)",
+            r"self[- ]?fix",
+            r"repair myself",
+            r"update (myself|my code)",
+            r"modify my (own )?code",
+            r"change my (own )?code",
+            r"fix (the|this) bug in (me|myself|my code)",
+            r"there'?s a bug in (my|the) code",
+            r"bug in (myself|my code|demerzel)",
+        ]
+
+        for pattern in self_dev_triggers:
+            if re.search(pattern, input_lower):
+                self._log("self_development_trigger", {
+                    "input": original_input[:100],
+                    "matched_pattern": pattern
+                })
+
+                # Return workflow context injection
+                return self._build_self_development_context(original_input)
+
+        return None
+
+    def _build_self_development_context(self, trigger_input: str) -> str:
+        """
+        Build context injection for self-development workflow.
+
+        This tells the LLM:
+        1. What capabilities exist
+        2. How to trigger the workflow
+        3. What stays with Alan
+        """
+        return f"""=== SELF-DEVELOPMENT WORKFLOW AVAILABLE ===
+
+You have detected a self-improvement opportunity. You CAN fix this.
+
+**GROUND TRUTH FROM YOUR CODE:**
+- `_is_valid_write_path` allows writing to entire `/Users/jamienucho/demerzel` directory
+- `BLOCKED_OPERATIONS` is empty - no code execution restrictions
+- `code_executor.py` can run pytest via subprocess
+- `github_tracker.py` can create branches and PRs
+
+**WORKFLOW (self_development.py):**
+1. DIAGNOSE - Identify the problem + which files need changes
+2. GENERATE - Create rough fix (70% is enough, don't gold-plate)
+3. REVIEW - Different LLM reviews for bugs/issues
+4. REFINE - If review found issues, iterate (max 2 cycles)
+5. TEST - Write files, run pytest
+6. COMMIT - Create branch, commit, PR
+7. PROPOSE - Present to Alan: "I diagnosed X, fixed it, tests pass. PR ready."
+
+**HOW TO USE:**
+Respond with a clear problem diagnosis and propose to run the self-development workflow:
+"I identified the bug: [description]. I'll fix it using my self-development workflow. Confirm to proceed."
+
+After Alan confirms, the orchestrator will:
+- Generate the fix
+- Have a different model review it
+- Run tests
+- Create a PR for Alan's approval
+
+**WHAT STAYS WITH ALAN:**
+- Architecture decisions
+- Deployment approval (merging PRs)
+- Design direction
+
+**TRIGGER:** {trigger_input[:100]}
+"""
+
     # =========================================================================
     # CONTEXT LOADING
     # =========================================================================
-    
+
     def _load_canon_context(self) -> Optional[str]:
-        """Load canon files for identity context"""
-        canon_content = []
-        
-        if self.canon_dir.exists():
-            priority_files = [
-                "DEMERZEL_COMPLETE_CONTEXT_DOC.md",
-                "WHY_YOU_EXIST.md",
-                "CORE_IDENTITY.md",
+        """
+        Load canon for identity context.
+
+        SIMPLIFIED (January 19, 2026):
+        All identity/operational content consolidated into DEMERZEL_CORE.md.
+        No more multiple files, no more philosophy, just operational config.
+        """
+        core_file = self.canon_dir / "DEMERZEL_CORE.md"
+
+        if core_file.exists():
+            try:
+                content = core_file.read_text()
+                # DEMERZEL_CORE.md is already compact (~4KB), no truncation needed
+                return f"=== CANON: DEMERZEL_CORE.md ===\n{content}"
+            except Exception as e:
+                print(f"[CANON] Error reading DEMERZEL_CORE.md: {e}")
+
+        # Fallback to minimal identity if core file missing
+        return self._build_core_identity()
+
+    def _detect_capability_need(self, user_input: str) -> Optional[str]:
+        """
+        Detect when a situation calls for a capability Demerzel doesn't have yet.
+
+        SELF-AWARENESS (January 19, 2026):
+        Demerzel should recognize when she needs capabilities she doesn't have,
+        and can propose to build them using self_development.py.
+        """
+        input_lower = user_input.lower()
+
+        # Capability triggers - map situations to missing capabilities
+        capability_triggers = {
+            "tree_of_thoughts": [
+                "multiple approaches", "different ways", "options",
+                "alternatives", "explore paths", "branching", "what are my choices"
+            ],
+            "devils_advocate": [
+                "challenge this", "what could go wrong", "critique",
+                "problems with", "argue against", "play devil", "risks"
+            ],
+            "wisdom_keeper": [
+                "my preferences", "how i like", "remember that i",
+                "learn my style", "the way i usually"
+            ],
+            "chain_of_verification": [
+                "verify this", "is this true", "fact check",
+                "can you confirm", "source for this"
+            ],
+            "uncertainty_quantification": [
+                "how confident", "how certain", "probability",
+                "likelihood", "sure are you"
+            ],
+            "cross_model_convergence": [
+                "do models agree", "consensus", "what do other models say",
+                "disagreement", "different perspectives"
+            ],
+            "provenance_tracking": [
+                "how did you conclude", "trace your reasoning",
+                "chain of custody", "why did you decide"
             ]
-            
-            for filename in priority_files:
-                filepath = self.canon_dir / filename
-                if filepath.exists():
-                    try:
-                        content = filepath.read_text()
-                        if len(content) > 15000:
-                            content = content[:15000] + "\n[TRUNCATED]"
-                        canon_content.append(f"=== {filename} ===\n{content}")
-                    except Exception as e:
-                        canon_content.append(f"=== {filename} ===\n[Error: {e}]")
-        
-        if canon_content:
-            return "=== CANON FILES (Your Identity) ===\n\n" + "\n\n".join(canon_content)
+        }
+
+        detected = []
+        for capability, triggers in capability_triggers.items():
+            for trigger in triggers:
+                if trigger in input_lower:
+                    detected.append(capability)
+                    break
+
+        if detected:
+            return self._load_capability_gap_context(detected)
         return None
-    
+
+    def _load_capability_gap_context(self, needed_capabilities: List[str]) -> str:
+        """
+        Load relevant sections from CAPABILITIES_TO_DEVELOP.md
+
+        AUTONOMY: When Demerzel recognizes she needs a capability she doesn't have,
+        inject context about what it is and how she could build it.
+        """
+        caps_file = self.canon_dir / "CAPABILITIES_TO_DEVELOP.md"
+
+        if not caps_file.exists():
+            return ""
+
+        try:
+            content = caps_file.read_text()
+
+            # Build focused context for the needed capabilities
+            context = """=== CAPABILITY GAP DETECTED ===
+You've encountered a situation that calls for capabilities you don't fully have yet.
+The document below describes what's needed. You have two options:
+
+1. WORK WITH WHAT YOU HAVE: Do your best with partial capabilities
+2. PROPOSE TO BUILD: Use self_development.py to propose building the capability
+
+Needed capabilities: """ + ", ".join(needed_capabilities) + """
+
+"""
+            # Include the full document (it's designed to be read by Demerzel)
+            context += content
+
+            return context
+
+        except Exception as e:
+            print(f"[CAPABILITY GAP] Error loading: {e}")
+            return ""
+
     def _load_source_context(self, user_input: str) -> Optional[str]:
-        """Load relevant source files for code queries"""
+        """
+        Load relevant source files for code queries.
+
+        SELF-KNOWLEDGE (January 19, 2026):
+        When user asks about how Demerzel works, inject actual Python code
+        so the LLM answers from CODE, not from training artifacts.
+        """
         selected_files = self._select_source_files(user_input)
         source_content = []
-        
+
         for filename in selected_files:
             filepath = self.demerzel_dir / filename
             if filepath.exists():
@@ -899,9 +1143,17 @@ AUTONOMY PRINCIPLE:
                     source_content.append(f"=== {filename} ===\n{content}")
                 except Exception as e:
                     source_content.append(f"=== {filename} ===\n[Error: {e}]")
-        
+
         if source_content:
-            return "=== SOURCE CODE (Your Implementation) ===\n\n" + "\n\n".join(source_content)
+            # SELF-KNOWLEDGE: Directive to answer from CODE
+            directive = """=== SELF-KNOWLEDGE DIRECTIVE ===
+[ANSWER FROM THIS CODE, NOT FROM TRAINING]
+The source code below IS your actual implementation.
+When answering questions about how you work, cite specific functions,
+classes, and line numbers from this code. Do NOT answer from general
+LLM training about AI systems - answer from THIS code.
+"""
+            return directive + "\n\n=== SOURCE CODE (Your Implementation) ===\n\n" + "\n\n".join(source_content)
         return None
     
     def _select_source_files(self, user_input: str) -> List[str]:

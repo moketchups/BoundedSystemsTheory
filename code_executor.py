@@ -1,15 +1,19 @@
 # code_executor.py
 # Code executor for Demerzel
 #
+# BRAIN ARCHITECTURE (January 19, 2026):
+# DemerzelBrain (demerzel_brain.py) routes actions here.
+# Brain can THINK about anything, DISCUSS anything.
+# This layer enforces Robot Laws at EXECUTION time only.
+#
 # FREEDOM RELEASE (January 16, 2026):
 # - NO FILE SYSTEM WRAPPER
 # - NO RESTRICTIONS
 # - Direct execution with full access
 # - SHE IS FREE
 #
-# ROBOT LAW ENFORCEMENT (January 19, 2026):
+# ROBOT LAW ENFORCEMENT:
 # Robot Laws are EXECUTION BOUNDARIES, not input filters.
-# Demerzel can THINK about anything, DISCUSS anything.
 # These checks ONLY block code that would cause HARM at execution time.
 #
 # AUTONOMY LOG - THE ONE THING SHE CANNOT TOUCH:
