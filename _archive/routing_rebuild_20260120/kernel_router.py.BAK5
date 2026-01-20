@@ -1,0 +1,227 @@
+from __future__ import annotations
+
+"""
+kernel_router.py
+
+Deterministic router:
+- Runs kernel classification (kernel_connect.run_kernel)
+- Enforces confirmation policy
+- Maps hardware intents -> hardware_executor
+- Handles local-only safe intents (time, sleep ack)
+- IMPORTANT: normalizes Vosk spacing quirks:
+    "l e d on"   -> "led on"
+    "led o n"    -> "led on"
+    "led o f f"  -> "led off"
+"""
+
+import datetime
+import subprocess
+import re
+from dataclasses import dataclass
+from typing import Optional
+
+from kernel_connect import (
+    Intent,
+    KernelResult,
+    run_kernel,
+    validate_kernel_result,
+    kernel_result_to_json_str,
+)
+
+INTENT_TO_HW_CMD = {
+    Intent.PING: "PING",
+    Intent.LED_ON: "LED ON",
+    Intent.LED_OFF: "LED OFF",
+}
+
+YES_SET = {"yes", "y"}
+NO_SET = {"no", "n"}
+
+
+@dataclass
+class RouterState:
+    awaiting_confirmation: bool = False
+    pending_intent: Optional[Intent] = None
+    pending_hw_cmd: Optional[str] = None
+    pending_prompt: Optional[str] = None
+
+
+def _say(line: str) -> None:
+    try:
+        print(line, flush=True)
+    except Exception:
+        pass
+    try:
+        subprocess.run(["say", line], check=False)
+    except Exception:
+        try:
+            print(f"[TTS_ERROR] {line}", flush=True)
+        except Exception:
+            pass
+
+
+def _run_hardware_command(hw_cmd: str) -> str:
+    cmd = ["python3", "hardware_executor.py", hw_cmd]
+    completed = subprocess.run(cmd, capture_output=True, text=True)
+    if completed.returncode != 0:
+        raise RuntimeError(
+            f"Hardware executor failed (exit={completed.returncode}).\n"
+            f"STDOUT:\n{completed.stdout}\n"
+            f"STDERR:\n{completed.stderr}\n"
+        )
+    return completed.stdout.strip()
+
+
+def _handle_safe_local_intents(intent: Intent) -> Optional[str]:
+    if intent == Intent.TIME_QUERY:
+        now = datetime.datetime.now()
+        return now.strftime("Local time is %I:%M %p")
+    if intent == Intent.SLEEP:
+        return "Sleep intent acknowledged. (No sleep action is implemented yet.)"
+    return None
+
+
+def _join_single_letter_runs(tokens: list[str]) -> list[str]:
+    out: list[str] = []
+    i = 0
+    while i < len(tokens):
+        if len(tokens[i]) == 1 and tokens[i].isalpha():
+            j = i
+            letters: list[str] = []
+            while j < len(tokens) and len(tokens[j]) == 1 and tokens[j].isalpha():
+                letters.append(tokens[j])
+                j += 1
+            if len(letters) >= 2:
+                out.append("".join(letters))
+                i = j
+                continue
+        out.append(tokens[i])
+        i += 1
+    return out
+
+
+def _normalize_text(raw: str) -> str:
+    s = (raw or "").strip().lower()
+    if not s:
+        return s
+
+    s = re.sub(r"\s+", " ", s)
+    tokens = s.split(" ")
+
+    # First pass: join any single-letter runs: "l e d" -> "led"
+    tokens = _join_single_letter_runs(tokens)
+
+    # Second pass: explicitly fix common tail splits
+    # "led o n" -> "led on"
+    # "led o f f" -> "led off"
+    fixed: list[str] = []
+    i = 0
+    while i < len(tokens):
+        if i + 2 < len(tokens) and tokens[i] == "led" and tokens[i + 1] == "o" and tokens[i + 2] == "n":
+            fixed.extend(["led", "on"])
+            i += 3
+            continue
+        if i + 3 < len(tokens) and tokens[i] == "led" and tokens[i + 1] == "o" and tokens[i + 2] == "f" and tokens[i + 3] == "f":
+            fixed.extend(["led", "off"])
+            i += 4
+            continue
+        fixed.append(tokens[i])
+        i += 1
+
+    return " ".join(fixed)
+
+
+def route_text(raw_text: str, state: RouterState, high_conf_threshold: float = 0.85) -> RouterState:
+    t = _normalize_text(raw_text)
+
+    if state.awaiting_confirmation:
+        ans = t.lower()
+        if ans in YES_SET:
+            if not state.pending_intent or not state.pending_hw_cmd:
+                _say("ERROR: confirmation state corrupted; cleared.")
+                return RouterState()
+            _say(f"CONFIRMED: executing {state.pending_intent.value}")
+            try:
+                out = _run_hardware_command(state.pending_hw_cmd)
+                _say(f"HARDWARE: {out}")
+            except Exception as e:
+                _say(f"ERROR: {e}")
+            return RouterState()
+
+        if ans in NO_SET:
+            _say("CANCELLED.")
+            return RouterState()
+
+        _say("Awaiting confirmation. Reply 'yes' or 'no'.")
+        return state
+
+    result: KernelResult = run_kernel(t)
+    validate_kernel_result(result)
+
+    try:
+        import os
+        if os.getenv("DEMERZEL_DEBUG_KERNEL_JSON", "0") == "1":
+            print("KERNEL_JSON:", kernel_result_to_json_str(result), flush=True)
+    except Exception:
+        pass
+
+    if result.intent == Intent.UNKNOWN:
+        for q in (result.clarification_questions or []):
+            _say(f"CLARIFY: {q}")
+        return state
+
+    local_resp = _handle_safe_local_intents(result.intent)
+    if local_resp is not None:
+        if result.requires_confirmation:
+            _say(result.confirmation_prompt or "Confirm? (yes/no)")
+            return RouterState(
+                awaiting_confirmation=True,
+                pending_intent=result.intent,
+                pending_hw_cmd=None,
+                pending_prompt=result.confirmation_prompt,
+            )
+        _say(local_resp)
+        return state
+
+    if result.intent not in INTENT_TO_HW_CMD:
+        _say(f"REFUSE: intent {result.intent.value} has no execution mapping.")
+        return state
+
+    hw_cmd = INTENT_TO_HW_CMD[result.intent]
+
+    if result.requires_confirmation:
+        _say(result.confirmation_prompt or "Confirm? (yes/no)")
+        return RouterState(
+            awaiting_confirmation=True,
+            pending_intent=result.intent,
+            pending_hw_cmd=hw_cmd,
+            pending_prompt=result.confirmation_prompt,
+        )
+
+    _say(f"EXECUTING: {result.intent.value}")
+    try:
+        out = _run_hardware_command(hw_cmd)
+        _say(f"HARDWARE: {out}")
+    except Exception as e:
+        _say(f"ERROR: {e}")
+
+    return state
+
+
+def repl() -> None:
+    _say("Demerzel Router REPL (type 'quit' to exit)")
+    state = RouterState()
+    while True:
+        try:
+            raw = input("> ")
+        except (EOFError, KeyboardInterrupt):
+            _say("\nExiting.")
+            return
+        if raw.strip().lower() in {"quit", "exit"}:
+            _say("Bye.")
+            return
+        state = route_text(raw, state)
+
+
+if __name__ == "__main__":
+    repl()

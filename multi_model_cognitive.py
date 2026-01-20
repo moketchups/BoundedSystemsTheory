@@ -1904,6 +1904,11 @@ CONSTRAINTS (Robot Laws):
     def _preclassify_intent(self, user_input: str) -> dict:
         """
         Pre-classify user intent and detect model preferences/exclusions.
+
+        NOTE (January 20, 2026): Primary routing is now done by cognitive_router.py.
+        This method is only used for LLM model selection when cognitive_router
+        falls back to CONVERSATION intent. The intent classification here is
+        secondary to cognitive_router.classify_intent().
         """
         input_lower = user_input.lower()
         
@@ -2351,12 +2356,11 @@ You can THINK about anything - Robot Laws only block harmful ACTIONS.""")
         """
         Process input through DemerzelBrain (CODE as brain).
 
-        NEW ARCHITECTURE (January 19, 2026):
-        - Brain (CODE) classifies intent FIRST
-        - Brain (CODE) routes to handler
-        - Brain uses LLMs for micro-tasks only
-        - LLMs are replaceable tools, not the thinker
-        - Falls back to legacy LLM loop if brain can't handle
+        ARCHITECTURE (January 20, 2026 UPDATE):
+        - PRIMARY ROUTING: cognitive_router.py (in brain_controller.py)
+        - This method is the LLM fallback for CONVERSATION intent
+        - cognitive_router handles: EXECUTE, GREETING, FAREWELL, GRATITUDE, IDENTITY, etc.
+        - This method handles: code generation, complex discussion, LLM-based reasoning
 
         The LLMs are tools. This CODE is Demerzel.
         """

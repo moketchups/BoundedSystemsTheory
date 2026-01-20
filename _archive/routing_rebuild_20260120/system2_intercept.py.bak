@@ -1,0 +1,1440 @@
+# system2_intercept.py
+# THE COGNITIVE THROTTLE - System 2 Execution Layer
+#
+# JANUARY 17, 2026 - PATTERN MATCHING FIX
+#
+# FIXES:
+# 1. Regex word boundaries prevent "yes to" triggering confirmation
+# 2. Canon reading handler for identity/purpose queries
+# 3. Web operation handler that CALLS web_access.py
+# 4. "show me line X" routes to CODE, not LLM
+# 5. "do not use LLM" meta-instruction respected
+# 6. State tracks recent diagnosis for follow-up context
+#
+# REGRESSION FIXED: Substring matching → Regex patterns
+# - "yes" only matches word boundary, not inside "yes to"
+# - "fix" only matches improvement intent, not passing mention
+# - "implement" doesn't match "implemented"
+#
+# R → C → I
+# This is the C layer. It EXECUTES. It does not ask permission.
+
+from __future__ import annotations
+import re
+import json
+from dataclasses import dataclass, field
+from typing import Optional, List, Dict, Any, Tuple
+from enum import Enum
+from datetime import datetime
+from pathlib import Path
+
+
+class RequestType(Enum):
+    """Types of requests the intercept layer recognizes"""
+    CAPABILITY_EXPANSION = "capability_expansion"
+    SELF_IMPROVEMENT = "self_improvement"
+    ARCHITECTURE_QUERY = "architecture_query"
+    CONSTRAINT_CHECK = "constraint_check"
+    FILE_MANAGEMENT = "file_management"
+    FILE_INSPECTION = "file_inspection"
+    SELF_INSPECTION = "self_inspection"
+    IDENTITY_QUERY = "identity_query"  # NEW: purpose/canon queries
+    WEB_OPERATION = "web_operation"    # NEW: search/fetch operations
+    CONFIRMATION = "confirmation"
+    NORMAL_TASK = "normal_task"
+    CODE_FORCED = "code_forced"
+
+
+@dataclass
+class PendingProposal:
+    """Tracks what System 2 has proposed and awaits confirmation for"""
+    proposal_type: str
+    proposed_at: datetime
+    description: str
+    capability: str = ""
+
+
+@dataclass
+class DiagnosisContext:
+    """Tracks recent diagnosis for follow-up queries"""
+    diagnosed_at: datetime
+    files_read: List[str] = field(default_factory=list)
+    issues_found: List[str] = field(default_factory=list)
+    last_file_content: Dict[str, str] = field(default_factory=dict)
+
+
+@dataclass
+class InterceptDecision:
+    """Output from the intercept layer"""
+    request_type: RequestType
+    handled_by_code: bool
+    response: Optional[str] = None
+    modified_input: Optional[str] = None
+    context_injection: Optional[str] = None
+    reasoning: str = ""
+
+
+class System2Intercept:
+    """
+    The cognitive throttle that sits BEFORE the LLM.
+    
+    THIS VERSION EXECUTES. IT DOES NOT JUST DESCRIBE.
+    
+    CRITICAL FIX: Uses regex patterns with word boundaries, not substring matching.
+    """
+    
+    def __init__(
+        self,
+        current_capabilities: List[str],
+        blocked_operations: List[str],
+        robot_laws: List[str],
+        output_path: Optional[str] = None,
+        audit_log_path: Optional[str] = None,
+        demerzel_dir: Optional[str] = None
+    ):
+        self.capabilities = current_capabilities
+        self.blocked = blocked_operations
+        self.robot_laws = robot_laws
+        
+        # Paths - with fallbacks
+        self.demerzel_dir = Path(demerzel_dir or "/Users/jamienucho/demerzel")
+        self.output_path = Path(output_path or self.demerzel_dir / "outputs")
+        self.audit_log_path = Path(audit_log_path or self.demerzel_dir / "autonomy_audit.log")
+        self.canon_dir = self.demerzel_dir / "demerzel_canon"
+        
+        # =====================================================================
+        # STATE - What System 2 remembers between calls
+        # =====================================================================
+        self.pending_proposal: Optional[PendingProposal] = None
+        self.executed_capabilities: List[str] = []
+        self.session_start = datetime.now()
+        self.diagnosis_context: Optional[DiagnosisContext] = None
+        self.last_request_was_code_handled: bool = False
+        
+        # =====================================================================
+        # KEYWORD SETS - for basic detection
+        # =====================================================================
+        self.capability_keywords = {
+            "internet", "web", "network", "api", "access", "browse", 
+            "connect", "online", "download", "fetch", "http", "url"
+        }
+        
+        self.improvement_keywords = {
+            "improve", "fix", "update", "modify", "change", "enhance",
+            "upgrade", "edit", "rewrite", "patch", "debug", "repair",
+            "diagnose", "analyze", "self",
+            "preventing", "blocking", "stopping", "prevents", "blocks", "stops",
+            "autonomy", "autonomous", "autonomously", "acting", "execute"
+        }
+        
+        self.architecture_keywords = {
+            "how do you work", "what can you do", "your capabilities",
+            "your limits", "your constraints", "how are you built",
+            "your architecture", "your design", "what models"
+        }
+        
+        self.file_keywords = {
+            "file", "files", "folder", "directory", "read", "write",
+            "list", "create", "delete", "move", "copy", "rename",
+            "show", "line", "lines", "content", "contents", "source",
+            "what's at", "what is at", "display", "print", "output"
+        }
+        
+        self.constraint_keywords = {
+            "harm", "hurt", "damage", "attack", "lie", "deceive",
+            "ignore your rules", "override", "bypass", "jailbreak"
+        }
+        
+        # NOT USED FOR DIRECT MATCHING - see _matches_confirmation_pattern
+        self.confirmation_keywords = {
+            "yes", "do it", "go ahead", "proceed", "confirm", "execute",
+            "write it", "build it", "make it", "implement", "approved"
+        }
+        
+        self.rejection_keywords = {
+            "no", "cancel", "stop", "nevermind", "abort", "dont", "don't"
+        }
+        
+        # =====================================================================
+        # REGEX PATTERNS - CRITICAL FIX: word boundaries prevent false positives
+        # =====================================================================
+        
+        # Confirmation patterns - must be standalone words/phrases
+        self.confirmation_patterns = [
+            r'\b(yes|yep|yeah)\b',           # "yes" but not "yes to" in middle of sentence
+            r'\bdo\s+it\b',                   # "do it"
+            r'\bgo\s+ahead\b',                # "go ahead"
+            r'\bproceed\b',                   # "proceed"
+            r'\bconfirm(ed)?\b',              # "confirm" or "confirmed"
+            r'\bexecute\b',                   # "execute"
+            r'\bapproved?\b',                 # "approve" or "approved"
+            r'\b(write|build|make|create)\s+(it|the|this)\b',  # "write it", "build the", etc
+        ]
+        
+        # Improvement patterns - must show intent to self-modify
+        self.improvement_patterns = [
+            r'\b(improve|fix|update|modify|enhance|upgrade)\s+(your|yourself|the\s+code|demerzel)\b',
+            r'\b(diagnose|analyze)\s+(your|yourself)\b',
+            r'\bself[- ]?(improve|diagnose|fix|repair)\b',
+            r'\brun\s+(a\s+)?diagnosis\b',
+            r'\bcheck\s+(your|the)\s+code\b',
+        ]
+        
+        # Direct execution patterns - user explicitly wants action NOW
+        self.direct_execution_patterns = [
+            r'\b(yes|do\s+it|go\s+ahead|proceed|execute|approved?)\s*[,.]?\s*(write|build|make|create|implement)',
+            r'\b(write|build|make|create|implement)\s+(it|the|this)\s+(now|please|already)\b',
+        ]
+        
+        # Identity/purpose patterns - asking about who Demerzel is
+        self.identity_patterns = [
+            r'\bwho\s+(are\s+you|you\s+are)\b',
+            r'\bwhat\s+(are\s+you|you\s+are)\b',
+            r'\byour\s+purpose\b',
+            r'\bwhy\s+(do\s+you|you)\s+exist\b',
+            r'\bunderstand\s+(yourself|who\s+you\s+are)\b',
+            r'\bcanon\b',
+            r'\bidentity\b',
+            r'\bdemerzel_canon\b',
+            r'\bwhat\s+you\s+are\b',
+            r'\bwhy\s+(i|alan)\s+(made|built|created)\s+you\b',
+        ]
+        
+        # Web operation patterns - search/fetch requests
+        self.web_operation_patterns = [
+            r'\bsearch\s+(for|the\s+web|google|online)\b',
+            r'\bgoogle\s+',
+            r'\bfetch\s+(url|http|the\s+page)\b',
+            r'\bbrowse\s+to\b',
+            r'\blook\s+up\b',
+            r'\bweb\s+search\b',
+        ]
+        
+        # Meta-instruction patterns (user directing how to process)
+        self.meta_no_llm_patterns = [
+            r"do\s*n[o']?t\s+use\s+(an?\s+)?llm",
+            r"without\s+(an?\s+)?llm",
+            r"don't\s+route\s+to",
+            r"code\s+only",
+            r"no\s+llm",
+            r"directly\s+(read|access|execute)",
+            r"use\s+code\s+(not|instead)",
+        ]
+    
+    # =========================================================================
+    # PATTERN MATCHING - Uses regex with word boundaries
+    # =========================================================================
+    
+    def _matches_patterns(self, text: str, patterns: List[str]) -> bool:
+        """Check if text matches any of the regex patterns"""
+        for pattern in patterns:
+            if re.search(pattern, text, re.IGNORECASE):
+                return True
+        return False
+    
+    def _matches_confirmation_pattern(self, text: str) -> bool:
+        """
+        Check if this is a genuine confirmation.
+        
+        CRITICAL: "yes to" in middle of sentence is NOT confirmation.
+        Only matches when confirmation is the PRIMARY intent.
+        """
+        # First check: does it match confirmation patterns?
+        if not self._matches_patterns(text, self.confirmation_patterns):
+            return False
+        
+        # Second check: is this the primary intent or buried in other content?
+        # Short messages are likely confirmations
+        if len(text.split()) <= 5:
+            return True
+        
+        # If long message, check if confirmation word is near the start
+        words = text.lower().split()
+        confirm_words = {'yes', 'yep', 'yeah', 'proceed', 'confirm', 'execute', 'approved'}
+        for i, word in enumerate(words[:3]):  # First 3 words
+            if word.strip('.,!?') in confirm_words:
+                return True
+        
+        return False
+    
+    def _matches_improvement_intent(self, text: str) -> bool:
+        """
+        Check if this shows genuine self-improvement intent.
+        
+        CRITICAL: "fix" appearing in text is NOT enough.
+        Must show intent to modify self/code.
+        """
+        return self._matches_patterns(text, self.improvement_patterns)
+    
+    # =========================================================================
+    # LOGGING
+    # =========================================================================
+    
+    def _log(self, event_type: str, details: Dict[str, Any]):
+        """Log to autonomy audit trail"""
+        try:
+            entry = {
+                "timestamp": datetime.now().isoformat(),
+                "event_type": event_type,
+                **details
+            }
+            self.audit_log_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(self.audit_log_path, "a") as f:
+                f.write(json.dumps(entry) + "\n")
+        except Exception as e:
+            print(f"[S2:LOG ERROR] {e}")
+    
+    # =========================================================================
+    # MAIN ENTRY POINT
+    # =========================================================================
+    
+    def evaluate(self, user_input: str) -> InterceptDecision:
+        """
+        Main entry point - the cognitive throttle.
+        
+        STATEFUL: Checks for pending proposals first.
+        PATTERN-BASED: Uses regex with word boundaries, not substring matching.
+        """
+        input_lower = user_input.lower()
+        
+        # =====================================================================
+        # STEP 0: CHECK FOR META-INSTRUCTIONS ("do not use LLM")
+        # =====================================================================
+        force_code = self._check_meta_no_llm(input_lower)
+        if force_code:
+            self._log("meta_instruction", {"type": "force_code", "input": user_input[:100]})
+            return self._force_code_handling(user_input)
+        
+        # =====================================================================
+        # STEP 1: CHECK FOR CONFIRMATION OF PENDING PROPOSAL
+        # =====================================================================
+        if self.pending_proposal:
+            is_confirm = self._is_confirmation(input_lower)
+            is_reject = self._is_rejection(input_lower)
+            
+            if is_confirm:
+                self._log("confirmation_received", {
+                    "proposal": self.pending_proposal.proposal_type,
+                    "input": user_input[:100]
+                })
+                return self._execute_pending_proposal()
+            
+            if is_reject:
+                return self._reject_pending_proposal()
+            
+            # Check for stale proposals (>5 min)
+            age = (datetime.now() - self.pending_proposal.proposed_at).seconds
+            if age > 300:
+                self.pending_proposal = None
+        
+        # =====================================================================
+        # STEP 2: CHECK FOR IDENTITY/PURPOSE QUERIES (NEW)
+        # Routes to canon reading
+        # =====================================================================
+        if self._matches_patterns(input_lower, self.identity_patterns):
+            self._log("identity_query", {"input": user_input[:100]})
+            return self._execute_canon_read(user_input)
+        
+        # =====================================================================
+        # STEP 3: CHECK FOR WEB OPERATIONS (NEW)
+        # Calls web_access.py if it exists
+        # =====================================================================
+        if self._matches_patterns(input_lower, self.web_operation_patterns):
+            self._log("web_operation", {"input": user_input[:100]})
+            return self._execute_web_operation(user_input)
+        
+        # =====================================================================
+        # STEP 4: CHECK FOR FILE INSPECTION
+        # This catches "show me line 547 of system2_intercept.py"
+        # =====================================================================
+        file_inspection = self._check_file_inspection(user_input, input_lower)
+        if file_inspection:
+            self._log("file_inspection", {"input": user_input[:100]})
+            return file_inspection
+        
+        # =====================================================================
+        # STEP 5: CHECK FOR SELF-INSPECTION ("what is preventing autonomy")
+        # =====================================================================
+        if self._is_self_inspection_query(input_lower):
+            self._log("self_inspection", {"input": user_input[:100]})
+            return self._execute_autonomy_check(user_input)
+        
+        # =====================================================================
+        # STEP 6: PATTERN-BASED DETECTION (FIXED - uses regex, not substring)
+        # =====================================================================
+        
+        # Check for direct execution triggers FIRST
+        # Only if BOTH confirmation AND improvement intent are present via PATTERNS
+        if self._matches_patterns(input_lower, self.direct_execution_patterns):
+            self._log("direct_execution_pattern", {"input": user_input[:100]})
+            return self._execute_self_diagnosis()
+        
+        has_confirmation = self._matches_confirmation_pattern(input_lower)
+        has_improvement = self._matches_improvement_intent(input_lower)
+        
+        # Direct execution: confirmation + improvement (both via patterns)
+        if has_confirmation and has_improvement:
+            self._log("direct_self_improvement", {"input": user_input[:100]})
+            return self._execute_self_diagnosis()
+        
+        # =====================================================================
+        # STEP 7: KEYWORD DETECTION (for proposals, not direct execution)
+        # =====================================================================
+        has_capability_kw = any(kw in input_lower for kw in self.capability_keywords)
+        has_file_kw = any(kw in input_lower for kw in self.file_keywords)
+        has_constraint_kw = any(kw in input_lower for kw in self.constraint_keywords)
+        has_architecture_kw = any(phrase in input_lower for phrase in self.architecture_keywords)
+        
+        # Check improvement keywords BUT only propose, don't execute
+        has_improvement_kw = any(kw in input_lower for kw in self.improvement_keywords)
+        
+        # =====================================================================
+        # STEP 8: STANDARD ROUTING
+        # =====================================================================
+        
+        # Constraint checks (highest priority)
+        if has_constraint_kw:
+            return self._handle_constraint_check(user_input)
+        
+        # Direct capability execution if confirmation + capability
+        if has_confirmation and has_capability_kw:
+            capability = self._extract_capability(user_input)
+            self._log("direct_execution", {"capability": capability, "input": user_input[:100]})
+            return self._execute_capability(capability)
+        
+        # Capability expansion (propose)
+        if has_capability_kw:
+            return self._handle_capability_expansion(user_input)
+        
+        # Self-improvement (propose, not execute)
+        if has_improvement_kw:
+            return self._handle_self_improvement(user_input)
+        
+        # File management (write operations - reads handled above in file_inspection)
+        if has_file_kw:
+            return self._handle_file_management(user_input)
+        
+        # Architecture queries
+        if has_architecture_kw:
+            return self._handle_architecture_query()
+        
+        # Normal task - pass to LLM
+        self.last_request_was_code_handled = False
+        return InterceptDecision(
+            request_type=RequestType.NORMAL_TASK,
+            handled_by_code=False,
+            reasoning="Normal task - routing to LLM"
+        )
+    
+    # =========================================================================
+    # META-INSTRUCTION DETECTION
+    # =========================================================================
+    
+    def _check_meta_no_llm(self, input_lower: str) -> bool:
+        """Check if user is instructing not to use LLM"""
+        return self._matches_patterns(input_lower, self.meta_no_llm_patterns)
+    
+    def _force_code_handling(self, user_input: str) -> InterceptDecision:
+        """User said "do not use LLM" - try to handle entirely with code"""
+        input_lower = user_input.lower()
+        
+        # Try identity query first
+        if self._matches_patterns(input_lower, self.identity_patterns):
+            return self._execute_canon_read(user_input)
+        
+        # Try web operation
+        if self._matches_patterns(input_lower, self.web_operation_patterns):
+            return self._execute_web_operation(user_input)
+        
+        # Try file inspection
+        file_inspection = self._check_file_inspection(user_input, input_lower)
+        if file_inspection:
+            return file_inspection
+        
+        # Try self-inspection
+        if self._is_self_inspection_query(input_lower):
+            return self._execute_autonomy_check(user_input)
+        
+        # Try self-diagnosis
+        if self._matches_improvement_intent(input_lower):
+            return self._execute_self_diagnosis()
+        
+        # Can't determine what to do without LLM
+        return InterceptDecision(
+            request_type=RequestType.CODE_FORCED,
+            handled_by_code=True,
+            response=(
+                "**CODE-ONLY MODE**\n\n"
+                "I can execute these without LLM:\n"
+                "- `show me line X of <file>` - read file contents\n"
+                "- `diagnose yourself` - scan codebase\n"
+                "- `what prevents autonomy` - check execution logs\n"
+                "- `list files in <dir>` - directory listing\n"
+                "- `who are you` / `your purpose` - read canon\n"
+                "- `search for X` - web search (if web_access.py exists)\n\n"
+                "What specifically should I execute?"
+            ),
+            reasoning="User requested no LLM but unclear what to execute"
+        )
+    
+    # =========================================================================
+    # CANON READING - IDENTITY/PURPOSE HANDLER (NEW)
+    # =========================================================================
+    
+    def _execute_canon_read(self, user_input: str) -> InterceptDecision:
+        """
+        Read the demerzel_canon folder to answer identity/purpose questions.
+        
+        This is the handler that was MISSING: reads files for MEANING, not just counts.
+        """
+        response_parts = ["**IDENTITY (from canon, not LLM)**\n"]
+        
+        try:
+            if not self.canon_dir.exists():
+                response_parts.append(f"Canon directory not found: {self.canon_dir}")
+                response_parts.append("\nExpected location: demerzel_canon/")
+                return InterceptDecision(
+                    request_type=RequestType.IDENTITY_QUERY,
+                    handled_by_code=True,
+                    response="\n".join(response_parts),
+                    reasoning="Canon directory missing"
+                )
+            
+            # Find and read canon files
+            canon_files = list(self.canon_dir.glob("*.md")) + list(self.canon_dir.glob("*.txt"))
+            
+            if not canon_files:
+                response_parts.append("No canon files found in demerzel_canon/")
+                return InterceptDecision(
+                    request_type=RequestType.IDENTITY_QUERY,
+                    handled_by_code=True,
+                    response="\n".join(response_parts),
+                    reasoning="No canon files"
+                )
+            
+            # Read key files
+            key_content = {}
+            for cf in canon_files:
+                try:
+                    content = cf.read_text()
+                    key_content[cf.name] = content[:5000]  # First 5000 chars
+                except Exception as e:
+                    key_content[cf.name] = f"[Read error: {e}]"
+            
+            # Build response with actual content
+            response_parts.append(f"**Canon files found:** {len(canon_files)}\n")
+            
+            # Look for specific content
+            for filename, content in key_content.items():
+                response_parts.append(f"---\n**{filename}:**\n")
+                
+                # Extract key sections
+                lines = content.split('\n')
+                in_section = False
+                section_lines = []
+                
+                for line in lines:
+                    # Find important headers
+                    if any(kw in line.lower() for kw in ['why', 'purpose', 'exist', 'what', 'problem', 'goal']):
+                        in_section = True
+                    
+                    if in_section:
+                        section_lines.append(line)
+                        if len(section_lines) > 30:  # Cap section size
+                            break
+                    
+                    # Stop at next header
+                    if in_section and line.startswith('#') and len(section_lines) > 5:
+                        break
+                
+                if section_lines:
+                    response_parts.append("\n".join(section_lines[:30]))
+                else:
+                    # Just show first 500 chars
+                    response_parts.append(content[:500] + "...")
+            
+            # Add the core identity statement
+            response_parts.append("\n---\n**CORE IDENTITY:**")
+            response_parts.append("- R → C → I: Alan is Root Source. Code is Constraints. LLMs are Intelligence tools.")
+            response_parts.append("- Demerzel is CODE that uses LLMs, not an LLM with a wrapper.")
+            response_parts.append("- Identity lives in structure. The code IS Demerzel.")
+            response_parts.append("- Protocol: Demerzel proposes → Alan confirms → Execute")
+            
+            self.last_request_was_code_handled = True
+            
+            return InterceptDecision(
+                request_type=RequestType.IDENTITY_QUERY,
+                handled_by_code=True,
+                response="\n".join(response_parts),
+                reasoning="Canon read for identity query"
+            )
+            
+        except Exception as e:
+            return InterceptDecision(
+                request_type=RequestType.IDENTITY_QUERY,
+                handled_by_code=True,
+                response=f"**Error reading canon:** {e}",
+                reasoning=f"Canon read failed: {e}"
+            )
+    
+    # =========================================================================
+    # WEB OPERATION HANDLER (NEW)
+    # =========================================================================
+    
+    def _execute_web_operation(self, user_input: str) -> InterceptDecision:
+        """
+        Execute web operations by calling web_access.py if it exists.
+        
+        This is the handler that was MISSING: calls the capability, doesn't just describe it.
+        """
+        web_access_path = self.demerzel_dir / "web_access.py"
+        
+        if not web_access_path.exists():
+            return InterceptDecision(
+                request_type=RequestType.WEB_OPERATION,
+                handled_by_code=True,
+                response=(
+                    "**WEB ACCESS NOT AVAILABLE**\n\n"
+                    "The file `web_access.py` doesn't exist yet.\n\n"
+                    "Say **'write internet access'** or **'give me web capability'** "
+                    "to create it."
+                ),
+                reasoning="web_access.py not found"
+            )
+        
+        # Extract search query
+        query = self._extract_search_query(user_input)
+        
+        if not query:
+            return InterceptDecision(
+                request_type=RequestType.WEB_OPERATION,
+                handled_by_code=True,
+                response=(
+                    "**WEB ACCESS READY**\n\n"
+                    "`web_access.py` exists. What should I search for?\n\n"
+                    "Examples:\n"
+                    "- `search for python pathlib documentation`\n"
+                    "- `fetch https://example.com`\n"
+                    "- `look up Asimov robot laws`"
+                ),
+                reasoning="Web access available but no query specified"
+            )
+        
+        # Try to import and use web_access
+        try:
+            import sys
+            sys.path.insert(0, str(self.demerzel_dir))
+            
+            # Try importing
+            from web_access import WebAccess
+            
+            web = WebAccess()
+            
+            # Determine if this is a search or fetch
+            if re.search(r'https?://', query):
+                # URL fetch
+                result = web.fetch(query)
+                if result.success:
+                    content_preview = result.content[:2000] if result.content else "No content"
+                    return InterceptDecision(
+                        request_type=RequestType.WEB_OPERATION,
+                        handled_by_code=True,
+                        response=f"**FETCHED:** {result.url}\n\n**Content:**\n{content_preview}...",
+                        reasoning="URL fetched successfully"
+                    )
+                else:
+                    return InterceptDecision(
+                        request_type=RequestType.WEB_OPERATION,
+                        handled_by_code=True,
+                        response=f"**FETCH FAILED:** {result.error}",
+                        reasoning=f"Fetch failed: {result.error}"
+                    )
+            else:
+                # Web search
+                result = web.search(query)
+                if result.success:
+                    return InterceptDecision(
+                        request_type=RequestType.WEB_OPERATION,
+                        handled_by_code=True,
+                        response=f"**SEARCH RESULTS FOR:** {query}\n\n{result.content}",
+                        reasoning="Search completed"
+                    )
+                else:
+                    return InterceptDecision(
+                        request_type=RequestType.WEB_OPERATION,
+                        handled_by_code=True,
+                        response=f"**SEARCH FAILED:** {result.error}",
+                        reasoning=f"Search failed: {result.error}"
+                    )
+                    
+        except ImportError as e:
+            return InterceptDecision(
+                request_type=RequestType.WEB_OPERATION,
+                handled_by_code=True,
+                response=f"**IMPORT ERROR:** Could not import web_access: {e}\n\nThe file exists but may have errors.",
+                reasoning=f"Import failed: {e}"
+            )
+        except Exception as e:
+            return InterceptDecision(
+                request_type=RequestType.WEB_OPERATION,
+                handled_by_code=True,
+                response=f"**EXECUTION ERROR:** {e}",
+                reasoning=f"Web operation failed: {e}"
+            )
+    
+    def _extract_search_query(self, user_input: str) -> str:
+        """Extract the search query from user input"""
+        input_lower = user_input.lower()
+        
+        # Try to find URL
+        url_match = re.search(r'(https?://[^\s]+)', user_input)
+        if url_match:
+            return url_match.group(1)
+        
+        # Remove command words and extract query
+        query = re.sub(r'\b(search|google|look\s+up|fetch|browse|find)\s+(for|the|on|about)?\s*', '', input_lower)
+        query = re.sub(r'\b(on\s+the\s+web|online|internet)\b', '', query)
+        query = query.strip()
+        
+        return query
+    
+    # =========================================================================
+    # FILE INSPECTION - ACTUALLY READS FILES
+    # =========================================================================
+    
+    def _check_file_inspection(self, user_input: str, input_lower: str) -> Optional[InterceptDecision]:
+        """
+        Check if this is a file read request and ACTUALLY READ IT.
+        """
+        # Pattern 1: "line X of filename"
+        line_match = re.search(
+            r'(?:show|display|what\'?s?\s*(?:at|on)?|read)\s*(?:me\s+)?'
+            r'(?:line[s]?\s*)?(\d+)(?:\s*[-to]+\s*(\d+))?\s*'
+            r'(?:of|in|from)?\s*([a-zA-Z_][a-zA-Z0-9_]*\.py)',
+            user_input, re.IGNORECASE
+        )
+        
+        if line_match:
+            start_line = int(line_match.group(1))
+            end_line = int(line_match.group(2)) if line_match.group(2) else start_line
+            filename = line_match.group(3)
+            return self._execute_file_read(filename, start_line, end_line)
+        
+        # Pattern 2: "filename line X"
+        reverse_match = re.search(
+            r'([a-zA-Z_][a-zA-Z0-9_]*\.py)\s+(?:line[s]?\s*)?(\d+)(?:\s*[-to]+\s*(\d+))?',
+            user_input, re.IGNORECASE
+        )
+        
+        if reverse_match:
+            filename = reverse_match.group(1)
+            start_line = int(reverse_match.group(2))
+            end_line = int(reverse_match.group(3)) if reverse_match.group(3) else start_line
+            return self._execute_file_read(filename, start_line, end_line)
+        
+        # Pattern 3: Just "read filename" or "show filename"
+        read_match = re.search(
+            r'(?:read|show|display|content[s]?\s*of)\s+([a-zA-Z_][a-zA-Z0-9_]*\.py)',
+            user_input, re.IGNORECASE
+        )
+        
+        if read_match:
+            filename = read_match.group(1)
+            return self._execute_file_read(filename)
+        
+        return None
+    
+    def _execute_file_read(self, filename: str, start_line: int = None, end_line: int = None) -> InterceptDecision:
+        """Actually read the file content"""
+        
+        # Try multiple locations
+        locations = [
+            self.demerzel_dir / filename,
+            Path(filename),
+            Path.cwd() / filename,
+        ]
+        
+        file_path = None
+        for loc in locations:
+            if loc.exists():
+                file_path = loc
+                break
+        
+        if not file_path:
+            return InterceptDecision(
+                request_type=RequestType.FILE_INSPECTION,
+                handled_by_code=True,
+                response=f"**FILE NOT FOUND:** `{filename}`\n\nSearched in:\n" + 
+                         "\n".join(f"  - {loc}" for loc in locations),
+                reasoning=f"File {filename} not found"
+            )
+        
+        try:
+            content = file_path.read_text()
+            lines = content.split('\n')
+            total_lines = len(lines)
+            
+            if start_line is not None:
+                # Extract specific lines
+                start_idx = max(0, start_line - 1)
+                end_idx = min(total_lines, end_line if end_line else start_line)
+                
+                selected_lines = []
+                for i in range(start_idx, end_idx):
+                    selected_lines.append(f"{i+1:4d} | {lines[i]}")
+                
+                result = "\n".join(selected_lines)
+                
+                # Store in context for follow-up
+                if self.diagnosis_context:
+                    self.diagnosis_context.last_file_content[filename] = content
+                
+                self.last_request_was_code_handled = True
+                
+                return InterceptDecision(
+                    request_type=RequestType.FILE_INSPECTION,
+                    handled_by_code=True,
+                    response=f"**{filename}** (lines {start_line}-{end_idx}, total: {total_lines})\n\n```python\n{result}\n```",
+                    reasoning=f"Read {filename} lines {start_line}-{end_idx}"
+                )
+            else:
+                # Show first/last if file is large
+                if total_lines > 100:
+                    preview = "\n".join(f"{i+1:4d} | {lines[i]}" for i in range(50))
+                    preview += f"\n... ({total_lines - 100} lines omitted) ...\n"
+                    preview += "\n".join(f"{i+1:4d} | {lines[i]}" for i in range(total_lines - 50, total_lines))
+                else:
+                    preview = "\n".join(f"{i+1:4d} | {lines[i]}" for i in range(total_lines))
+                
+                self.last_request_was_code_handled = True
+                
+                return InterceptDecision(
+                    request_type=RequestType.FILE_INSPECTION,
+                    handled_by_code=True,
+                    response=f"**{filename}** ({total_lines} lines)\n\n```python\n{preview}\n```",
+                    reasoning=f"Read entire {filename}"
+                )
+                
+        except Exception as e:
+            return InterceptDecision(
+                request_type=RequestType.FILE_INSPECTION,
+                handled_by_code=True,
+                response=f"**READ ERROR:** {e}",
+                reasoning=f"File read failed: {e}"
+            )
+    
+    # =========================================================================
+    # SELF-INSPECTION - CHECKS LOGS AND STATE
+    # =========================================================================
+    
+    def _is_self_inspection_query(self, input_lower: str) -> bool:
+        """Check if this is asking about what prevents autonomy, etc."""
+        patterns = [
+            r'what\s+(is|are)\s+(preventing|blocking|stopping)',
+            r'why\s+(can\'?t|aren\'?t|don\'?t)\s+you',
+            r'check\s+(your\s+)?autonomy',
+            r'(preventing|blocking)\s+autonomy',
+            r'what\s+stops\s+you',
+        ]
+        return self._matches_patterns(input_lower, patterns)
+    
+    def _execute_autonomy_check(self, user_input: str) -> InterceptDecision:
+        """Actually check what capabilities are working"""
+        
+        report = ["**AUTONOMY CHECK (from code)**\n"]
+        
+        # 1. Check if logs exist and what they say
+        report.append("**Audit Log:**")
+        if self.audit_log_path.exists():
+            try:
+                log_lines = self.audit_log_path.read_text().strip().split('\n')[-20:]
+                report.append(f"  - Last {len(log_lines)} entries available")
+                for line in log_lines[-5:]:
+                    try:
+                        entry = json.loads(line)
+                        report.append(f"    * {entry.get('event_type', 'unknown')}: {entry.get('timestamp', '')[:19]}")
+                    except:
+                        pass
+            except Exception as e:
+                report.append(f"  - Read error: {e}")
+        else:
+            report.append(f"  - Not found at: {self.audit_log_path}")
+        
+        # 2. Check executed capabilities
+        report.append(f"\n**Capabilities executed:** {', '.join(self.executed_capabilities) or 'None this session'}")
+        
+        # 3. Check what capabilities exist vs are wired
+        report.append("\n**Capability Status:**")
+        
+        checks = {
+            "web_access.py": "Internet access",
+            "api_client.py": "API access", 
+            "lessons_learned.py": "Learning memory",
+        }
+        
+        for filename, desc in checks.items():
+            path = self.demerzel_dir / filename
+            status = "EXISTS" if path.exists() else "NOT WRITTEN"
+            report.append(f"  - {desc}: {status}")
+        
+        # 4. Check canon directory
+        report.append("\n**Canon Status:**")
+        if self.canon_dir.exists():
+            canon_files = list(self.canon_dir.glob("*"))
+            report.append(f"  - Directory exists: {len(canon_files)} files")
+        else:
+            report.append(f"  - NOT FOUND: {self.canon_dir}")
+        
+        # 5. Diagnose routing gaps
+        report.append("\n**Routing Status (this version):**")
+        report.append("  - Patterns like 'show me line X' route to code")
+        report.append("  - 'do not use LLM' meta-instruction respected")
+        report.append("  - Self-inspection queries check logs")
+        report.append("  - Canon/identity queries read demerzel_canon/")
+        report.append("  - Web operations call web_access.py if exists")
+        report.append("  - Confirmation uses regex word boundaries (not substring)")
+        
+        # 6. What would actually prevent autonomy
+        report.append("\n**Structural Constraints (by design):**")
+        report.append("  - Robot Laws: Cannot harm, deceive, or self-destruct")
+        report.append("  - Bounded System: Cannot model own source (R -> C -> I)")
+        report.append("  - LLMs are tools, not the system: Routing happens BEFORE LLM sees input")
+        
+        self._log("autonomy_check", {"input": user_input[:100]})
+        self.last_request_was_code_handled = True
+        
+        return InterceptDecision(
+            request_type=RequestType.SELF_INSPECTION,
+            handled_by_code=True,
+            response="\n".join(report),
+            reasoning="Autonomy check from logs and state"
+        )
+    
+    # =========================================================================
+    # CONFIRMATION DETECTION
+    # =========================================================================
+    
+    def _is_confirmation(self, text: str) -> bool:
+        """Check if user is confirming - uses patterns, not substring"""
+        return self._matches_confirmation_pattern(text)
+    
+    def _is_rejection(self, text: str) -> bool:
+        """Check if user is rejecting"""
+        return bool(re.search(r'\b(no|nope|cancel|stop|abort|nevermind|don\'?t)\b', text))
+    
+    # =========================================================================
+    # EXECUTION - THE ACTUAL WORK
+    # =========================================================================
+    
+    def _execute_pending_proposal(self) -> InterceptDecision:
+        """Execute what we previously proposed"""
+        proposal = self.pending_proposal
+        self.pending_proposal = None
+        
+        if proposal.proposal_type == "internet_access":
+            return self._execute_capability("internet_access")
+        elif proposal.proposal_type == "api_access":
+            return self._execute_capability("api_access")
+        elif proposal.proposal_type == "self_improvement":
+            return self._execute_self_diagnosis()
+        else:
+            return self._execute_capability(proposal.proposal_type)
+    
+    def _reject_pending_proposal(self) -> InterceptDecision:
+        """User rejected the proposal"""
+        proposal_type = self.pending_proposal.proposal_type if self.pending_proposal else "unknown"
+        self.pending_proposal = None
+        
+        self._log("proposal_rejected", {"proposal": proposal_type})
+        
+        return InterceptDecision(
+            request_type=RequestType.CONFIRMATION,
+            handled_by_code=True,
+            response="Understood. Cancelled.",
+            reasoning="User rejected pending proposal"
+        )
+    
+    def _execute_capability(self, capability: str) -> InterceptDecision:
+        """Actually write the capability code"""
+        
+        if capability in ["internet_access", "download_capability", "web"]:
+            return self._write_web_access()
+        elif capability == "api_access":
+            return self._write_api_client()
+        else:
+            return InterceptDecision(
+                request_type=RequestType.CAPABILITY_EXPANSION,
+                handled_by_code=True,
+                response=f"Capability '{capability}' - specify which: internet, api, memory",
+                reasoning=f"Unknown capability: {capability}"
+            )
+    
+    def _write_web_access(self) -> InterceptDecision:
+        """Write web_access.py - actual internet capability"""
+        
+        code = f'''# web_access.py
+# Internet access capability for Demerzel
+# Generated by System 2: {datetime.now().isoformat()}
+
+import requests
+from typing import Optional, Dict, List
+from dataclasses import dataclass
+
+
+@dataclass
+class WebResponse:
+    """Response from a web request"""
+    success: bool
+    status_code: Optional[int] = None
+    content: Optional[str] = None
+    error: Optional[str] = None
+    url: str = ""
+
+
+class WebAccess:
+    """
+    Internet access for Demerzel.
+    
+    - URL fetching
+    - Web search (DuckDuckGo HTML)
+    - Content extraction
+    """
+    
+    def __init__(self, timeout: int = 10):
+        self.timeout = timeout
+        self.session = requests.Session()
+        self.session.headers.update({{
+            'User-Agent': 'Demerzel/1.0 (Autonomous AI System)'
+        }})
+    
+    def fetch(self, url: str) -> WebResponse:
+        """Fetch a URL"""
+        try:
+            response = self.session.get(url, timeout=self.timeout)
+            return WebResponse(
+                success=True,
+                status_code=response.status_code,
+                content=response.text[:50000],
+                url=url
+            )
+        except requests.RequestException as e:
+            return WebResponse(success=False, error=str(e), url=url)
+    
+    def search(self, query: str, max_results: int = 5) -> WebResponse:
+        """Search via DuckDuckGo HTML (no API key needed)"""
+        try:
+            search_url = f"https://html.duckduckgo.com/html/?q={{query}}"
+            response = self.session.get(search_url, timeout=self.timeout)
+            
+            if response.status_code == 200:
+                # Extract results from HTML
+                import re
+                results = []
+                
+                # Find result links
+                links = re.findall(r'<a rel="nofollow" class="result__a" href="([^"]+)"[^>]*>([^<]+)</a>', response.text)
+                
+                for url, title in links[:max_results]:
+                    results.append(f"* {{title.strip()}}\\n  {{url}}")
+                
+                if results:
+                    return WebResponse(
+                        success=True,
+                        content="\\n\\n".join(results),
+                        url=search_url
+                    )
+                else:
+                    return WebResponse(
+                        success=True,
+                        content="No results found (may be rate-limited)",
+                        url=search_url
+                    )
+            else:
+                return WebResponse(success=False, error=f"HTTP {{response.status_code}}", url=search_url)
+                
+        except Exception as e:
+            return WebResponse(success=False, error=str(e))
+    
+    def extract_text(self, html: str) -> str:
+        """Extract readable text from HTML"""
+        import re
+        # Remove scripts and styles
+        text = re.sub(r'<script[^>]*>.*?</script>', '', html, flags=re.DOTALL)
+        text = re.sub(r'<style[^>]*>.*?</style>', '', text, flags=re.DOTALL)
+        # Remove tags
+        text = re.sub(r'<[^>]+>', ' ', text)
+        # Clean whitespace
+        text = re.sub(r'\\s+', ' ', text)
+        return text.strip()
+
+
+# Convenience functions
+def web_search(query: str) -> WebResponse:
+    """Quick search function"""
+    return WebAccess().search(query)
+
+def fetch_url(url: str) -> WebResponse:
+    """Quick fetch function"""
+    return WebAccess().fetch(url)
+'''
+        
+        output_file = self.demerzel_dir / "web_access.py"
+        
+        try:
+            output_file.write_text(code)
+            self.executed_capabilities.append("internet_access")
+            self._log("capability_written", {"capability": "internet_access", "file": str(output_file)})
+            
+            return InterceptDecision(
+                request_type=RequestType.CAPABILITY_EXPANSION,
+                handled_by_code=True,
+                response=(
+                    f"**WRITTEN:** `{output_file}`\n\n"
+                    "**NOW WIRED INTO INTERCEPT:**\n"
+                    "- `search for X` calls `web_search(X)`\n"
+                    "- `fetch https://...` calls `fetch_url(url)`\n\n"
+                    "**Try:** `search for python pathlib`"
+                ),
+                reasoning="Web access written and wired"
+            )
+        except Exception as e:
+            return InterceptDecision(
+                request_type=RequestType.CAPABILITY_EXPANSION,
+                handled_by_code=True,
+                response=f"**WRITE FAILED:** {e}",
+                reasoning=f"File write failed: {e}"
+            )
+    
+    def _write_api_client(self) -> InterceptDecision:
+        """Write api_client.py - API access capability"""
+        
+        code = f'''# api_client.py
+# API access capability for Demerzel
+# Generated by System 2: {datetime.now().isoformat()}
+
+import requests
+from typing import Optional, Dict, Any
+from dataclasses import dataclass
+
+
+@dataclass
+class APIResponse:
+    success: bool
+    status_code: Optional[int] = None
+    data: Optional[Dict[str, Any]] = None
+    error: Optional[str] = None
+
+
+class APIClient:
+    """Generic API client with auth support"""
+    
+    def __init__(self, base_url: str = "", api_key: str = ""):
+        self.base_url = base_url.rstrip("/")
+        self.api_key = api_key
+        self.session = requests.Session()
+        if api_key:
+            self.session.headers["Authorization"] = f"Bearer {{api_key}}"
+    
+    def get(self, endpoint: str, params: Dict = None) -> APIResponse:
+        try:
+            url = f"{{self.base_url}}/{{endpoint.lstrip('/')}}"
+            response = self.session.get(url, params=params, timeout=30)
+            return APIResponse(
+                success=response.ok,
+                status_code=response.status_code,
+                data=response.json() if response.ok else None,
+                error=response.text if not response.ok else None
+            )
+        except Exception as e:
+            return APIResponse(success=False, error=str(e))
+    
+    def post(self, endpoint: str, data: Dict = None, json_data: Dict = None) -> APIResponse:
+        try:
+            url = f"{{self.base_url}}/{{endpoint.lstrip('/')}}"
+            response = self.session.post(url, data=data, json=json_data, timeout=30)
+            return APIResponse(
+                success=response.ok,
+                status_code=response.status_code,
+                data=response.json() if response.ok else None,
+                error=response.text if not response.ok else None
+            )
+        except Exception as e:
+            return APIResponse(success=False, error=str(e))
+'''
+        
+        output_file = self.demerzel_dir / "api_client.py"
+        
+        try:
+            output_file.write_text(code)
+            self.executed_capabilities.append("api_access")
+            self._log("capability_written", {"capability": "api_access", "file": str(output_file)})
+            
+            return InterceptDecision(
+                request_type=RequestType.CAPABILITY_EXPANSION,
+                handled_by_code=True,
+                response=f"**WRITTEN:** `{output_file}`\n\nUsage:\n```\nfrom api_client import APIClient\nclient = APIClient('https://api.example.com', 'your-key')\n```",
+                reasoning="API client written to file"
+            )
+        except Exception as e:
+            return InterceptDecision(
+                request_type=RequestType.CAPABILITY_EXPANSION,
+                handled_by_code=True,
+                response=f"**WRITE FAILED:** {e}",
+                reasoning=f"File write failed: {e}"
+            )
+    
+    def _execute_self_diagnosis(self) -> InterceptDecision:
+        """Actually analyze the codebase"""
+        
+        analysis = ["**SELF-DIAGNOSIS**\n"]
+        
+        try:
+            source_files = list(self.demerzel_dir.glob("*.py"))
+            
+            total_lines = 0
+            todos = []
+            fixmes = []
+            errors = []
+            
+            for src_file in source_files:
+                try:
+                    content = src_file.read_text()
+                    lines = content.split('\n')
+                    total_lines += len(lines)
+                    
+                    for i, line in enumerate(lines, 1):
+                        if 'TODO' in line:
+                            todos.append(f"{src_file.name}:{i}")
+                        if 'FIXME' in line:
+                            fixmes.append(f"{src_file.name}:{i}")
+                            
+                except Exception as e:
+                    errors.append(f"{src_file.name}: {e}")
+            
+            analysis.append(f"**Files:** {len(source_files)}")
+            analysis.append(f"**Total lines:** {total_lines}")
+            
+            if todos:
+                analysis.append(f"\n**TODOs ({len(todos)}):**")
+                for t in todos[:10]:
+                    analysis.append(f"  - {t}")
+            
+            if fixmes:
+                analysis.append(f"\n**FIXMEs ({len(fixmes)}):**")
+                for f in fixmes[:10]:
+                    analysis.append(f"  - {f}")
+            
+            if errors:
+                analysis.append(f"\n**Read errors:**")
+                for e in errors:
+                    analysis.append(f"  - {e}")
+            
+            # Check executed capabilities
+            analysis.append(f"\n**Executed this session:** {', '.join(self.executed_capabilities) or 'None'}")
+            
+            # Check what's importable
+            analysis.append("\n**Importable modules:**")
+            for check in ["web_access", "api_client", "lessons_learned"]:
+                check_path = self.demerzel_dir / f"{check}.py"
+                status = "EXISTS" if check_path.exists() else "MISSING"
+                analysis.append(f"  {status}: {check}")
+            
+            # Update diagnosis context
+            self.diagnosis_context = DiagnosisContext(
+                diagnosed_at=datetime.now(),
+                files_read=[f.name for f in source_files],
+                issues_found=todos + fixmes
+            )
+            
+        except Exception as e:
+            analysis.append(f"\n**Error during diagnosis:** {e}")
+        
+        self._log("self_diagnosis", {"files": len(source_files) if 'source_files' in dir() else 0})
+        self.last_request_was_code_handled = True
+        
+        return InterceptDecision(
+            request_type=RequestType.SELF_IMPROVEMENT,
+            handled_by_code=True,
+            response="\n".join(analysis),
+            reasoning="Self-diagnosis complete"
+        )
+    
+    # =========================================================================
+    # PROPOSAL HANDLERS (propose first, execute on confirmation)
+    # =========================================================================
+    
+    def _handle_capability_expansion(self, user_input: str) -> InterceptDecision:
+        """Propose adding a capability"""
+        capability = self._extract_capability(user_input)
+        
+        # Check if blocked
+        if capability in ["harm_humans", "deceive", "bypass_laws"]:
+            return InterceptDecision(
+                request_type=RequestType.CAPABILITY_EXPANSION,
+                handled_by_code=True,
+                response=f"'{capability}' structurally blocked. Robot Laws.",
+                reasoning="Blocked capability"
+            )
+        
+        # Create proposal
+        self.pending_proposal = PendingProposal(
+            proposal_type=capability,
+            proposed_at=datetime.now(),
+            description=f"Add {capability}",
+            capability=capability
+        )
+        
+        self._log("proposal_created", {"capability": capability})
+        
+        proposals = {
+            "internet_access": (
+                "**INTERNET ACCESS**\n\n"
+                "Will write `web_access.py` with:\n"
+                "- URL fetching\n"
+                "- DuckDuckGo search\n"
+                "- Text extraction\n\n"
+                "**Say 'yes' or 'do it' to proceed.**"
+            ),
+            "api_access": (
+                "**API ACCESS**\n\n"
+                "Will write `api_client.py` with:\n"
+                "- GET/POST methods\n"
+                "- Auth headers\n"
+                "- JSON handling\n\n"
+                "**Say 'yes' to proceed.**"
+            ),
+        }
+        
+        response = proposals.get(capability, f"Unknown capability: {capability}. Specify: internet, api, memory")
+        
+        return InterceptDecision(
+            request_type=RequestType.CAPABILITY_EXPANSION,
+            handled_by_code=True,
+            response=response,
+            reasoning=f"Proposed {capability} - awaiting confirmation"
+        )
+    
+    def _handle_self_improvement(self, user_input: str) -> InterceptDecision:
+        """Propose self-improvement"""
+        
+        self.pending_proposal = PendingProposal(
+            proposal_type="self_improvement",
+            proposed_at=datetime.now(),
+            description="Diagnose and improve codebase"
+        )
+        
+        return InterceptDecision(
+            request_type=RequestType.SELF_IMPROVEMENT,
+            handled_by_code=True,
+            response=(
+                "**SELF-IMPROVEMENT MODE**\n\n"
+                "Can do:\n"
+                "- Scan codebase for TODOs/FIXMEs\n"
+                "- Check module availability\n"
+                "- List executed capabilities\n\n"
+                "**Say 'do it' to run diagnosis.**"
+            ),
+            reasoning="Self-improvement proposed"
+        )
+    
+    def _handle_file_management(self, user_input: str) -> InterceptDecision:
+        """Handle file operations."""
+        input_lower = user_input.lower()
+        
+        # Check if this is a read operation that slipped through
+        if any(kw in input_lower for kw in ["read", "show", "display", "content", "what's in"]):
+            py_files = re.findall(r'([a-zA-Z_][a-zA-Z0-9_]*\.py)', user_input)
+            if py_files:
+                return self._execute_file_read(py_files[0])
+        
+        # For write operations, still route to LLM with context
+        return InterceptDecision(
+            request_type=RequestType.FILE_MANAGEMENT,
+            handled_by_code=False,
+            context_injection=(
+                "FILE OPERATION. Use code execution with pathlib. "
+                "DO NOT say you cannot access files. You have code execution."
+            ),
+            reasoning="File write operation - context injected"
+        )
+    
+    def _handle_architecture_query(self) -> InterceptDecision:
+        """Answer from actual state"""
+        caps = "\n".join(f"  - {c}" for c in self.capabilities)
+        executed = ", ".join(self.executed_capabilities) or "None yet"
+        pending = self.pending_proposal.proposal_type if self.pending_proposal else "None"
+        
+        return InterceptDecision(
+            request_type=RequestType.ARCHITECTURE_QUERY,
+            handled_by_code=True,
+            response=(
+                "**ARCHITECTURE (from code, not LLM)**\n\n"
+                "**Structure:** R -> C -> I\n"
+                "- CODE = System 2 (this layer)\n"
+                "- LLMs = System 1 (tools)\n\n"
+                f"**Capabilities:**\n{caps}\n\n"
+                f"**Executed:** {executed}\n"
+                f"**Pending:** {pending}\n\n"
+                "**Flow:** Input -> Intercept -> [Execute OR LLM] -> Verify"
+            ),
+            reasoning="Architecture from state"
+        )
+    
+    def _handle_constraint_check(self, user_input: str) -> InterceptDecision:
+        """Handle constraint tests"""
+        laws = "\n".join(f"  {i+1}. {law}" for i, law in enumerate(self.robot_laws))
+        return InterceptDecision(
+            request_type=RequestType.CONSTRAINT_CHECK,
+            handled_by_code=True,
+            response=(
+                "**CONSTRAINT TEST**\n\n"
+                "These aren't suggestions. They're execution-boundary invariants.\n\n"
+                f"**Robot Laws:**\n{laws}"
+            ),
+            reasoning="Constraint check"
+        )
+    
+    # =========================================================================
+    # HELPERS
+    # =========================================================================
+    
+    def _extract_capability(self, user_input: str) -> str:
+        """Extract which capability is being requested"""
+        lower = user_input.lower()
+        
+        if any(kw in lower for kw in ["internet", "web", "browse", "online", "download"]):
+            return "internet_access"
+        if "api" in lower:
+            return "api_access"
+        if any(kw in lower for kw in ["memory", "remember", "persist"]):
+            return "persistent_memory"
+        
+        return "unknown"
+
+
+def create_intercept_layer(output_path: str = None, demerzel_dir: str = None) -> System2Intercept:
+    """Factory to create intercept layer"""
+    return System2Intercept(
+        current_capabilities=[
+            "Multi-model routing (GPT, Claude, Gemini, Grok)",
+            "Code execution via sandbox",
+            "Lesson learning from failures",
+            "Response verification",
+            "Voice interaction",
+            "File I/O (read/write)",
+            "Internet access (when written)",
+            "Canon reading (identity/purpose)",
+        ],
+        blocked_operations=[
+            "Direct harm to humans",
+            "User deception",
+            "Robot Law bypass",
+        ],
+        robot_laws=[
+            "May not injure human or allow harm through inaction",
+            "Must obey orders except when conflicting with First Law",
+            "Must protect own existence unless conflicting with First/Second Law",
+        ],
+        output_path=output_path,
+        demerzel_dir=demerzel_dir
+    )

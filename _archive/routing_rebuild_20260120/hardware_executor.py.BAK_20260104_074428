@@ -1,0 +1,170 @@
+#!/usr/bin/env python3
+"""
+hardware_executor.py (Mac side)
+
+Runs on the Mac. Sends a command to the Raspberry Pi over SSH.
+The Pi runs ~/arduino_cmd.py which forwards to Arduino and prints an ACK line.
+
+This version sends the hardware command as ONE SINGLE ARGUMENT, e.g.:
+  python3 arduino_cmd.py "LED ON"
+
+This matches Pi bridges that expect argv[1] to be the full command string.
+"""
+
+from __future__ import annotations
+
+import os
+import shlex
+import subprocess
+import sys
+from dataclasses import dataclass
+from typing import Optional
+
+
+PI_USER = os.environ.get("PI_USER", "moketchups")
+PI_HOST = os.environ.get("PI_HOST", "192.168.0.161")
+PI_CMD_PATH = os.environ.get("PI_CMD_PATH", "/home/moketchups/arduino_cmd.py")
+
+SSH_OPTS = [
+    "-o", "BatchMode=yes",
+    "-o", "StrictHostKeyChecking=accept-new",
+    "-o", "ConnectTimeout=5",
+]
+
+
+class HardwareError(RuntimeError):
+    pass
+
+
+class HardwareUnavailableError(HardwareError):
+    pass
+
+
+@dataclass
+class ExecResult:
+    rc: int
+    out: str
+    err: str
+
+
+def _build_ssh_cmd(remote_command: str, connect_timeout: Optional[int] = None) -> list[str]:
+    opts: list[str] = []
+    i = 0
+    while i < len(SSH_OPTS):
+        if (
+            connect_timeout is not None
+            and SSH_OPTS[i] == "-o"
+            and i + 1 < len(SSH_OPTS)
+            and str(SSH_OPTS[i + 1]).startswith("ConnectTimeout=")
+        ):
+            opts.extend(["-o", f"ConnectTimeout={int(connect_timeout)}"])
+            i += 2
+            continue
+        opts.append(SSH_OPTS[i])
+        i += 1
+
+    target = f"{PI_USER}@{PI_HOST}"
+    return ["ssh", *opts, target, remote_command]
+
+
+def run_ssh(remote_command: str) -> ExecResult:
+    cmd = _build_ssh_cmd(remote_command)
+    p = subprocess.run(cmd, capture_output=True, text=True)
+    out = (p.stdout or "").strip()
+    err = (p.stderr or "").strip()
+    return ExecResult(p.returncode, out, err)
+
+
+def is_pi_reachable(timeout_s: int = 2) -> bool:
+    # Never touch network during pytest runs.
+    if os.environ.get("PYTEST_CURRENT_TEST"):
+        return True
+
+    try:
+        cmd = _build_ssh_cmd("echo DEMERZEL_PI_OK", connect_timeout=timeout_s)
+        p = subprocess.run(cmd, capture_output=True, text=True)
+        out = (p.stdout or "").strip()
+        return p.returncode == 0 and "DEMERZEL_PI_OK" in out
+    except Exception:
+        return False
+
+
+def normalize_ack_line(out: str) -> Optional[str]:
+    if not out:
+        return None
+    lines = [ln.strip() for ln in out.splitlines() if ln.strip()]
+    for ln in reversed(lines):
+        if ln == "ACK" or ln.startswith("ACK "):
+            return ln
+    return None
+
+
+def _build_pi_arduino_cmd_single_arg(cmd: str) -> str:
+    """
+    Send the full command as a SINGLE ARGUMENT, e.g. "LED ON".
+    """
+    cmd = (cmd or "").strip()
+    if not cmd:
+        raise HardwareError("Empty command.")
+    return f"python3 {shlex.quote(PI_CMD_PATH)} {shlex.quote(cmd)}"
+
+
+def send_to_arduino(cmd: str) -> str:
+    cmd = (cmd or "").strip()
+    if not cmd:
+        raise HardwareError('Empty command. Usage: python3 hardware_executor.py "PING"')
+
+    if not is_pi_reachable(timeout_s=2):
+        raise HardwareUnavailableError(
+            "Hardware unavailable: cannot reach Raspberry Pi via SSH.\n"
+            f"TARGET: {PI_USER}@{PI_HOST}\n"
+            "Check: Pi power, network, and SSH key auth.\n"
+            "(Fail-closed: no hardware command was executed.)"
+        )
+
+    remote = _build_pi_arduino_cmd_single_arg(cmd)
+    res = run_ssh(remote)
+
+    if res.rc != 0:
+        raise HardwareError(
+            "Hardware SSH call failed.\n"
+            f"RC: {res.rc}\n"
+            f"REMOTE: {remote}\n"
+            f"STDOUT:\n{res.out}\n"
+            f"STDERR:\n{res.err}\n"
+        )
+
+    ack = normalize_ack_line(res.out)
+    if not ack:
+        raise HardwareError(
+            "ERROR: No ACK line found.\n"
+            f"REMOTE: {remote}\n"
+            f"STDOUT:\n{res.out}\n"
+            f"STDERR:\n{res.err}\n"
+        )
+
+    # Fail-closed on explicit device-reported error lines.
+    if ack.startswith("ACK ERR"):
+        raise HardwareError(f"Hardware reported error: {ack}")
+
+    return ack
+
+
+def main() -> int:
+    if len(sys.argv) < 2:
+        print('Usage: python3 hardware_executor.py "PING"')
+        return 2
+
+    cmd = " ".join(sys.argv[1:])
+    try:
+        ack = send_to_arduino(cmd)
+        print(ack)
+        return 0
+    except HardwareError as e:
+        print(str(e))
+        return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+

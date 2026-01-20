@@ -1,0 +1,62 @@
+"""
+router_engine.py
+
+Deterministic router/executor layer for Demerzel.
+Correctness lives in kernel_router / brain_controller.
+
+IMPORTANT: This file MUST NOT speak.
+Reason: speaking in multiple layers causes double-audio (e.g., time spoken twice).
+
+router_engine returns lines only. The single speech surface is handled elsewhere.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from typing import List
+import io
+import contextlib
+
+from kernel_router import RouterState, route_text
+
+
+@dataclass
+class RouterEngine:
+    high_conf_threshold: float = 0.85
+    state: RouterState = field(default_factory=RouterState)
+
+    def process(self, raw_text: str) -> List[str]:
+        """
+        Route text deterministically and return output lines.
+        NO SPEECH here. Ever.
+        """
+        lines: List[str] = []
+
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            self.state = route_text(
+                raw_text,
+                self.state,
+                high_conf_threshold=self.high_conf_threshold,
+            )
+
+        kernel_output = [l for l in buf.getvalue().splitlines() if l.strip()]
+        lines.extend(kernel_output)
+        return lines
+
+
+# Back-compat: some older callsites may import say/maybe_say/macos_say from here.
+# They should be NO-OPS to prevent duplicate audio.
+def say(text: str) -> None:
+    # No-op by design: single speech surface lives elsewhere
+    return
+
+
+def maybe_say(text: str) -> None:
+    # No-op by design: single speech surface lives elsewhere
+    return
+
+
+def macos_say(text: str) -> bool:
+    # No-op by design: single speech surface lives elsewhere
+    return True

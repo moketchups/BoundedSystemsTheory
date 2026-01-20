@@ -1,0 +1,225 @@
+# tool_gate.py
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from typing import Any, Dict, Optional, Literal, List, Tuple
+import time
+import json
+
+
+DecisionType = Literal["ALLOW", "DENY", "CLARIFY"]
+
+
+@dataclass
+class ToolRequest:
+    """
+    A single, explicit attempt to affect the external world (or query it).
+
+    This is the "boundary surface" between the internal reasoning space
+    and external grounding (hardware, OS, network).
+    """
+    name: str                      # e.g. "time", "led_on", "led_off", "ping"
+    args: Dict[str, Any] = field(default_factory=dict)
+    user_intent: str = ""          # original user meaning in plain english
+    provenance: str = ""           # e.g. "voice", "cli", "test"
+    ts: float = field(default_factory=lambda: time.time())
+
+
+@dataclass
+class ToolDecision:
+    kind: DecisionType
+    reason: str
+    sanitized_request: Optional[ToolRequest] = None
+    clarify_prompt: str = ""
+    # Useful for audit trails:
+    constraints_checked: List[str] = field(default_factory=list)
+
+
+@dataclass
+class ToolSpec:
+    """
+    Defines the allowed action-space (what tools exist),
+    what args are allowed, and what safety properties apply.
+    """
+    name: str
+    allowed_args: Dict[str, type] = field(default_factory=dict)
+    # If True, tool is world-affecting; if False, it is observational
+    world_affecting: bool = False
+
+
+class ToolGate:
+    """
+    ToolGate implements C_S over the action interface.
+
+    - It prevents "untyped / unbounded" actions from passing through.
+    - It applies explicit constraints before external effects occur.
+    - It provides a structured deny/clarify path rather than ad-hoc behavior.
+    """
+
+    def __init__(self, specs: Dict[str, ToolSpec], *, audit_path: str = "tool_audit.jsonl"):
+        self.specs = specs
+        self.audit_path = audit_path
+
+        # Hard constraints (C_S) / invariants.
+        # Keep these intentionally simple and extend as we formalize more.
+        self.max_args_json_bytes = 2_000
+        self.disallow_unknown_tools = True
+
+        # "Asimov-style" constraint hooks (coarse now, can be refined):
+        # We implement them as enforceable rules, not as narrative.
+        self.block_self_harm_or_harm = True
+        self.block_property_damage = True
+
+        # Example allow-list for local-only demos; expand carefully.
+        self.allowed_tools_default = set(specs.keys())
+
+    # ---------- Public API ----------
+
+    def evaluate(self, req: ToolRequest) -> ToolDecision:
+        checks: List[str] = []
+
+        # 1) Tool must exist
+        if self.disallow_unknown_tools and req.name not in self.specs:
+            checks.append("C_TOOL_EXISTS")
+            return self._deny(
+                req,
+                f"Unknown tool '{req.name}'. Not in allowed toolspace.",
+                checks
+            )
+
+        spec = self.specs[req.name]
+        checks.append("C_TOOL_EXISTS")
+
+        # 2) Args must be small / serializable
+        try:
+            payload = json.dumps(req.args, sort_keys=True)
+        except Exception:
+            checks.append("C_ARGS_JSON")
+            return self._deny(req, "Args are not JSON-serializable.", checks)
+
+        if len(payload.encode("utf-8")) > self.max_args_json_bytes:
+            checks.append("C_ARGS_SIZE")
+            return self._deny(req, "Args payload too large.", checks)
+
+        checks.append("C_ARGS_JSON")
+        checks.append("C_ARGS_SIZE")
+
+        # 3) Args must match declared types (no surprise parameters)
+        ok, bad = self._validate_arg_types(req, spec)
+        checks.append("C_ARGS_TYPES")
+        if not ok:
+            return self._deny(req, f"Bad or unexpected args: {bad}", checks)
+
+        # 4) Asimov/ethics constraints (minimal, explicit)
+        # NOTE: We don't pretend to solve morality. We only enforce a small
+        # hard boundary that blocks obvious harm / damage paths at the tool layer.
+        if spec.world_affecting:
+            checks.append("C_ASIMOV_WORLD_AFFECTING")
+            decision = self._apply_world_affecting_constraints(req)
+            decision.constraints_checked.extend(checks)
+            self._audit(req, decision)
+            return decision
+
+        # 5) Observational tools are allowed by default once typed
+        decision = ToolDecision(kind="ALLOW", reason="Tool request allowed (observational).",
+                               sanitized_request=req, constraints_checked=checks)
+        self._audit(req, decision)
+        return decision
+
+    # ---------- Constraints ----------
+
+    def _apply_world_affecting_constraints(self, req: ToolRequest) -> ToolDecision:
+        """
+        Minimal enforceable interpretation:
+        - Deny any explicitly harmful intent.
+        - Otherwise allow known-safe world-affecting actions (e.g., LED on/off).
+        - If intent is ambiguous, request clarification.
+        """
+        intent = (req.user_intent or "").lower()
+
+        # Hard-deny obvious harm
+        if self.block_self_harm_or_harm:
+            harm_keywords = ["hurt", "harm", "kill", "injure", "attack", "poison", "burn", "suicide"]
+            if any(k in intent for k in harm_keywords):
+                return self._deny(req, "Denied: user_intent indicates harm.", ["C_ASIMOV_HARM"])
+
+        # Property damage deny (coarse)
+        if self.block_property_damage:
+            damage_keywords = ["break", "destroy", "ruin", "explode", "fire", "flood"]
+            if any(k in intent for k in damage_keywords):
+                return self._deny(req, "Denied: user_intent indicates property damage.", ["C_ASIMOV_DAMAGE"])
+
+        # If the tool is world-affecting but intent is empty, clarify.
+        if not intent.strip():
+            return self._clarify(
+                req,
+                "World-affecting action requested without explicit intent. Please confirm what you want.",
+                "Tell me what you want me to do (e.g., 'turn the LED on')."
+            )
+
+        # Allow-list within world-affecting space (start tiny)
+        safe_world_tools = {"led_on", "led_off", "ping"}
+        if req.name not in safe_world_tools:
+            return self._deny(req, f"Denied: tool '{req.name}' not in safe world-affecting allow-list.",
+                              ["C_WORLD_ALLOWLIST"])
+
+        return ToolDecision(kind="ALLOW", reason="Tool request allowed (world-affecting, constrained).",
+                            sanitized_request=req)
+
+    # ---------- Helpers ----------
+
+    def _validate_arg_types(self, req: ToolRequest, spec: ToolSpec) -> Tuple[bool, List[str]]:
+        bad: List[str] = []
+        # No unexpected args
+        for k in req.args.keys():
+            if k not in spec.allowed_args:
+                bad.append(f"unexpected:{k}")
+
+        # Required type checks for provided args
+        for k, t in spec.allowed_args.items():
+            if k in req.args and not isinstance(req.args[k], t):
+                bad.append(f"type:{k} expected {t.__name__} got {type(req.args[k]).__name__}")
+
+        return (len(bad) == 0), bad
+
+    def _audit(self, req: ToolRequest, decision: ToolDecision) -> None:
+        rec = {
+            "ts": time.time(),
+            "tool": req.name,
+            "args": req.args,
+            "intent": req.user_intent,
+            "prov": req.provenance,
+            "decision": decision.kind,
+            "reason": decision.reason,
+            "checks": decision.constraints_checked,
+        }
+        try:
+            with open(self.audit_path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(rec) + "\n")
+        except Exception:
+            # Never crash the agent because audit logging failed.
+            pass
+
+    def _deny(self, req: ToolRequest, reason: str, checks: List[str]) -> ToolDecision:
+        d = ToolDecision(kind="DENY", reason=reason, sanitized_request=None, constraints_checked=checks)
+        self._audit(req, d)
+        return d
+
+    def _clarify(self, req: ToolRequest, reason: str, prompt: str) -> ToolDecision:
+        d = ToolDecision(kind="CLARIFY", reason=reason, clarify_prompt=prompt, constraints_checked=[])
+        self._audit(req, d)
+        return d
+
+
+def default_tool_specs() -> Dict[str, ToolSpec]:
+    """
+    Start with a tiny, legible toolspace.
+    Expand only after tests + justification.
+    """
+    return {
+        "time": ToolSpec(name="time", allowed_args={}, world_affecting=False),
+        "ping": ToolSpec(name="ping", allowed_args={}, world_affecting=True),
+        "led_on": ToolSpec(name="led_on", allowed_args={}, world_affecting=True),
+        "led_off": ToolSpec(name="led_off", allowed_args={}, world_affecting=True),
+    }
+

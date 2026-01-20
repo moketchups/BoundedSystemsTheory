@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")"
+
+# Voice/TTS
+export DEMERZEL_TTS=1
+export DEMERZEL_VOICE="Samantha"
+
+# Recognition / routing thresholds
+export DEMERZEL_CONFIRM_THRESH=0.99
+
+# CRITICAL: give humans + STT enough time to answer yes/no
+export DEMERZEL_CONFIRM_WINDOW=10.0
+
+# Optional: keep command window generous too (doesn't hurt)
+export DEMERZEL_COMMAND_WINDOW=7.5
+
+python3 -u run_voice_clean.BASELINE_OK.py

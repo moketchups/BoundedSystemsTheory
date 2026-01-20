@@ -1,0 +1,131 @@
+# kernel_router.py
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from datetime import datetime
+import re
+from typing import Any, Dict
+
+# HardwareExecutor is expected to provide:
+#   ping() -> result with .ok, .out, .err, .rc
+#   led_on() -> same
+#   led_off() -> same
+from hardware_executor import HardwareExecutor
+
+
+_HW = HardwareExecutor()
+
+
+@dataclass
+class RouterState:
+    awaiting_confirmation: bool = False
+    last_prompt: str = ""
+    last_intent: str = ""
+    meta: Dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class RouterOutput:
+    did_action: bool
+    action_name: str
+    speak: str
+    new_state: RouterState
+    debug: Dict[str, Any] = field(default_factory=dict)
+
+
+def _norm(text: str) -> str:
+    t = text.strip().lower()
+    # collapse whitespace
+    t = re.sub(r"\s+", " ", t)
+    return t
+
+
+def _hw_speak(res) -> str:
+    # Be tolerant of different HWResult shapes
+    ok = getattr(res, "ok", False)
+    out = getattr(res, "out", "") or ""
+    err = getattr(res, "err", "") or ""
+    rc = getattr(res, "rc", None)
+
+    if ok:
+        return out.strip() if out.strip() else "OK."
+    # Keep the message short; brain_controller will speak this
+    if err.strip():
+        return f"Hardware call failed: {err.strip()}"
+    if rc is not None:
+        return f"Hardware call failed (rc={rc})."
+    return "Hardware call failed."
+
+
+def route_text(raw_text: str, state: RouterState) -> RouterOutput:
+    text = _norm(raw_text)
+    new_state = RouterState(
+        awaiting_confirmation=state.awaiting_confirmation,
+        last_prompt=state.last_prompt,
+        last_intent=state.last_intent,
+        meta=dict(state.meta),
+    )
+
+    # ----------- TIME -----------
+    if any(p in text for p in ["what time", "time is it", "tell me the time", "current time", "time?"]) or text == "time":
+        now = datetime.now()
+        speak = now.strftime("It is %-I:%M %p.")
+        return RouterOutput(
+            did_action=True,
+            action_name="TIME",
+            speak=speak,
+            new_state=new_state,
+            debug={"text": text},
+        )
+
+    # ----------- SLEEP -----------
+    if text in ["sleep", "go to sleep", "goodbye", "bye", "bye demerzel"]:
+        # Brain controller can treat this as “go idle” if it wants.
+        return RouterOutput(
+            did_action=True,
+            action_name="SLEEP",
+            speak="Bye.",
+            new_state=new_state,
+            debug={"text": text},
+        )
+
+    # ----------- HARDWARE -----------
+    if text in ["ping", "ping pi", "ping arduino"]:
+        res = _HW.ping()
+        return RouterOutput(
+            did_action=True,
+            action_name="PING",
+            speak=_hw_speak(res),
+            new_state=new_state,
+            debug={"text": text},
+        )
+
+    if text in ["lights on", "light on", "led on", "turn on the light", "turn on lights"]:
+        res = _HW.led_on()
+        return RouterOutput(
+            did_action=True,
+            action_name="LED_ON",
+            speak=_hw_speak(res),
+            new_state=new_state,
+            debug={"text": text},
+        )
+
+    if text in ["lights off", "light off", "led off", "turn off the light", "turn off lights"]:
+        res = _HW.led_off()
+        return RouterOutput(
+            did_action=True,
+            action_name="LED_OFF",
+            speak=_hw_speak(res),
+            new_state=new_state,
+            debug={"text": text},
+        )
+
+    # ----------- FALLBACK -----------
+    return RouterOutput(
+        did_action=False,
+        action_name="NOOP",
+        speak="I didn't catch a command.",
+        new_state=new_state,
+        debug={"text": text},
+    )
+

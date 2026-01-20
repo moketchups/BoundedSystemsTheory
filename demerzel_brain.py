@@ -34,7 +34,8 @@ from provenance_tracker import (
 )
 
 # Conversational Learning System (January 2026)
-from conversational_router import ConversationalRouter
+# DISABLED: ConversationalRouter replaced by cognitive_router.py (January 20, 2026)
+# from conversational_router import ConversationalRouter
 from conversational_gaps import ConversationalGapDetector, GapQueue, detect_and_queue_gap
 
 
@@ -552,11 +553,12 @@ class DemerzelBrain:
         self.provenance = ProvenanceTracker(storage_path="state/provenance.json")
 
         # Conversational Learning System (January 2026)
-        # Routes discourse/comprehension before existing flow to PREVENT failures
-        self.conv_router = ConversationalRouter(
-            db_path="memory.db",
-            demerzel_dir="/Users/jamienucho/demerzel"
-        )
+        # DISABLED: ConversationalRouter replaced by cognitive_router.py (January 20, 2026)
+        # self.conv_router = ConversationalRouter(
+        #     db_path="memory.db",
+        #     demerzel_dir="/Users/jamienucho/demerzel"
+        # )
+        self.conv_router = None  # Disabled - use cognitive_router.py instead
         self.gap_detector = ConversationalGapDetector()
         self.gap_queue = GapQueue(storage_path="state/pending_gaps.json")
 
@@ -574,30 +576,26 @@ class DemerzelBrain:
         CODE processes input. CODE decides response.
         LLMs only used for language micro-tasks.
 
-        ROUTING ORDER (January 2026):
-        1. Conversational Router - handles discourse/comprehension FIRST
-           (prevents "Acknowledged" for greetings, "I don't have context" for setups)
-        2. Intent Classification - existing handlers for identity, capability, etc.
-        3. Post-hoc Gap Detection - learns from any failures that slip through
+        ROUTING ORDER (January 20, 2026 UPDATE):
+        - ConversationalRouter DISABLED - replaced by cognitive_router.py
+        - This method now only handles legacy brain operations
+        - Primary routing is done by cognitive_router.process() in brain_controller.py
         """
         # =====================================================================
-        # PHASE 1: CONVERSATIONAL ROUTER (runs first to prevent failures)
+        # PHASE 1: CONVERSATIONAL ROUTER - DISABLED (January 20, 2026)
+        # Now handled by cognitive_router.py
         # =====================================================================
-        route_result = self.conv_router.route(user_input)
-
-        if route_result.handler_func:
-            # Conversational router matched - use its handler
-            print(f"[BRAIN] Route: {route_result.handler_name}")
-            response = route_result.handler_func(user_input, route_result.context)
-            self.last_response = response
-
-            # Post-hoc gap detection (even for routed responses)
-            self._check_for_gaps(user_input, response)
-
-            return response
+        # if self.conv_router:
+        #     route_result = self.conv_router.route(user_input)
+        #     if route_result.handler_func:
+        #         print(f"[BRAIN] Route: {route_result.handler_name}")
+        #         response = route_result.handler_func(user_input, route_result.context)
+        #         self.last_response = response
+        #         self._check_for_gaps(user_input, response)
+        #         return response
 
         # =====================================================================
-        # PHASE 2: EXISTING INTENT CLASSIFICATION (fallback)
+        # PHASE 2: EXISTING INTENT CLASSIFICATION
         # =====================================================================
         # 1. CODE classifies intent
         intent = self._classify_intent(user_input)
@@ -696,11 +694,14 @@ class DemerzelBrain:
                 )
 
         # ACTION patterns (commands)
+        # Note: Allow optional prefix like "Demerzel, " before the command
         action_patterns = [
             r'^(do|execute|run|perform|start|create|make|build)\s+',
+            r'^(demerzel|hey|ok|okay)[,\s]+(do|execute|run|perform|start|create|make|build)\s+',
             r'\bgo\s+ahead\b',
             r'\bproceed\b',
             r'\bdo\s+it\b',
+            r'\bexecute\s+\S+\.md\b',  # execute any .md file
         ]
         for pattern in action_patterns:
             if re.search(pattern, input_lower):
@@ -1494,6 +1495,39 @@ Recent context: {user_input}
 
         return "\n".join(results)
 
+    def _execute_directive(self, filename: str) -> str:
+        """
+        Execute a directive file (e.g., DIRECTIVE_SELF_ENGINEER.md).
+        Reads the file and processes its instructions.
+        """
+        # Search for the file in known locations
+        search_paths = [
+            Path('/Users/jamienucho/demerzel') / filename,
+            Path('/Users/jamienucho/demerzel/demerzel_canon') / filename,
+            Path(filename).expanduser(),
+        ]
+
+        found_path = None
+        for path in search_paths:
+            if path.exists():
+                found_path = path
+                break
+
+        if not found_path:
+            return f"Directive file not found: {filename}. Searched: {', '.join(str(p) for p in search_paths)}"
+
+        try:
+            content = found_path.read_text()
+            print(f"[BRAIN] Executing directive: {found_path}")
+
+            # Return the directive content for processing
+            # In a full implementation, this would parse and execute instructions
+            summary = content[:500] + "..." if len(content) > 500 else content
+            return f"Directive loaded from {found_path.name}:\n{summary}\n\n[Ready to execute. What action should I take from this directive?]"
+
+        except Exception as e:
+            return f"Error reading directive {filename}: {e}"
+
     # =========================================================================
     # REASONING SUPPORT
     # =========================================================================
@@ -1575,6 +1609,16 @@ Recent context: {user_input}
         Routes through ExecutionBoundary if available.
         """
         action_lower = action.lower() if action else ''
+
+        # Execute directive/instruction file (e.g., "execute DIRECTIVE_SELF_ENGINEER.md")
+        directive_match = re.search(r'execute\s+([^\s]+\.md)', action, re.IGNORECASE)
+        if directive_match:
+            return self._execute_directive(directive_match.group(1))
+
+        # Read file (e.g., "read config.json")
+        read_match = re.search(r'read\s+([^\s]+)', action, re.IGNORECASE)
+        if read_match:
+            return self._execute_file_read(action)
 
         # Voice test
         if 'voice' in action_lower or 'speak' in action_lower or 'say' in action_lower:

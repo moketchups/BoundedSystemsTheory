@@ -1,0 +1,98 @@
+cd ~/demerzel
+
+cat > hardware_executor.py <<'PY'
+#!/usr/bin/env python3
+"""
+hardware_executor.py (Mac side)
+
+Stable contract:
+- class HardwareExecutor with methods: ping(), led_on(), led_off(), send_to_arduino(cmd)
+- module-level functions with the same names (back-compat)
+- returns HWResult consistently
+
+This talks to the Raspberry Pi over SSH and runs arduino_cmd.py on the Pi.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+import subprocess
+import shlex
+
+
+@dataclass
+class HWResult:
+    ok: bool
+    out: str = ""
+    err: str = ""
+    rc: int = 0
+
+
+class HardwareExecutor:
+    def __init__(
+        self,
+        host: str = "192.168.0.161",
+        user: str = "moketchups",
+        pi_script: str = "~/demerzel/arduino_cmd.py",
+        ssh_opts: str = "-o BatchMode=yes -o ConnectTimeout=2",
+        timeout_sec: float = 8.0,
+    ):
+        self.host = host
+        self.user = user
+        self.pi_script = pi_script
+        self.ssh_opts = ssh_opts
+        self.timeout_sec = timeout_sec
+
+    def _ssh(self, remote_cmd: str) -> HWResult:
+        target = f"{self.user}@{self.host}"
+        cmd = f"ssh {self.ssh_opts} {shlex.quote(target)} {shlex.quote(remote_cmd)}"
+        try:
+            p = subprocess.run(
+                cmd,
+                shell=True,
+                capture_output=True,
+                text=True,
+                timeout=self.timeout_sec,
+            )
+            out = (p.stdout or "").strip()
+            err = (p.stderr or "").strip()
+            ok = (p.returncode == 0)
+            return HWResult(ok=ok, out=out, err=err, rc=p.returncode)
+        except subprocess.TimeoutExpired:
+            return HWResult(ok=False, out="", err=f"timeout after {self.timeout_sec}s", rc=124)
+        except Exception as e:
+            return HWResult(ok=False, out="", err=str(e), rc=125)
+
+    def send_to_arduino(self, cmd: str) -> HWResult:
+        cmd = (cmd or "").strip()
+        if not cmd:
+            return HWResult(ok=False, err="empty cmd", rc=2)
+        remote = f"python3 {self.pi_script} {shlex.quote(cmd)}"
+        return self._ssh(remote)
+
+    def ping(self) -> HWResult:
+        return self.send_to_arduino("PING")
+
+    def led_on(self) -> HWResult:
+        return self.send_to_arduino("LED ON")
+
+    def led_off(self) -> HWResult:
+        return self.send_to_arduino("LED OFF")
+
+
+# Back-compat module functions
+_DEFAULT = HardwareExecutor()
+
+def send_to_arduino(cmd: str) -> HWResult:
+    return _DEFAULT.send_to_arduino(cmd)
+
+def ping() -> HWResult:
+    return _DEFAULT.ping()
+
+def led_on() -> HWResult:
+    return _DEFAULT.led_on()
+
+def led_off() -> HWResult:
+    return _DEFAULT.led_off()
+PY
+

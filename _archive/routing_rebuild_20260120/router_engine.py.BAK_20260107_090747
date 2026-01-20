@@ -1,0 +1,341 @@
+#!/usr/bin/env python3
+"""
+router_engine.py — deterministic, structure-first router engine.
+
+Goals (matches ROUTER_INVARIANTS.md):
+- Allowlist-only execution
+- No bypass: hardware only via explicit mapping
+- Confirmation FSM (HIGH = 2-step, MEDIUM = 1-step, SAFE = 0-step)
+- Ambiguity never executes
+- Exceptions fail closed (reset pending state)
+"""
+from __future__ import annotations
+
+from dataclasses import dataclass, replace, field
+from datetime import datetime
+from pathlib import Path
+from typing import Callable, Dict, List, Optional, Tuple, Any
+
+
+ALLOWLIST_PATH_DEFAULT = Path(__file__).with_name("allowlist.json")
+
+# Canonical hardware intents (human-facing)
+HW_INTENTS = ("PING", "LED ON", "LED OFF")
+
+# Soft intents (no real-world effect)
+SOFT_INTENTS = ("TIME_QUERY", "SLEEP")
+
+
+@dataclass(frozen=True)
+class RouterState:
+    """Pure state passed between turns (tests often use this directly)."""
+    pending_intent: Optional[str] = None      # e.g., "PING"
+    pending_hw_cmd: Optional[str] = None      # same as pending_intent for now
+    confirm_stage: int = 0                   # 0 none, 1 awaiting CONFIRM/YES, 2 awaiting I'M SURE
+    last_prompt: str = ""                    # last confirmation prompt (for deterministic reprompt)
+
+    @property
+    def awaiting_confirmation(self) -> bool:
+        # Back-compat for tests that read .awaiting_confirmation
+        return self.confirm_stage > 0 and self.pending_intent is not None
+
+
+@dataclass(frozen=True)
+class EngineResult:
+    speak: str
+    new_state: RouterState
+    intent: str
+    conf: float = 1.0
+    did_execute: bool = False
+    hw_cmd: Optional[str] = None
+    effect: Optional[str] = None  # e.g., "enter_sleep_mode"
+    error: Optional[str] = None
+
+
+def _lower(s: str) -> str:
+    return (s or "").strip().lower()
+
+
+def load_allowlist(path: Path = ALLOWLIST_PATH_DEFAULT) -> Dict[str, List[str]]:
+    """Loads allowlist.json. Expected shape: {HIGH:[...], MEDIUM:[...], SAFE:[...]}"""
+    import json
+    if not path.exists():
+        # Fail closed: no hardware allowed.
+        return {"HIGH": [], "MEDIUM": [], "SAFE": []}
+    data = json.loads(path.read_text())
+    # Normalize keys & values defensively.
+    out: Dict[str, List[str]] = {"HIGH": [], "MEDIUM": [], "SAFE": []}
+    for k in out.keys():
+        vals = data.get(k, []) or []
+        out[k] = [str(v).strip().upper() for v in vals]
+    return out
+
+
+def allowed_today_string(allowlist: Dict[str, List[str]]) -> str:
+    # Always include soft intents
+    allowed = ["time", "sleep"]
+    hw = set()
+    for tier in ("HIGH", "MEDIUM", "SAFE"):
+        for it in allowlist.get(tier, []):
+            hw.add(it.upper())
+    # Use friendly phrasing in the list
+    if "PING" in hw:
+        allowed.append("ping")
+    if "LED ON" in hw:
+        allowed.append("led on")
+    if "LED OFF" in hw:
+        allowed.append("led off")
+    return ", ".join(allowed)
+
+
+def _risk_of_intent(intent: str, allowlist: Dict[str, List[str]]) -> Optional[str]:
+    iu = intent.upper()
+    for tier in ("HIGH", "MEDIUM", "SAFE"):
+        if iu in (allowlist.get(tier) or []):
+            return tier
+    return None
+
+
+def _classify(text: str) -> Tuple[str, float]:
+    """Very small deterministic classifier for the current scope."""
+    t = _lower(text)
+
+    # Ambiguity checks first
+    if "led" in t and ("on" in t) and ("off" in t):
+        return ("AMBIG_LED", 0.40)
+
+    # Hardware
+    if t in ("ping", "ping pi", "arduino ping"):
+        return ("PING", 0.99)
+    if t in ("led on", "light on", "turn on the led", "turn led on"):
+        return ("LED ON", 0.99)
+    if t in ("led off", "light off", "turn off the led", "turn led off"):
+        return ("LED OFF", 0.99)
+
+    # Soft
+    if "time" in t:
+        return ("TIME_QUERY", 0.90)
+    if "sleep" in t:
+        return ("SLEEP", 0.90)
+
+    return ("UNKNOWN", 0.20)
+
+
+def _is_cancel(text: str) -> bool:
+    t = _lower(text)
+    return t in ("no", "cancel", "stop", "never mind", "nevermind")
+
+
+def _is_confirm_stage1(text: str) -> bool:
+    t = _lower(text)
+    return t in ("confirm", "yes", "yep", "yeah")
+
+
+def _is_confirm_stage2(text: str) -> bool:
+    t = _lower(text)
+    return t in ("i'm sure", "im sure", "i am sure", "sure")
+
+
+def _time_speak() -> str:
+    return datetime.now().strftime("It is %I:%M %p.").lstrip("0")
+
+
+def route_text(
+    text: str,
+    state: Optional[RouterState],
+    *,
+    allowlist: Dict[str, List[str]],
+    exec_hw: Optional[Callable[[str], str]] = None,
+    require_owner_area: bool = False,
+) -> EngineResult:
+    """
+    Pure function: routes `text` given `state`, returning EngineResult with `new_state`.
+    `exec_hw(cmd)` is the ONLY place hardware can run (no bypass).
+    """
+    st = state or RouterState()
+    allowed_today = allowed_today_string(allowlist)
+
+    try:
+        # Confirmation mode
+        if st.awaiting_confirmation:
+            if _is_cancel(text):
+                ns = replace(st, pending_intent=None, pending_hw_cmd=None, confirm_stage=0, last_prompt="")
+                return EngineResult(
+                    speak="Cancelled.",
+                    new_state=ns,
+                    intent="CANCEL",
+                    conf=1.0,
+                    did_execute=False,
+                )
+
+            # Stage 1 confirm
+            if st.confirm_stage == 1 and _is_confirm_stage1(text):
+                risk = _risk_of_intent(st.pending_intent or "", allowlist) or "HIGH"
+                if risk == "HIGH":
+                    prompt = "Are you sure? This is HIGH risk. Say I'm sure."
+                    ns = replace(st, confirm_stage=2, last_prompt=prompt)
+                    return EngineResult(speak=prompt, new_state=ns, intent=st.pending_intent or "UNKNOWN", conf=1.0)
+
+                # MEDIUM/SAFE execute immediately
+                if not exec_hw:
+                    raise RuntimeError("No exec_hw provided for hardware execution.")
+                out = exec_hw(st.pending_hw_cmd or st.pending_intent or "")
+                ns = replace(st, pending_intent=None, pending_hw_cmd=None, confirm_stage=0, last_prompt="")
+                return EngineResult(
+                    speak=(out or "OK"),
+                    new_state=ns,
+                    intent=st.pending_intent or "UNKNOWN",
+                    conf=1.0,
+                    did_execute=True,
+                    hw_cmd=st.pending_hw_cmd or st.pending_intent,
+                )
+
+            # Stage 2 confirm
+            if st.confirm_stage == 2 and (_is_confirm_stage2(text) or _is_confirm_stage1(text)):
+                if not exec_hw:
+                    raise RuntimeError("No exec_hw provided for hardware execution.")
+                out = exec_hw(st.pending_hw_cmd or st.pending_intent or "")
+                ns = replace(st, pending_intent=None, pending_hw_cmd=None, confirm_stage=0, last_prompt="")
+                return EngineResult(
+                    speak=(out or "OK"),
+                    new_state=ns,
+                    intent=st.pending_intent or "UNKNOWN",
+                    conf=1.0,
+                    did_execute=True,
+                    hw_cmd=st.pending_hw_cmd or st.pending_intent,
+                )
+
+            # Non-binary => re-prompt deterministically
+            prompt = st.last_prompt or "Please say confirm or no."
+            ns = replace(st, last_prompt=prompt)
+            return EngineResult(speak=prompt, new_state=ns, intent=st.pending_intent or "UNKNOWN", conf=1.0)
+
+        # Normal mode
+        intent, conf = _classify(text)
+
+        # Ambiguity never executes
+        if intent == "AMBIG_LED":
+            msg = "Ambiguous LED request: heard both LED ON and LED OFF. Please say 'led on' or 'led off'."
+            return EngineResult(speak=msg, new_state=st, intent="CLARIFY", conf=conf, did_execute=False)
+
+        # Unknown is never silent
+        if intent == "UNKNOWN":
+            msg = f"Unknown: outside inference region. Allowed today: {allowed_today}."
+            return EngineResult(speak=msg, new_state=st, intent="UNKNOWN", conf=conf, did_execute=False)
+
+        # Soft intents execute immediately (no confirmation)
+        if intent == "TIME_QUERY":
+            return EngineResult(speak=_time_speak(), new_state=st, intent="TIME_QUERY", conf=conf, did_execute=False)
+
+        if intent == "SLEEP":
+            return EngineResult(
+                speak="Entering sleep mode.",
+                new_state=st,
+                intent="SLEEP",
+                conf=conf,
+                did_execute=False,
+                effect="enter_sleep_mode",
+            )
+
+        # Hardware intents: allowlist-only
+        risk = _risk_of_intent(intent, allowlist)
+        if risk is None:
+            msg = f"Unknown: outside inference region. Allowed today: {allowed_today}."
+            return EngineResult(speak=msg, new_state=st, intent="UNKNOWN", conf=conf, did_execute=False)
+
+        # Confirmation required for hardware per today's policy.
+        prompt = f"Confirm: {intent}. Say confirm."
+        ns = replace(st, pending_intent=intent, pending_hw_cmd=intent, confirm_stage=1, last_prompt=prompt)
+        return EngineResult(
+            speak=prompt,
+            new_state=ns,
+            intent=intent,
+            conf=conf,
+            did_execute=False,
+            hw_cmd=intent,
+        )
+
+    except Exception as e:
+        # Fail closed: clear pending state
+        ns = RouterState()
+        return EngineResult(
+            speak=f"ERROR: {e}",
+            new_state=ns,
+            intent="ERROR",
+            conf=0.0,
+            did_execute=False,
+            error=str(e),
+        )
+
+
+class _DefaultHardware:
+    """Real hardware calls (Pi SSH) via hardware_executor.HardwareExecutor."""
+    def __init__(self) -> None:
+        from hardware_executor import HardwareExecutor
+        self._ex = HardwareExecutor()
+
+    def ping(self) -> Any:
+        return self._ex.ping()
+
+    def led_on(self) -> Any:
+        return self._ex.led_on()
+
+    def led_off(self) -> Any:
+        return self._ex.led_off()
+
+
+def _exec_hw_from_obj(hw: Any, cmd: str) -> str:
+    cu = (cmd or "").strip().upper()
+    if cu == "PING":
+        r = hw.ping()
+    elif cu == "LED ON":
+        r = hw.led_on()
+    elif cu == "LED OFF":
+        r = hw.led_off()
+    else:
+        raise ValueError(f"Unknown HW cmd: {cmd!r}")
+
+    if isinstance(r, str):
+        return r
+    return getattr(r, "out", "") or getattr(r, "stdout", "") or str(r)
+
+
+@dataclass
+class RouterEngine:
+    """
+    Stateful wrapper used by the voice loop.
+    Tests can call RouterEngine.process(...) or route_text(...).
+    """
+    require_owner_area: bool = False
+    allowlist: Dict[str, List[str]] = field(default_factory=load_allowlist)
+    hw: Any = field(default_factory=_DefaultHardware)
+    state: RouterState = field(default_factory=RouterState)
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        # Backward/forward compatible flags:
+        roa = kwargs.pop("require_owner_area", None)
+        roarm = kwargs.pop("require_owner_arm", None)  # tests used this name
+        if roa is None and roarm is not None:
+            roa = roarm
+        self.require_owner_area = bool(roa) if roa is not None else False
+
+        # Allow injecting allowlist/hw/state for tests.
+        self.allowlist = kwargs.pop("allowlist", load_allowlist())
+        self.hw = kwargs.pop("hw", _DefaultHardware())
+        self.state = kwargs.pop("state", RouterState())
+
+        if kwargs:
+            unknown = ", ".join(sorted(kwargs.keys()))
+            raise TypeError(f"Unknown RouterEngine kwargs: {unknown}")
+
+    def process(self, text: str) -> EngineResult:
+        res = route_text(
+            text,
+            self.state,
+            allowlist=self.allowlist,
+            exec_hw=lambda cmd: _exec_hw_from_obj(self.hw, cmd),
+            require_owner_area=self.require_owner_area,
+        )
+        self.state = res.new_state
+        return res
+

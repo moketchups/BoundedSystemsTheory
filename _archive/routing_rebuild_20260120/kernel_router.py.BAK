@@ -1,0 +1,328 @@
+# kernel_router.py
+# Deterministic "brain" kernel -> (optional confirmation) -> hardware executor.
+# Voice is a shell; this router is authoritative.
+#
+# Key principle:
+# - We allow a smarter kernel to suggest intents,
+#   BUT we apply deterministic normalization + safety overrides to prevent:
+#   - "time" -> clarify loops
+#   - "led on" accidentally executing "led off"
+#
+# This is the safety layer that remains valuable even when you later add a full dialog/LLM system.
+
+from __future__ import annotations
+
+import datetime
+import json
+import os
+import re
+import subprocess
+import sys
+from dataclasses import dataclass
+from typing import Optional, Tuple
+
+from kernel_connect import (
+    Intent,
+    run_kernel,
+    kernel_result_to_json_str,
+    validate_kernel_result,
+)
+
+# Map kernel intents to hardware commands (strings passed to hardware_executor.py)
+INTENT_TO_HW_CMD = {
+    Intent.PING: "PING",
+    Intent.LED_ON: "LED ON",
+    Intent.LED_OFF: "LED OFF",
+    # TIME_QUERY and SLEEP are handled locally (safe intents)
+}
+
+YES_SET = {"yes", "y"}
+NO_SET = {"no", "n"}
+
+
+@dataclass
+class RouterState:
+    """
+    Router state is explicit and minimal.
+
+    If awaiting_confirmation is True, the only accepted next inputs are yes/no.
+    """
+    awaiting_confirmation: bool = False
+    pending_intent: Optional[Intent] = None
+    pending_hw_cmd: Optional[str] = None
+    pending_prompt: Optional[str] = None
+
+
+def _say(t: str) -> None:
+    """
+    Single output surface: prints + speaks on macOS.
+    If TTS fails, we never crash.
+    """
+    # Always log
+    try:
+        print(t, flush=True)
+    except Exception:
+        pass
+
+    # Speak (macOS)
+    try:
+        subprocess.run(["say", t], check=False)
+    except Exception as e:
+        # Never crash the system because TTS failed
+        try:
+            print(f"[TTS_ERROR] {e}", flush=True)
+        except Exception:
+            pass
+
+
+def _run_hardware_command(hw_cmd: str) -> str:
+    """
+    Executes hardware command through the existing stable hardware_executor.py.
+    This keeps the hardware layer sealed as a black box, but explicit.
+    """
+    cmd = ["python3", "hardware_executor.py", hw_cmd]
+    completed = subprocess.run(cmd, capture_output=True, text=True)
+
+    # Always surface stderr explicitly (no silent failures)
+    if completed.returncode != 0:
+        raise RuntimeError(
+            f"Hardware executor failed (exit={completed.returncode}).\n"
+            f"STDOUT:\n{completed.stdout}\n"
+            f"STDERR:\n{completed.stderr}\n"
+        )
+
+    # Return stdout (hardware_executor.py already parses ACK line)
+    return (completed.stdout or "").strip()
+
+
+# ----------------------------
+# Deterministic normalization
+# ----------------------------
+
+_PUNCT_RE = re.compile(r"[^a-z0-9\s]+")
+
+
+def _normalize_text(raw: str) -> str:
+    """
+    Make speech text robust:
+    - lowercase
+    - remove punctuation
+    - collapse whitespace
+    """
+    s = (raw or "").strip().lower()
+    s = _PUNCT_RE.sub(" ", s)
+    s = re.sub(r"\s+", " ", s).strip()
+    return s
+
+
+def _deterministic_intent_override(norm: str) -> Optional[Intent]:
+    """
+    Deterministic rules that should ALWAYS win over kernel guessing.
+    These are deliberately simple, safe, and high-precision.
+    """
+    if not norm:
+        return None
+
+    # TIME: any phrase containing "time" should be time.
+    # Examples: "time", "what time is it", "tell me the time"
+    if "time" in norm:
+        return Intent.TIME_QUERY
+
+    # PING: direct test intent
+    if "ping" in norm:
+        return Intent.PING
+
+    # LED: hard guardrails. If LED (or lights) + ON appears, it must be LED_ON.
+    # If LED (or lights) + OFF appears, it must be LED_OFF.
+    has_led = ("led" in norm) or ("light" in norm) or ("lights" in norm)
+    if has_led:
+        has_on = "on" in norm
+        has_off = "off" in norm
+
+        # If both appear ("turn on... off...") it's ambiguous -> no override.
+        if has_on and not has_off:
+            return Intent.LED_ON
+        if has_off and not has_on:
+            return Intent.LED_OFF
+
+    # Sleep: we leave to the kernel unless it's explicitly said
+    # (you can tighten this later)
+    if "sleep" in norm:
+        return Intent.SLEEP
+
+    return None
+
+
+def _handle_safe_local_intents(intent: Intent) -> Optional[str]:
+    """
+    Deterministic local handling for non-hardware actions.
+    Returns a user-visible response string, or None if not handled.
+    """
+    if intent == Intent.TIME_QUERY:
+        now = datetime.datetime.now()
+        return now.strftime("Local time is %I:%M %p.")
+
+    if intent == Intent.SLEEP:
+        # We do NOT execute any "sleep mode" changes here yet.
+        # It's confirmable by policy, but actual behavior is not defined in hardware layer.
+        return "Sleep intent acknowledged. (No sleep action is implemented yet.)"
+
+    return None
+
+
+# ----------------------------
+# Main routing entrypoint
+# ----------------------------
+
+def route_text(raw_text: str, state: RouterState, high_conf_threshold: float = 0.85) -> RouterState:
+    """
+    Main deterministic router entrypoint.
+
+    - If awaiting confirmation: interpret raw_text as yes/no ONLY.
+    - Else: run kernel, validate contract, apply deterministic overrides, enforce confirmation policy, execute if allowed.
+    """
+    t = (raw_text or "").strip()
+    norm = _normalize_text(t)
+
+    # --- Confirmation step ---
+    if state.awaiting_confirmation:
+        ans = norm.lower()
+
+        if ans in YES_SET:
+            if not state.pending_hw_cmd or not state.pending_intent:
+                # Should never happen; explicit failure
+                state = RouterState()
+                _say("ERROR: confirmation state corrupted; cleared.")
+                return state
+
+            _say(f"CONFIRMED: executing {state.pending_intent.value}")
+            try:
+                out = _run_hardware_command(state.pending_hw_cmd)
+                _say(f"HARDWARE: {out}")
+            except Exception as e:
+                _say(f"ERROR: {e}")
+
+            return RouterState()  # clear state
+
+        if ans in NO_SET:
+            _say("CANCELLED.")
+            return RouterState()  # clear state
+
+        # Not yes/no; keep waiting, be explicit.
+        _say("Awaiting confirmation. Reply 'yes' or 'no'.")
+        return state
+
+    # --- Normal routing step ---
+    # 1) deterministic override from normalized text
+    forced_intent = _deterministic_intent_override(norm)
+
+    # 2) run kernel as the general-case classifier
+    result = run_kernel(t, high_conf_threshold=high_conf_threshold)
+    validate_kernel_result(result)
+
+    # Always show authoritative kernel JSON when debugging (auditable boundary)
+    if os.getenv("DEMERZEL_DEBUG_KERNEL_JSON") == "1":
+        print("KERNEL_JSON:", flush=True)
+        print(kernel_result_to_json_str(result), flush=True)
+
+    # 3) Apply deterministic override (wins)
+    if forced_intent is not None:
+        result.intent = forced_intent
+        # If we force an intent, we also force "no clarify questions"
+        # because we are deliberately bypassing ambiguity.
+        try:
+            result.clarification_questions = []
+        except Exception:
+            pass
+
+    # 4) If still UNKNOWN: speak clarify questions and stop.
+    if result.intent == Intent.UNKNOWN:
+        for q in getattr(result, "clarification_questions", []) or []:
+            _say(f"CLARIFY: {q}")
+        return state
+
+    # 5) Handle local-only intents (no hardware)
+    local_resp = _handle_safe_local_intents(result.intent)
+    if local_resp is not None:
+        # If kernel demanded confirmation, obey it even for local actions.
+        if getattr(result, "require_confirmation", False):
+            prompt = getattr(result, "confirmation_prompt", None) or "Confirm? (yes/no)"
+            _say(prompt)
+            return RouterState(
+                awaiting_confirmation=True,
+                pending_intent=result.intent,
+                pending_hw_cmd=None,
+                pending_prompt=prompt,
+            )
+        _say(local_resp)
+        return state
+
+    # 6) Hardware-mapped intents only
+    if result.intent not in INTENT_TO_HW_CMD:
+        _say(f"REFUSE: intent '{result.intent.value}' has no execution mapping.")
+        return state
+
+    hw_cmd = INTENT_TO_HW_CMD[result.intent]
+
+    # 7) HARD guardrail: never allow LED ON/OFF flip based on kernel weirdness.
+    # If text deterministically says on/off, enforce.
+    if result.intent in (Intent.LED_ON, Intent.LED_OFF):
+        # Re-check normalized text for guard
+        has_led = ("led" in norm) or ("light" in norm) or ("lights" in norm)
+        if has_led:
+            has_on = "on" in norm
+            has_off = "off" in norm
+            if has_on and not has_off:
+                result.intent = Intent.LED_ON
+                hw_cmd = INTENT_TO_HW_CMD[result.intent]
+            if has_off and not has_on:
+                result.intent = Intent.LED_OFF
+                hw_cmd = INTENT_TO_HW_CMD[result.intent]
+
+    # 8) Confirmation gate
+    if getattr(result, "require_confirmation", False):
+        prompt = getattr(result, "confirmation_prompt", None) or "Confirm? (yes/no)"
+        _say(prompt)
+        return RouterState(
+            awaiting_confirmation=True,
+            pending_intent=result.intent,
+            pending_hw_cmd=hw_cmd,
+            pending_prompt=prompt,
+        )
+
+    # 9) Execute immediately (only possible for non-confirm intents or high confidence confirmables)
+    _say(f"EXECUTING: {result.intent.value}")
+    try:
+        out = _run_hardware_command(hw_cmd)
+        _say(f"HARDWARE: {out}")
+    except Exception as e:
+        _say(f"ERROR: {e}")
+
+    return state
+
+
+def repl() -> None:
+    """
+    Deterministic interactive test loop (text-based).
+    This proves the gate independent of voice.
+    """
+    _say("Demerzel Router REPL (type 'quit' to exit)")
+    state = RouterState()
+
+    while True:
+        try:
+            raw = input("> ")
+        except (EOFError, KeyboardInterrupt):
+            _say("\nExiting.")
+            return
+
+        if raw.strip().lower() in {"quit", "exit"}:
+            _say("Bye.")
+            return
+
+        state = route_text(raw, state)
+
+
+if __name__ == "__main__":
+    repl()
+

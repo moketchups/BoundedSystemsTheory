@@ -1,0 +1,99 @@
+#!/usr/bin/env python3
+"""
+kernel_router.py
+
+Deterministic *non-hardware* router.
+
+Role in Demerzel architecture (Step 2):
+- Parse / handle SAFE local intents that do NOT touch the physical world.
+- NEVER execute hardware or network actions. Hardware execution must occur only
+  downstream of the Boundary Gate + confirmations + allowlist.
+
+This is intentionally small and conservative.
+If unsure, it fails closed and returns a CLARIFY response.
+
+Owned invariants are described in:
+- ROBOT_LAWS.md  (fail-closed; confirmations; no bypass)
+- EXECUTION_SAFETY_CONTRACT.md (executor must enforce the contract)
+
+NOTE:
+Voice wake handling is performed in brain_controller.py. We keep a minimal
+asleep/wake toggle here for completeness and for any non-voice entrypoints.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, replace
+from datetime import datetime
+
+
+@dataclass
+class RouterState:
+    # "asleep" is a local software state (SAFE). It does not imply identity.
+    asleep: bool = False
+
+    # Awaiting confirmation is tracked in the boundary gate / router_engine.
+    awaiting_confirmation: bool = False
+
+    # Last prompt can be used by callers to repeat context.
+    last_prompt: str = ""
+
+
+@dataclass
+class RouterOutput:
+    new_state: RouterState
+    did_action: bool              # True if we took a SAFE local action (time/sleep/etc)
+    action_name: str              # e.g. TIME, SLEEP, NOOP
+    speak: str                    # caller-facing speech string (no TTS here)
+    debug: str = ""               # optional debug string
+
+
+def route_text(text: str, state: RouterState | None = None) -> RouterOutput:
+    """Route a user utterance into SAFE local behavior only."""
+    if state is None:
+        state = RouterState()
+
+    t = (text or "").strip().lower()
+
+    # If asleep: ignore everything except explicit wake word.
+    if state.asleep:
+        if "demerzel" in t or t == "wake":
+            ns = replace(state, asleep=False)
+            return RouterOutput(ns, True, "WAKE", "Yes?")
+        return RouterOutput(state, False, "IGNORED", "")
+
+    # SAFE: enter sleep mode (software state only).
+    if t == "sleep" or t.endswith(" sleep") or t.startswith("sleep "):
+        ns = replace(state, asleep=True, awaiting_confirmation=False, last_prompt="")
+        return RouterOutput(ns, True, "SLEEP", "Okay. Going to sleep.")
+
+    # SAFE: time query
+    if "what time" in t or "time is it" in t or t == "time":
+        # Use a plain, local clock read.
+        try:
+            now = datetime.now().strftime("%-I:%M %p")
+        except Exception:
+            now = datetime.now().strftime("%I:%M %p").lstrip("0")
+        return RouterOutput(state, True, "TIME", f"It’s {now}.")
+
+    # SAFE: minimal help
+    if t in ("help", "commands", "what can you do"):
+        return RouterOutput(
+            state,
+            True,
+            "HELP",
+            "Right now I can answer the time, go to sleep, and route allowlisted hardware commands through the boundary gate.",
+        )
+
+    # Do NOT handle hardware phrases here.
+    if t in ("ping", "led on", "led off", "lights on", "lights off"):
+        return RouterOutput(
+            state,
+            False,
+            "HW_REQUEST_BLOCKED",
+            "That’s a hardware command. It must go through the boundary gate and confirmations.",
+        )
+
+    # Default: fail closed with clarify (no action).
+    return RouterOutput(state, False, "NOOP", "I didn’t catch a command.")
+

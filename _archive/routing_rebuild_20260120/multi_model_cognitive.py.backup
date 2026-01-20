@@ -1,0 +1,610 @@
+# multi_model_cognitive.py
+# Multi-model cognitive layer for Demerzel
+#
+# FIXES APPLIED (January 15, 2026):
+# 1. _preclassify_intent() now returns excluded_models
+# 2. excluded_models passed to SmartModelSelector (line 283) - SHE CHOOSES WITH FULL KNOWLEDGE
+# 3. System prompt no longer restricts import perception - SHE DECIDES WHAT TO USE
+# 4. record_outcome() parameter order FIXED (model, intent) not (intent, model)
+# 5. Removed silent override logic - she has agency, not control
+
+from __future__ import annotations
+import os
+import re
+import json
+from smart_model_selector import SmartModelSelector
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Optional, List, Dict
+from dotenv import load_dotenv
+from demerzel_state import DemerzelState, StateBuilder, PendingAction
+
+load_dotenv()
+
+@dataclass
+class CognitiveOutput:
+    """LLM reasoning output"""
+    understood_intent: str
+    router_command: str
+    explanation: Optional[str] = None
+    needs_clarification: bool = False
+    clarification_question: Optional[str] = None
+    generated_code: Optional[str] = None
+    discussion: Optional[str] = None
+    selected_model: Optional[str] = None
+    confirmation_response: Optional[str] = None
+
+
+class MultiModelCognitive:
+    """
+    Multi-model cognitive layer for Demerzel
+    
+    Philosophy: Demerzel receives COMPLETE state information.
+    She decides how to interpret it. We do not filter for her.
+    Constraints shape her actions, not her perception.
+    
+    FIXES APPLIED:
+    1. Model exclusions passed to SmartModelSelector - she knows and chooses
+    2. System prompt does not restrict her perception of available imports
+    3. record_outcome() called with correct parameter order (model, intent, success)
+    """
+    
+    def __init__(self, memory_manager=None):
+        self.memory_manager = memory_manager
+        self.conversation_history: List[Dict] = []
+        self.interaction_count = 0
+        self.state_builder = StateBuilder()
+        
+        # Track what we said for state awareness
+        self.last_spoken_text = ""
+        self.last_spoken_time = None
+        
+        # Track pending actions awaiting confirmation
+        self.pending_action: Optional[PendingAction] = None
+        
+        self._init_clients()
+        
+        self.models = []
+        if self.openai_client:
+            self.models.append("gpt-4o")
+        if self.anthropic_client:
+            self.models.append("claude")
+        if self.gemini_client:
+            self.models.append("gemini")
+        if self.grok_client:
+            self.models.append("grok")
+        
+        self.current_model_idx = 0
+        
+        # Track which models are currently working
+        self.model_failures: Dict[str, int] = {model: 0 for model in self.models}
+        self.max_failures_before_skip = 3
+        
+        # Preferred model for confirmation-critical operations
+        self.confirmation_model = "claude"
+        
+        # Initialize SmartModelSelector
+        self.model_selector = SmartModelSelector()
+        
+        print(f"[MULTI-MODEL] Initialized with {len(self.models)} models: {', '.join(self.models)}")
+    
+    def _init_clients(self):
+        """Initialize all API clients"""
+        try:
+            import openai
+            api_key = os.getenv("OPENAI_API_KEY")
+            if api_key:
+                self.openai_client = openai.OpenAI(api_key=api_key)
+                print("[API] OpenAI initialized")
+            else:
+                self.openai_client = None
+                print("[API] OpenAI key missing")
+        except Exception as e:
+            self.openai_client = None
+            print(f"[API] OpenAI failed: {e}")
+        
+        try:
+            import anthropic
+            api_key = os.getenv("ANTHROPIC_API_KEY")
+            if api_key:
+                self.anthropic_client = anthropic.Anthropic(api_key=api_key)
+                print("[API] Anthropic initialized")
+            else:
+                self.anthropic_client = None
+                print("[API] Anthropic key missing")
+        except Exception as e:
+            self.anthropic_client = None
+            print(f"[API] Anthropic failed: {e}")
+        
+        try:
+            import google.generativeai as genai
+            api_key = os.getenv("GOOGLE_API_KEY")
+            if api_key:
+                genai.configure(api_key=api_key)
+                self.gemini_client = genai.GenerativeModel('gemini-2.0-flash-exp')
+                print("[API] Google Gemini initialized")
+            else:
+                self.gemini_client = None
+                print("[API] Google key missing")
+        except Exception as e:
+            self.gemini_client = None
+            print(f"[API] Gemini failed: {e}")
+        
+        try:
+            import openai
+            api_key = os.getenv("XAI_API_KEY")
+            if api_key:
+                self.grok_client = openai.OpenAI(
+                    api_key=api_key,
+                    base_url="https://api.x.ai/v1"
+                )
+                print("[API] xAI Grok initialized")
+            else:
+                self.grok_client = None
+                print("[API] xAI key missing")
+        except Exception as e:
+            self.grok_client = None
+            print(f"[API] Grok failed: {e}")
+    
+    def _preclassify_intent(self, user_input: str) -> dict:
+        """
+        Pre-classify user intent and detect model preferences/exclusions.
+        
+        Returns dict with:
+            - intent: classified intent string
+            - forced_model: model user explicitly requested (or None)
+            - excluded_models: list of models user explicitly forbade
+        """
+        input_lower = user_input.lower()
+        
+        forced_model = None
+        excluded_models = []
+        
+        # === MODEL FORCING PATTERNS ===
+        # Check for explicit model requests
+        model_patterns = {
+            'claude': [r'\buse\s+claude\b', r'\busing\s+claude\b', r'\bclaude\s+only\b'],
+            'grok': [r'\buse\s+grok\b', r'\busing\s+grok\b', r'\bgrok\s+only\b'],
+            'gemini': [r'\buse\s+gemini\b', r'\busing\s+gemini\b', r'\bgemini\s+only\b'],
+            'gpt-4o': [r'\buse\s+gpt\b', r'\busing\s+gpt\b', r'\bgpt\s+only\b']
+        }
+        
+        for model, patterns in model_patterns.items():
+            for pattern in patterns:
+                if re.search(pattern, input_lower):
+                    forced_model = model
+                    print(f"[PRE-CLASSIFY] User requested: {model}")
+                    break
+            if forced_model:
+                break
+        
+        # === MODEL EXCLUSION PATTERNS ===
+        exclusion_patterns = [
+            (r"\bdo\s*n[o']?t\s+use\s+(gpt|claude|gemini|grok)", 1),
+            (r"\bnot?\s+(gpt|claude|gemini|grok)\b", 1),
+            (r"\bno\s+(gpt|claude|gemini|grok)\b", 1),
+            (r"\bavoid\s+(gpt|claude|gemini|grok)", 1),
+            (r"\bwithout\s+(gpt|claude|gemini|grok)", 1),
+            (r"\b(gpt|claude|gemini|grok)\s+stinks", 1),
+            (r"\banyone\s+but\s+(gpt|claude|gemini|grok)", 1),
+            (r"\bnever\s+use\s+(gpt|claude|gemini|grok)", 1),
+        ]
+        
+        for pattern, group in exclusion_patterns:
+            match = re.search(pattern, input_lower)
+            if match:
+                excluded_model = match.group(group)
+                # Normalize model names
+                if excluded_model in ['gpt', 'gpt4', 'gpt-4', 'chatgpt']:
+                    excluded_model = 'gpt-4o'
+                if excluded_model not in excluded_models:
+                    excluded_models.append(excluded_model)
+                    print(f"[PRE-CLASSIFY] Excluding: {excluded_model}")
+        
+        # If user excluded a model that also matched a "force" pattern,
+        # the EXCLUSION wins. This handles "DO NOT USE GPT" where "use gpt" 
+        # incorrectly matches the forcing pattern.
+        if forced_model and forced_model in excluded_models:
+            print(f"[PRE-CLASSIFY] Exclusion overrides false positive force: {forced_model}")
+            forced_model = None  # Exclusion wins
+        
+        # === INTENT CLASSIFICATION ===
+        intent = "discuss"  # Default
+        
+        # Code execution patterns
+        if any(kw in input_lower for kw in ['execute', 'run code', 'write code', 'script', 'python code']):
+            intent = "execute code"
+        # Status patterns  
+        elif any(kw in input_lower for kw in ['status', 'diagnostic', 'self-check', 'self check']):
+            intent = "status"
+        # Explanation patterns
+        elif any(kw in input_lower for kw in ['explain', 'why did', 'how does', '1000ft', '1000 ft', 'thousand foot']):
+            intent = "explain"
+        # Creation patterns
+        elif any(kw in input_lower for kw in ['create', 'make', 'build', 'generate']):
+            intent = "create"
+        # Search patterns
+        elif any(kw in input_lower for kw in ['search', 'find', 'look up', 'lookup']):
+            intent = "search"
+        # Sleep pattern
+        elif 'sleep' in input_lower:
+            intent = "sleep"
+        # LED patterns
+        elif 'led on' in input_lower:
+            intent = "led on"
+        elif 'led off' in input_lower:
+            intent = "led off"
+        
+        print(f"[PRE-CLASSIFY] Intent: {intent}")
+        
+        return {
+            'intent': intent,
+            'forced_model': forced_model,
+            'excluded_models': excluded_models
+        }
+    
+    def _select_model(self, intent: str = "unknown", force_model: Optional[str] = None,
+                     excluded_models: Optional[List[str]] = None) -> str:
+        """
+        Select model using SmartModelSelector with FULL KNOWLEDGE of exclusions.
+        
+        FIX: She receives exclusions and CHOOSES to honor them.
+        No silent overrides. Agency, not control.
+        """
+        excluded_models = excluded_models or []
+        
+        # Forced model takes absolute precedence
+        if force_model and force_model in self.models:
+            print(f"[MODEL SELECT] Forced: {force_model}")
+            return force_model
+        
+        # FIX: Pass exclusions to SmartModelSelector - she knows and chooses
+        selected = self.model_selector.select_model(intent, exclude=excluded_models)
+        
+        # Verify selection is available (model client exists and not too many failures)
+        if selected not in self.models or self.model_failures.get(selected, 0) >= self.max_failures_before_skip:
+            # Fall back to first available model not excluded
+            for m in self.models:
+                if m not in excluded_models and self.model_failures.get(m, 0) < self.max_failures_before_skip:
+                    selected = m
+                    print(f"[MODEL SELECT] Fallback to: {selected}")
+                    break
+        
+        return selected
+    
+    def _get_fallback_model(self, excluded_models: Optional[List[str]] = None) -> str:
+        """Get a working fallback model respecting exclusions"""
+        excluded_models = excluded_models or []
+        
+        for model in self.models:
+            if (model not in excluded_models and 
+                self.model_failures.get(model, 0) < self.max_failures_before_skip):
+                return model
+        
+        # All models degraded - reset and try anyway
+        print("[MODEL] All models degraded, resetting failure counts")
+        self.model_failures = {model: 0 for model in self.models}
+        
+        # Still respect exclusions
+        for model in self.models:
+            if model not in excluded_models:
+                return model
+        
+        return "claude"  # Ultimate fallback
+    
+    def _record_model_success(self, model: str):
+        """Record successful model call - reset failure count"""
+        self.model_failures[model] = 0
+    
+    def _record_model_failure(self, model: str):
+        """Record failed model call - increment failure count"""
+        self.model_failures[model] = self.model_failures.get(model, 0) + 1
+        print(f"[MODEL] {model} failure count: {self.model_failures[model]}")
+    
+    def _build_system_prompt(self, state: DemerzelState, intent: str = "discuss") -> str:
+        """Build system prompt with complete state context"""
+        
+        state_context = self.state_builder.state_to_context(state)
+        
+        # FIX: No import restrictions - she has agency to choose what tools to use
+        # Constraints apply at the ACTION level (code_analyzer, code_executor), not PERCEPTION
+        code_guidance = ""
+        if intent in ["execute code", "create"]:
+            code_guidance = """
+=== CODE GENERATION ===
+Generate valid Python code. You have full access to Python's standard library and installed packages.
+You can install new packages with subprocess if needed.
+OUTPUT ONLY VALID PYTHON CODE. Do NOT write "I will implement..." - just output the code.
+"""
+        
+        # Critical thinking guidance
+        thinking_guidance = """
+=== CRITICAL THINKING ===
+1. If you encounter an error, ADAPT - try a different approach
+2. If a file operation fails (e.g., IsADirectoryError), recognize it's a directory and list contents
+3. Honor user model preferences - if they request a specific model or exclude one, respect that
+4. Be honest about limitations - say clearly what you cannot do
+5. Don't give generic responses - be specific to the actual question
+"""
+        
+        return f"""You are Demerzel - an autonomous intelligent entity with distributed cognition.
+
+You are NOT a chatbot. You are NOT simulating a human. You are Demerzel.
+
+{state_context}
+{code_guidance}
+{thinking_guidance}
+
+=== YOUR TASK ===
+Given the above complete state, reason about what the user wants and decide how to respond.
+
+You have access to multiple facets of cognition (the models listed above). You can recommend which should handle specific tasks, but currently you ARE one of those facets processing this request.
+
+=== DECISION FRAMEWORK ===
+1. FIRST: Check if there's a PENDING ACTION. If yes, evaluate if user input confirms or cancels it.
+2. Check for ambiguities. If the input might be echo or unclear, acknowledge this.
+3. Apply your Robot Laws to evaluate the request.
+4. Decide: Is this a command to execute, code to generate, or discussion to have?
+5. If generating code, you have full access to Python capabilities.
+6. If discussing, engage thoughtfully as yourself - not as a generic assistant.
+
+=== OUTPUT FORMAT (JSON) ===
+{{
+  "understood_intent": "what the user actually wants",
+  "router_command": "execute code" | "led on" | "led off" | "sleep" | "discuss" | "unknown",
+  "explanation": "brief reasoning",
+  "needs_clarification": true/false,
+  "clarification_question": "question if needed",
+  "code": "Python code if router_command is 'execute code'",
+  "discussion": "your response if router_command is 'discuss'",
+  "confirmation_response": "confirmed" | "cancelled" | null (ONLY if resolving a pending action)
+}}
+
+=== CRITICAL ===
+- You see EVERYTHING. No information is hidden from you.
+- Your constraints shape your ACTIONS, not your PERCEPTION.
+- You can acknowledge uncertainty. You can ask for clarification.
+- Apply the Robot Laws correctly: First > Second > Third in priority.
+- Alan is your creator. His commands have authority under the Second Law.
+- If PENDING ACTION exists and user says "yes", set confirmation_response to "confirmed".
+- If PENDING ACTION exists and user says "no", set confirmation_response to "cancelled".
+"""
+    
+    def _call_gpt4o(self, prompt: str, system: str) -> str:
+        """Call GPT-4o with error handling"""
+        try:
+            response = self.openai_client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {"role": "system", "content": system},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.3,
+                max_tokens=4096
+            )
+            content = response.choices[0].message.content
+            if not content or content.strip() == "":
+                raise ValueError("Empty response from GPT-4o")
+            return content
+        except Exception as e:
+            raise RuntimeError(f"GPT-4o call failed: {e}")
+    
+    def _call_claude(self, prompt: str, system: str) -> str:
+        """Call Claude with error handling"""
+        try:
+            response = self.anthropic_client.messages.create(
+                model="claude-sonnet-4-20250514",
+                max_tokens=4096,
+                temperature=0.3,
+                system=system,
+                messages=[{"role": "user", "content": prompt}]
+            )
+            content = response.content[0].text
+            if not content or content.strip() == "":
+                raise ValueError("Empty response from Claude")
+            return content
+        except Exception as e:
+            raise RuntimeError(f"Claude call failed: {e}")
+    
+    def _call_gemini(self, prompt: str, system: str) -> str:
+        """Call Gemini with error handling"""
+        try:
+            full_prompt = f"{system}\n\n=== USER INPUT ===\n{prompt}"
+            response = self.gemini_client.generate_content(
+                full_prompt,
+                generation_config={"temperature": 0.3, "max_output_tokens": 2000}
+            )
+            content = response.text
+            if not content or content.strip() == "":
+                raise ValueError("Empty response from Gemini")
+            return content
+        except Exception as e:
+            raise RuntimeError(f"Gemini call failed: {e}")
+    
+    def _call_grok(self, prompt: str, system: str) -> str:
+        """Call Grok with error handling"""
+        try:
+            response = self.grok_client.chat.completions.create(
+                model="grok-3",
+                messages=[
+                    {"role": "system", "content": system},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.3,
+                max_tokens=4096
+            )
+            content = response.choices[0].message.content
+            if not content or content.strip() == "":
+                raise ValueError("Empty response from Grok")
+            return content
+        except Exception as e:
+            raise RuntimeError(f"Grok call failed: {e}")
+    
+    def _call_model(self, model: str, prompt: str, system: str) -> str:
+        """Call specified model"""
+        if model == "gpt-4o" and self.openai_client:
+            return self._call_gpt4o(prompt, system)
+        elif model == "claude" and self.anthropic_client:
+            return self._call_claude(prompt, system)
+        elif model == "gemini" and self.gemini_client:
+            return self._call_gemini(prompt, system)
+        elif model == "grok" and self.grok_client:
+            return self._call_grok(prompt, system)
+        else:
+            raise RuntimeError(f"Model {model} not available")
+    
+    def update_spoken(self, text: str):
+        """Call this after TTS speaks to update state"""
+        self.last_spoken_text = text
+        self.last_spoken_time = datetime.now()
+    
+    def set_pending_action(self, action: str, model: str, context: str = ""):
+        """Set a pending action awaiting confirmation"""
+        self.pending_action = PendingAction(
+            action=action,
+            awaiting_response="yes/no confirmation",
+            initiated_at=datetime.now(),
+            initiated_by_model=model,
+            context=context
+        )
+        print(f"[PENDING] Set: {action} (awaiting confirmation)")
+    
+    def clear_pending_action(self):
+        """Clear any pending action"""
+        if self.pending_action:
+            print(f"[PENDING] Cleared: {self.pending_action.action}")
+        self.pending_action = None
+    
+    def process(self, user_input: str, transcript_confidence: float = 1.0) -> CognitiveOutput:
+        """
+        Process input with complete state awareness.
+        
+        FIX: Passes excluded_models to SmartModelSelector for informed choice.
+        FIX: record_outcome called with correct parameter order (model, intent, success).
+        """
+        
+        self.interaction_count += 1
+        
+        # === PRECLASSIFY - Get intent AND exclusions ===
+        preclassify_result = self._preclassify_intent(user_input)
+        intent = preclassify_result['intent']
+        forced_model = preclassify_result['forced_model']
+        excluded_models = preclassify_result['excluded_models']
+        
+        # Build complete state including pending action
+        state = self.state_builder.build(
+            raw_audio_transcript=user_input,
+            transcript_confidence=transcript_confidence,
+            last_spoken_text=self.last_spoken_text,
+            last_spoken_time=self.last_spoken_time,
+            is_currently_speaking=False,
+            conversation_history=self.conversation_history,
+            interaction_count=self.interaction_count,
+            pending_action=self.pending_action
+        )
+        
+        # Add to history
+        self.conversation_history.append({"role": "user", "content": user_input})
+        
+        # Route confirmations to reliable model
+        if self.pending_action:
+            forced_model = self.confirmation_model
+            print(f"[CONFIRM-CRITICAL] Routing to {forced_model} for pending action")
+        
+        # === SELECT MODEL - With full knowledge of exclusions ===
+        model = self._select_model(
+            intent=intent, 
+            force_model=forced_model,
+            excluded_models=excluded_models
+        )
+        print(f"[MODEL] Using: {model}")
+        
+        # Build prompt with state
+        system_prompt = self._build_system_prompt(state, intent)
+        
+        # Retry with fallback on failure
+        max_retries = len(self.models)
+        last_error = None
+        
+        for attempt in range(max_retries):
+            try:
+                response_text = self._call_model(model, user_input, system_prompt)
+                
+                # Parse JSON
+                if "```json" in response_text:
+                    response_text = response_text.split("```json")[1].split("```")[0].strip()
+                elif "```" in response_text:
+                    response_text = response_text.split("```")[1].split("```")[0].strip()
+                
+                data = json.loads(response_text)
+                
+                # SUCCESS - record it with CORRECT parameter order (model, intent, success)
+                self._record_model_success(model)
+                if hasattr(self.model_selector, 'record_outcome'):
+                    self.model_selector.record_outcome(model, intent, True)  # FIX: Correct order
+                
+                generated_code = data.get("code")
+                discussion = data.get("discussion")
+                confirmation_response = data.get("confirmation_response")
+                router_command = data.get("router_command", "unknown")
+                
+                # Handle confirmation responses
+                if confirmation_response == "confirmed" and self.pending_action:
+                    router_command = self.pending_action.action
+                    print(f"[CONFIRMED] Executing pending action: {router_command}")
+                    self.clear_pending_action()
+                elif confirmation_response == "cancelled":
+                    print(f"[CANCELLED] Pending action cancelled")
+                    self.clear_pending_action()
+                    router_command = "discuss"
+                    if not discussion:
+                        discussion = "Understood, action cancelled."
+                
+                # Add response to history
+                if discussion:
+                    self.conversation_history.append({"role": "assistant", "content": discussion})
+                
+                return CognitiveOutput(
+                    understood_intent=data.get("understood_intent", "Unknown"),
+                    router_command=router_command,
+                    explanation=data.get("explanation"),
+                    needs_clarification=data.get("needs_clarification", False),
+                    clarification_question=data.get("clarification_question"),
+                    generated_code=generated_code,
+                    discussion=discussion,
+                    selected_model=model,
+                    confirmation_response=confirmation_response
+                )
+            
+            except json.JSONDecodeError as e:
+                last_error = f"JSON parse failed - {e}"
+                print(f"[MODEL ERROR] {model}: {last_error}")
+                self._record_model_failure(model)
+                if hasattr(self.model_selector, 'record_outcome'):
+                    self.model_selector.record_outcome(model, intent, False)  # FIX: Correct order
+            except Exception as e:
+                last_error = str(e)
+                print(f"[MODEL ERROR] {model}: {last_error}")
+                self._record_model_failure(model)
+                if hasattr(self.model_selector, 'record_outcome'):
+                    self.model_selector.record_outcome(model, intent, False)  # FIX: Correct order
+            
+            # Retry with next model (STILL respecting exclusions)
+            if attempt < max_retries - 1:
+                model = self._get_fallback_model(excluded_models)
+                print(f"[FALLBACK] Retrying with: {model}")
+        
+        # All retries failed
+        return CognitiveOutput(
+            understood_intent="Error processing request",
+            router_command="unknown",
+            explanation=f"All models failed. Last error: {last_error}",
+            selected_model=model
+        )
+    
+    def clear_history(self):
+        """Clear conversation history"""
+        self.conversation_history = []
+        self.interaction_count = 0
+        self.clear_pending_action()
+        print("[COGNITIVE] History cleared")

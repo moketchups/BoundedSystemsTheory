@@ -1,442 +1,546 @@
 #!/usr/bin/env python3
-import argparse
-import json
-import queue
-import subprocess
+"""
+Brain Controller: Voice mode with multi-model cognitive layer
+
+January 19, 2026 Fixes:
+- Wake word detection checks PARTIAL results (not just final)
+- Echo threshold increased from 0.4 to 0.5
+- Vision gate: only accept speech when human lips are moving
+- Updated VisionFilter parameters for better detection
+
+January 19, 2026 New Services Available:
+- tts_service: ElevenLabs TTS with pyttsx3 fallback (get_tts_service())
+- transcription_service: Deepgram with Vosk fallback (get_transcription_service())
+- github_tracker: Audit logging and GitHub integration (get_github_tracker())
+"""
+
 import sys
 import time
-from dataclasses import dataclass
-from datetime import datetime
-from typing import Optional, List, Tuple
+import json
+import signal
+from pathlib import Path
 
 import pyaudio
-from rapidfuzz import fuzz
+import pyttsx3
 from vosk import Model, KaldiRecognizer
 
-from router_engine import RouterEngine  # <-- authoritative routing (kernel/router inside)
+from multi_model_cognitive import MultiModelCognitive
+from vision_filter import VisionFilter
+from memory_manager import MemoryManager
+from router_engine import RouterEngine
+from code_analyzer import CodeAnalyzer, RiskLevel
+from cognitive_router import process as route_input, Intent
+
+# New services (January 19, 2026) - import but don't break if unavailable
+try:
+    from tts_service import get_tts_service, TTSService
+    TTS_SERVICE_AVAILABLE = True
+except ImportError:
+    TTS_SERVICE_AVAILABLE = False
+
+try:
+    from transcription_service import get_transcription_service, TranscriptionService
+    TRANSCRIPTION_SERVICE_AVAILABLE = True
+except ImportError:
+    TRANSCRIPTION_SERVICE_AVAILABLE = False
+
+try:
+    from github_tracker import get_github_tracker, GitHubTracker
+    GITHUB_TRACKER_AVAILABLE = True
+except ImportError:
+    GITHUB_TRACKER_AVAILABLE = False
+
+VOSK_MODEL_PATH = str(Path.home() / "vosk-model-en-us-0.22")
+SAMPLE_RATE = 16000
+CHUNK = 4096
+
+# Echo detection threshold (January 19, 2026: increased from 0.4 to 0.5)
+ECHO_THRESHOLD = 0.5
+
+last_spoken_text = ""
+shutdown_requested = False
 
 
-# -----------------------------
-# Helpers
-# -----------------------------
-
-def now_iso() -> str:
-    return datetime.now().isoformat(timespec="seconds")
-
-def say_mac(text: str):
-    try:
-        subprocess.run(["say", text], check=False)
-    except Exception:
-        pass
-
-def beep():
-    try:
-        sys.stdout.write("\a")
-        sys.stdout.flush()
-    except Exception:
-        pass
-
-def clean_text(s: str) -> str:
-    # Minimal deterministic normalization for wake/echo checks.
-    return " ".join((s or "").strip().lower().split())
+def signal_handler(sig, frame):
+    global shutdown_requested
+    print("\n[VOICE] Shutdown requested...")
+    shutdown_requested = True
 
 
-# -----------------------------
-# Audio + Vosk
-# -----------------------------
-
-@dataclass
-class Config:
-    model_path: str
-    device_index: int
-    wake_threshold: float
-    sample_rate: int = 16000
-    frame_ms: int = 40
-
-    # windows (seconds)
-    command_window: float = 7.0
-
-    # echo protection
-    anti_echo_window: float = 1.2
-    tts_mic_gate_seconds: float = 1.0
-
-    # NEW: post-wake gating (prevents premature UNKNOWN before user speaks)
-    post_wake_cooldown_seconds: float = 0.70   # ignore FINALs briefly after wake+ack
-    suppress_clarify_after_wake_seconds: float = 1.20  # don't speak CLARIFY immediately after wake
-
-    # NEW: ignore ultra-short finals in COMMAND mode (except yes/no)
-    min_final_chars_command: int = 3
+signal.signal(signal.SIGINT, signal_handler)
 
 
-class BrainController:
-    def __init__(self, cfg: Config):
-        self.cfg = cfg
-        self.model = Model(cfg.model_path)
-        self.rec = KaldiRecognizer(self.model, cfg.sample_rate)
-        self.audio = pyaudio.PyAudio()
-        self.stream = None
+def is_likely_echo(heard: str) -> bool:
+    """
+    Check if heard text is likely an echo of what was just spoken.
 
-        # Deterministic state machine (voice shell only)
-        self.state = "IDLE"  # IDLE -> COMMAND
-        self.state_deadline = 0.0
+    January 19, 2026: Threshold increased from 0.4 to 0.5 to avoid
+    rejecting legitimate follow-up commands that share words with response.
+    """
+    global last_spoken_text
+    if not heard or not last_spoken_text:
+        return False
+    heard_words = set(heard.lower().split())
+    spoken_words = set(last_spoken_text.lower().split())
+    if len(heard_words) < 2:
+        return False
+    overlap = len(heard_words & spoken_words)
+    ratio = overlap / len(heard_words)
+    if ratio > ECHO_THRESHOLD:
+        print(f"[ECHO] {ratio:.0%} match - ignoring")
+        return True
+    return False
 
-        # NEW: gates around wake->command transition
-        self.command_gate_until = 0.0          # ignore FINALs until this time
-        self.no_clarify_until = 0.0            # don't speak CLARIFY until this time
 
-        # Wake matching
-        self.wake_name = "DEMERZEL"
-        self.wake_aliases = [
-            "demerzel",
-            "demerzel.",
-            "damerzel",
-            "demersel",
-            "dam er zel",
-            "dammers",
-            "dammerzle",
-            "dam ezell",
-            "dam ezel",
-            "dam brazil",
-            "dam ezzel",
-        ]
+def init_vosk(model_path: str, sample_rate: int) -> KaldiRecognizer:
+    if not Path(model_path).exists():
+        print(f"[ERROR] Vosk model not found at: {model_path}")
+        sys.exit(1)
+    model = Model(model_path)
+    recognizer = KaldiRecognizer(model, sample_rate)
+    recognizer.SetMaxAlternatives(0)
+    recognizer.SetWords(False)
+    print(f"[VOICE] Vosk model loaded from {model_path}")
+    return recognizer
 
-        # Anti-echo + mic gate
-        self.last_tts_text = ""
-        self.last_tts_time = 0.0
-        self.mic_gate_until = 0.0
 
-        # Audio queue
-        self.q = queue.Queue()
+def init_tts() -> pyttsx3.Engine:
+    engine = pyttsx3.init()
+    engine.setProperty('rate', 175)
+    engine.setProperty('volume', 0.9)
+    print("[VOICE] TTS initialized")
+    return engine
 
-        # Authoritative router engine (holds confirmation state internally)
-        self.engine = RouterEngine(high_conf_threshold=0.85)
 
-    # -----------------------------
-    # Audio device helpers
-    # -----------------------------
+def init_audio() -> pyaudio.PyAudio:
+    p = pyaudio.PyAudio()
+    print("[VOICE] PyAudio initialized")
+    return p
 
-    def list_devices(self):
-        print("\n=== INPUT DEVICES ===")
-        for i in range(self.audio.get_device_count()):
-            info = self.audio.get_device_info_by_index(i)
-            if int(info.get("maxInputChannels", 0)) > 0:
-                print(
-                    f"[{i}] ch={int(info.get('maxInputChannels', 0))} "
-                    f"sr={int(info.get('defaultSampleRate', 0))} "
-                    f"name={info.get('name')}"
-                )
-        print("=== END ===\n")
 
-    def _open_stream(self):
-        frame = int(self.cfg.sample_rate * (self.cfg.frame_ms / 1000.0))
+def get_microphone_stream(p: pyaudio.PyAudio, rate: int, chunk: int):
+    stream = p.open(format=pyaudio.paInt16, channels=1, rate=rate, input=True, frames_per_buffer=chunk)
+    print(f"[VOICE] Microphone stream opened")
+    return stream
 
-        def callback(in_data, frame_count, time_info, status_flags):
-            self.q.put(in_data)
-            return (None, pyaudio.paContinue)
 
-        self.stream = self.audio.open(
-            format=pyaudio.paInt16,
-            channels=1,
-            rate=self.cfg.sample_rate,
-            input=True,
-            input_device_index=self.cfg.device_index,
-            frames_per_buffer=frame,
-            stream_callback=callback,
-        )
-        self.stream.start_stream()
-        print(f"[AUDIO] device={self.cfg.device_index} channels=1 sr={self.cfg.sample_rate} frame={frame}")
-
-    def close(self):
+def speak(tts: pyttsx3.Engine, text: str, stream=None, recognizer=None):
+    global last_spoken_text
+    if not text:
+        return
+    print(f"[SPEAK] {text}")
+    last_spoken_text = text
+    if stream:
+        stream.stop_stream()
+    if recognizer:
+        recognizer.Reset()
+    tts.say(text)
+    tts.runAndWait()
+    if stream:
+        stream.start_stream()
+        time.sleep(0.3)
         try:
-            if self.stream is not None:
-                self.stream.stop_stream()
-                self.stream.close()
-        except Exception:
+            while stream.get_read_available() > 0:
+                stream.read(4096, exception_on_overflow=False)
+        except:
             pass
-        try:
-            self.audio.terminate()
-        except Exception:
-            pass
+    if recognizer:
+        recognizer.Reset()
+    print("[SPEAK] Done")
 
-    def _flush_audio_queue(self, max_chunks: int = 999):
-        n = 0
-        try:
-            while n < max_chunks:
-                self.q.get_nowait()
-                n += 1
-        except Exception:
-            pass
-        if n:
-            print(f"[GATE] Flushed {n} audio chunks.")
 
-    # -----------------------------
-    # Speech output with anti-echo tracking + mic gate
-    # -----------------------------
+def listen_for_wake_word(recognizer: KaldiRecognizer, stream, wake_words: list[str], vision=None) -> bool:
+    """
+    Listen for wake word in both FINAL and PARTIAL results.
 
-    def say(self, text: str):
-        text = (text or "").strip()
-        if not text:
-            return
-        print(f"[SAY] {text}")
-
-        self.last_tts_text = clean_text(text)
-        self.last_tts_time = time.time()
-        self.mic_gate_until = time.time() + float(self.cfg.tts_mic_gate_seconds)
-
-        say_mac(text)
-
-        # Flush & reset recognizer to reduce TTS echo pickup
-        self._flush_audio_queue()
-        try:
-            self.rec.Reset()
-            print("[GATE] Vosk recognizer reset.")
-        except Exception:
-            pass
-
-    def _anti_echo_should_ignore(self, final_text: str) -> bool:
-        ft = clean_text(final_text)
-        if not ft or not self.last_tts_text:
-            return False
-        if time.time() - self.last_tts_time > self.cfg.anti_echo_window:
-            return False
-        if ft == self.last_tts_text:
-            print("[ANTI-ECHO] Ignored exact match to last TTS.")
-            return True
+    January 19, 2026 Fixes:
+    - Also check partial results for wake words (faster detection)
+    - Optional vision gate: only trigger if human lips are moving
+    """
+    if shutdown_requested:
         return False
 
-    # -----------------------------
-    # Wake logic
-    # -----------------------------
+    data = stream.read(CHUNK, exception_on_overflow=False)
 
-    def _wake_score(self, heard: str) -> Tuple[str, float]:
-        h = clean_text(heard)
-        best = ("", 0.0)
-        for a in self.wake_aliases:
-            s = fuzz.partial_ratio(h, clean_text(a)) / 100.0
-            if s > best[1]:
-                best = (a, s)
-        return best
+    # Check FINAL results
+    if recognizer.AcceptWaveform(data):
+        result = json.loads(recognizer.Result())
+        text = result.get("text", "").lower()
+        if text:
+            for wake in wake_words:
+                if wake in text:
+                    # Vision gate: require human to be speaking (if vision available)
+                    if vision and not vision.is_human_speaking():
+                        print(f"[WAKE] Heard '{text}' but no human speaking - ignoring")
+                        return False
+                    print(f"[HEARD] Wake word (final): '{text}'")
+                    return True
+    else:
+        # NEW: Also check PARTIAL results for faster wake word detection
+        partial = json.loads(recognizer.PartialResult())
+        partial_text = partial.get("partial", "").lower()
+        if partial_text:
+            for wake in wake_words:
+                if wake in partial_text:
+                    # Vision gate
+                    if vision and not vision.is_human_speaking():
+                        # Don't print - partials are noisy
+                        return False
+                    print(f"[HEARD] Wake word (partial): '{partial_text}'")
+                    # Reset to clear the partial before command transcription
+                    recognizer.Reset()
+                    return True
 
-    def _strip_wake_alias(self, final_text: str, best_alias: str) -> str:
-        """
-        Deterministically remove the best-matching alias from the utterance once.
-        Conservative: only strips if the alias appears as a substring after normalization.
-        """
-        t = clean_text(final_text)
-        a = clean_text(best_alias)
-        if not a:
-            return final_text
+    return False
 
-        if a in t:
-            out = t.replace(a, "", 1).strip()
-            return out
-        return final_text
 
-    # -----------------------------
-    # State
-    # -----------------------------
+def transcribe_command(recognizer: KaldiRecognizer, stream, timeout: float = 12.0, vision=None) -> str:
+    """
+    Transcribe a command after wake word.
 
-    def _enter_command_state(self):
-        self.state = "COMMAND"
-        self.state_deadline = time.time() + self.cfg.command_window
+    January 19, 2026: Added optional vision gate for validation.
+    """
+    print("[COMMAND] Listening...")
+    start_time = time.time()
+    all_text = []
+    last_partial = ""
+    partial_stable_since = None
 
-        # NEW: after wake, ignore the next brief burst of FINALs (noise/tail)
-        now = time.time()
-        self.command_gate_until = max(self.command_gate_until, now + float(self.cfg.post_wake_cooldown_seconds))
-        self.no_clarify_until = max(self.no_clarify_until, now + float(self.cfg.suppress_clarify_after_wake_seconds))
+    # Track if we've seen human speaking at all during this command
+    human_speaking_seen = False
 
-        print(f"[STATE] COMMAND ({int(self.cfg.command_window)}s left)")
-        print(f"[GATE] command_gate_until={self.command_gate_until:.2f} (now={now:.2f})")
-        print(f"[GATE] no_clarify_until={self.no_clarify_until:.2f} (now={now:.2f})")
+    while time.time() - start_time < timeout and not shutdown_requested:
+        data = stream.read(CHUNK, exception_on_overflow=False)
 
-    def _back_to_idle(self):
-        self.state = "IDLE"
-        self.state_deadline = 0.0
-        self.command_gate_until = 0.0
-        self.no_clarify_until = 0.0
-        print("[STATE] IDLE")
+        # Track if human is speaking (for validation)
+        if vision and vision.is_human_speaking():
+            human_speaking_seen = True
 
-    # -----------------------------
-    # Router output selection (what to speak)
-    # -----------------------------
+        if recognizer.AcceptWaveform(data):
+            result = json.loads(recognizer.Result())
+            text = result.get("text", "").strip()
+            if text:
+                print(f"[HEARD] '{text}'")
+                all_text.append(text)
+                last_partial = ""
+                partial_stable_since = None
+        else:
+            partial = json.loads(recognizer.PartialResult())
+            partial_text = partial.get("partial", "").strip()
+            if partial_text:
+                print(f"[PARTIAL] '{partial_text}'")
+                if partial_text == last_partial:
+                    if partial_stable_since is None:
+                        partial_stable_since = time.time()
+                    elif time.time() - partial_stable_since >= 2.0:
+                        print(f"[STABLE] Accepting partial")
+                        all_text.append(partial_text)
+                        break
+                else:
+                    last_partial = partial_text
+                    partial_stable_since = time.time()
 
-    def _choose_speak_line(self, lines: List[str]) -> Optional[str]:
-        """
-        Deterministic rule: pick the highest-priority line to speak.
-        Priority (first match wins, from bottom-most occurrence):
-          1) Confirmation prompt
-          2) CLARIFY:
-          3) ERROR:
-          4) HARDWARE:
-        Otherwise: speak nothing.
-        """
-        if not lines:
-            return None
+    full_command = " ".join(all_text).strip()
+    if not full_command and last_partial and len(last_partial.split()) >= 3:
+        print(f"[FALLBACK] Using: '{last_partial}'")
+        full_command = last_partial
 
-        # scan from bottom up to speak the latest relevant line
-        for line in reversed(lines):
-            if "Confirm?" in line or line.strip().lower().startswith("confirm"):
-                return line.strip()
-        for line in reversed(lines):
-            if line.startswith("CLARIFY:"):
-                return line.replace("CLARIFY:", "").strip()
-        for line in reversed(lines):
-            if line.startswith("ERROR:"):
-                return line.strip()
-        for line in reversed(lines):
-            if line.startswith("HARDWARE:"):
-                return line.replace("HARDWARE:", "").strip()
+    # Vision validation: if we have vision and never saw human speaking, be suspicious
+    if vision and full_command and not human_speaking_seen:
+        print(f"[VISION] Warning: Command heard but no human lips moving detected")
+        # Don't reject - vision might have missed it, but log the warning
 
-        return None
+    if full_command:
+        print(f"[COMMAND] '{full_command}'")
+    return full_command
 
-    def _is_yes_no(self, s: str) -> bool:
-        t = clean_text(s)
-        return t in {"yes", "no", "y", "n"}
 
-    # -----------------------------
-    # Main loop
-    # -----------------------------
+def transcribe_followup(recognizer: KaldiRecognizer, stream, timeout: float = 5.0, vision=None) -> str:
+    """
+    Listen for follow-up command with echo filtering.
 
-    def run(self):
-        self._open_stream()
+    January 19, 2026: Added vision gate for follow-up detection.
+    """
+    print(f"[FOLLOW-UP] Listening {timeout}s...")
+    start_time = time.time()
+    last_partial = ""
+    partial_stable_since = None
 
-        print(f"[READY] Say '{self.wake_aliases[0]}' to wake. Ctrl+C to exit.")
-        print(f"[WINDOW] command={self.cfg.command_window}s")
-        print(f"[WAKE] threshold={self.cfg.wake_threshold:.2f}")
-        print(f"[GATE] tts_mic_gate_seconds={self.cfg.tts_mic_gate_seconds:.2f}s")
-        print(f"[GATE] post_wake_cooldown_seconds={self.cfg.post_wake_cooldown_seconds:.2f}s")
-        print(f"[GATE] min_final_chars_command={self.cfg.min_final_chars_command}")
+    while time.time() - start_time < timeout and not shutdown_requested:
+        data = stream.read(CHUNK, exception_on_overflow=False)
 
-        try:
-            while True:
-                # Timeout state window
-                if self.state != "IDLE" and time.time() > self.state_deadline:
-                    print("[STATE] window timeout -> IDLE")
-                    self._back_to_idle()
+        if recognizer.AcceptWaveform(data):
+            result = json.loads(recognizer.Result())
+            text = result.get("text", "").strip()
+            if text and len(text.split()) >= 2:
+                if is_likely_echo(text):
+                    continue
+                # Vision gate: prefer when human is actually speaking
+                if vision and not vision.is_human_speaking():
+                    print(f"[FOLLOW-UP] Heard '{text}' but no human speaking - suspicious")
+                    # Don't reject entirely, but note it
+                print(f"[FOLLOW-UP] Heard: '{text}'")
+                return text
+        else:
+            partial = json.loads(recognizer.PartialResult())
+            partial_text = partial.get("partial", "").strip()
+            if partial_text and len(partial_text.split()) >= 2:
+                print(f"[FOLLOW-UP PARTIAL] '{partial_text}'")
+                if partial_text == last_partial:
+                    if partial_stable_since is None:
+                        partial_stable_since = time.time()
+                    elif time.time() - partial_stable_since >= 1.5:
+                        if is_likely_echo(partial_text):
+                            last_partial = ""
+                            partial_stable_since = None
+                            continue
+                        print(f"[FOLLOW-UP STABLE] '{partial_text}'")
+                        return partial_text
+                else:
+                    last_partial = partial_text
+                    partial_stable_since = time.time()
 
-                data = self.q.get()
+    if last_partial and len(last_partial.split()) >= 3 and not is_likely_echo(last_partial):
+        return last_partial
+    return ""
 
-                # Mic gate during TTS
-                if time.time() < self.mic_gate_until:
+
+def main_voice_loop():
+    global shutdown_requested
+    recognizer = init_vosk(VOSK_MODEL_PATH, SAMPLE_RATE)
+    tts = init_tts()
+    p = init_audio()
+    stream = get_microphone_stream(p, SAMPLE_RATE, CHUNK)
+
+    memory = MemoryManager()
+    print(f"[MEMORY] Initialized")
+    cognitive = MultiModelCognitive(memory_manager=memory)
+    router = RouterEngine()
+    analyzer = CodeAnalyzer()
+
+    # January 19, 2026: Updated VisionFilter parameters
+    vision = VisionFilter(
+        motion_threshold=30000,  # Conservative for fallback mode
+        speaking_persist=1.5,  # Natural speech pauses
+        lip_aperture_threshold=0.3  # MAR threshold for dlib
+    )
+    if vision.start():
+        method = "dlib landmarks" if vision.use_dlib else "Haar cascade"
+        print(f"[VISION] Lip detection active ({method})")
+    else:
+        vision = None
+        print("[VISION] Not available - proceeding without vision gate")
+
+    wake_words = ["demerzel", "damn brazil", "demoiselle", "dammers l", "d brazil", "de brazil"]
+
+    print("\n" + "=" * 60)
+    print("[VOICE] Listening... (Ctrl-C to exit)")
+    if vision:
+        print("[VOICE] Vision gate ACTIVE - requires human lips moving")
+    print("=" * 60 + "\n")
+
+    command = None
+
+    try:
+        while not shutdown_requested:
+            if command is None:
+                # Pass vision to wake word detection for gate
+                if not listen_for_wake_word(recognizer, stream, wake_words, vision):
+                    continue
+                speak(tts, "Yes?", stream, recognizer)
+                command = transcribe_command(recognizer, stream, vision=vision)
+
+            if not command:
+                speak(tts, "I didn't hear anything.", stream, recognizer)
+                command = None
+                continue
+
+            print(f"[PROCESSING] '{command}'")
+            memory.store_conversation("user", command)
+
+            # NEW: Use unified cognitive_router
+            result = route_input(command, context={
+                "llm_handler": lambda x: cognitive.process(x).discussion,
+                "memory_manager": memory,
+            })
+
+            # For intents handled by cognitive_router directly, speak the response
+            if result.intent in (Intent.GREETING, Intent.FAREWELL, Intent.GRATITUDE, Intent.IDENTITY):
+                speak(tts, result.response, stream, recognizer)
+                follow_up = transcribe_followup(recognizer, stream, timeout=5.0, vision=vision)
+                if follow_up:
+                    command = follow_up
+                else:
+                    command = None
+                continue
+
+            # Handle execute intent
+            if result.intent == Intent.EXECUTE:
+                speak(tts, result.response[:200], stream, recognizer)
+                follow_up = transcribe_followup(recognizer, stream, timeout=5.0, vision=vision)
+                if follow_up:
+                    command = follow_up
+                else:
+                    command = None
+                continue
+
+            # Handle file operations
+            if result.intent in (Intent.FILE_READ, Intent.FILE_WRITE):
+                speak(tts, result.response[:200], stream, recognizer)
+                command = None
+                continue
+
+            # For CONVERSATION intent, use cognitive layer for code generation
+            if result.intent == Intent.CONVERSATION:
+                cognitive_output = cognitive.process(command)
+                print(f"[INTENT] {cognitive_output.understood_intent}")
+                print(f"[ROUTE] {cognitive_output.router_command}")
+
+                if cognitive_output.needs_clarification:
+                    speak(tts, cognitive_output.clarification_question, stream, recognizer)
+                    command = None
                     continue
 
-                if self.rec.AcceptWaveform(data):
-                    result = json.loads(self.rec.Result() or "{}")
-                    text = (result.get("text") or "").strip()
-                    if not text:
+                if cognitive_output.router_command == "execute code" and cognitive_output.generated_code:
+                    code = cognitive_output.generated_code
+                    print(f"[CODE]\n{code}")
+                    analysis = analyzer.analyze(code)
+                    print(f"[RISK] {analysis.risk_level.value}")
+
+                    if analysis.risk_level == RiskLevel.BLOCKED:
+                        speak(tts, f"Cannot execute: {analysis.reasons[0]}", stream, recognizer)
+                        command = None
                         continue
 
-                    final_text = text
-                    print(f"[FINAL] {final_text}")
-
-                    if self._anti_echo_should_ignore(final_text):
-                        continue
-
-                    best_alias, score = self._wake_score(final_text)
-                    wake_detected = (score >= self.cfg.wake_threshold)
-
-                    # --- IDLE: only wake transitions are allowed ---
-                    if self.state == "IDLE":
-                        if not wake_detected:
+                    if analysis.risk_level == RiskLevel.HIGH:
+                        speak(tts, "High risk. Say yes to proceed.", stream, recognizer)
+                        confirm = transcribe_command(recognizer, stream, timeout=5.0, vision=vision)
+                        if "yes" not in confirm.lower():
+                            speak(tts, "Cancelled.", stream, recognizer)
+                            command = None
                             continue
 
-                        print(f"[WAKE] detected alias='{best_alias}' score={score:.2f}")
-                        beep()
-                        self.say("Yes?")
+                    print("[EXEC] Running...")
+                    exec_result = router.code_executor.execute(code)
+                    if exec_result.success:
+                        lines = [l for l in exec_result.stdout.strip().split("\n") if not l.startswith("[FILE")]
+                        output = "\n".join(lines).strip() or "(no output)"
+                        print(f"[OUTPUT] {output}")
+                        speak(tts, f"Result: {output[:100]}", stream, recognizer)
+                    else:
+                        speak(tts, f"Error: {exec_result.stderr[:100]}", stream, recognizer)
 
-                        # Enter command mode with post-wake gating
-                        self._enter_command_state()
+                    follow_up = transcribe_followup(recognizer, stream, timeout=5.0, vision=vision)
+                    if follow_up:
+                        command = follow_up
+                    else:
+                        print("[VOICE] No follow-up")
+                        command = None
+                    continue
 
-                        # If user said wake + command in same utterance, strip and try once.
-                        remainder = self._strip_wake_alias(final_text, best_alias).strip()
+                if cognitive_output.router_command == "discuss" and cognitive_output.discussion:
+                    speak(tts, cognitive_output.discussion, stream, recognizer)
+                    follow_up = transcribe_followup(recognizer, stream, timeout=5.0, vision=vision)
+                    if follow_up:
+                        command = follow_up
+                    else:
+                        command = None
+                    continue
 
-                        # Only route remainder if it's not empty and not just the wake alias.
-                        if remainder and remainder != clean_text(best_alias):
-                            # NOTE: remainder is from the same utterance as wake (safe to process immediately)
-                            print(f"[WAKE] remainder -> '{remainder}'")
-                            lines = self.engine.process(remainder)
-                            for ln in lines:
-                                print(ln)
+            # Default: speak the router response
+            speak(tts, result.response, stream, recognizer)
+            command = None
 
-                            speak = self._choose_speak_line(lines)
-                            if speak:
-                                # Allow confirmation prompts immediately; suppress CLARIFY during no_clarify_until
-                                if speak.lower().startswith("i’m not sure") or speak.lower().startswith("im not sure"):
-                                    # treat as clarify
-                                    if time.time() >= self.no_clarify_until:
-                                        self.say(speak)
-                                    else:
-                                        print("[GATE] Suppressed immediate CLARIFY after wake (remainder path).")
-                                else:
-                                    self.say(speak)
+    finally:
+        print("\n[VOICE] Shutting down...")
+        if vision:
+            vision.stop()
+        stream.stop_stream()
+        stream.close()
+        p.terminate()
+        print("[VOICE] Done")
 
-                        continue
 
-                    # --- COMMAND: route final utterances into authoritative router (with gates) ---
-                    if self.state == "COMMAND":
-                        now = time.time()
+def main_chat_loop():
+    """Text-based chat mode - bypasses voice entirely"""
+    memory = MemoryManager()
+    print(f"[MEMORY] Initialized")
+    cognitive = MultiModelCognitive(memory_manager=memory)
+    router = RouterEngine()
+    analyzer = CodeAnalyzer()
 
-                        # NEW: post-wake cooldown gate prevents premature UNKNOWN
-                        if now < self.command_gate_until:
-                            print("[GATE] Ignored FINAL during post-wake cooldown.")
-                            continue
+    print("\n" + "=" * 60)
+    print("[CHAT] Demerzel text mode. Type 'quit' to exit.")
+    print("[CHAT] Using unified cognitive_router")
+    print("=" * 60 + "\n")
 
-                        # NEW: ignore ultra-short finals unless they are yes/no (for confirmation)
-                        if (len(clean_text(final_text)) < self.cfg.min_final_chars_command) and (not self._is_yes_no(final_text)):
-                            print("[GATE] Ignored very short FINAL in COMMAND mode.")
-                            continue
+    while True:
+        try:
+            command = input("You: ").strip()
+        except (EOFError, KeyboardInterrupt):
+            break
 
-                        lines = self.engine.process(final_text)
-                        for ln in lines:
-                            print(ln)
+        if not command:
+            continue
+        if command.lower() in ['quit', 'exit', 'q']:
+            break
 
-                        speak = self._choose_speak_line(lines)
-                        if speak:
-                            # NEW: suppress speaking CLARIFY immediately after wake (but still print it)
-                            if now < self.no_clarify_until:
-                                # If it's a clarify, suppress it; confirmations/errors/hardware can still speak
-                                if speak.lower().startswith("i’m not sure") or speak.lower().startswith("im not sure"):
-                                    print("[GATE] Suppressed immediate CLARIFY after wake.")
-                                else:
-                                    self.say(speak)
-                            else:
-                                self.say(speak)
+        memory.store_conversation("user", command)
 
-                        continue
+        # NEW: Use unified cognitive_router
+        result = route_input(command, context={
+            "llm_handler": lambda x: cognitive.process(x).discussion,
+            "memory_manager": memory,
+        })
 
+        # Handle execute intent with code analyzer for risk check
+        if result.intent == Intent.EXECUTE and "Block" in result.response:
+            # If execute handler already ran code, the response contains results
+            print(f"Demerzel: {result.response}")
+            continue
+
+        # Handle code generation from LLM fallback
+        if result.intent == Intent.CONVERSATION:
+            # Check if cognitive layer generated code
+            cognitive_output = cognitive.process(command)
+            if cognitive_output.router_command == "execute code" and cognitive_output.generated_code:
+                code = cognitive_output.generated_code
+                print(f"[CODE]\n{code}")
+                analysis = analyzer.analyze(code)
+                print(f"[RISK] {analysis.risk_level.value}")
+
+                if analysis.risk_level == RiskLevel.BLOCKED:
+                    print(f"Demerzel: Cannot execute: {analysis.reasons[0]}")
+                    continue
+
+                exec_result = router.code_executor.execute(code)
+                if exec_result.success:
+                    print(f"Demerzel: {exec_result.stdout.strip()}")
                 else:
-                    pres = json.loads(self.rec.PartialResult() or "{}")
-                    p = (pres.get("partial") or "").strip()
-                    if p and len(p) < 60:
-                        print(f"[partial] {p}")
+                    print(f"Demerzel: Error: {exec_result.stderr}")
+                continue
 
-        except KeyboardInterrupt:
-            print("\n[STOP] Ctrl+C received. Exiting cleanly...")
-        finally:
-            self.close()
+        # Print the unified router response
+        print(f"Demerzel: {result.response}")
+
+    print("\n[CHAT] Goodbye.")
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--list-devices", action="store_true", help="List input devices and exit")
-    parser.add_argument("--device", type=int, default=0, help="Input device index")
-    parser.add_argument("--model", type=str, default="vosk-model-small-en-us-0.15", help="Path to Vosk model dir")
-    parser.add_argument("--wake-threshold", type=float, default=0.62, help="Wake match threshold (0-1)")
-    args = parser.parse_args()
-
-    cfg = Config(
-        model_path=args.model,
-        device_index=args.device,
-        wake_threshold=args.wake_threshold,
-    )
-
-    bc = BrainController(cfg)
-    if args.list_devices:
-        bc.list_devices()
-        return
-    bc.run()
+    """Entry point for run_demerzel.py"""
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "voice":
+            main_voice_loop()
+        elif sys.argv[1] == "chat":
+            main_chat_loop()
+        else:
+            print("Usage: python3 brain_controller.py [voice|chat]")
+            return 1
+    else:
+        print("Usage: python3 brain_controller.py [voice|chat]")
+        return 1
+    return 0
 
 
 if __name__ == "__main__":
-    main()
-
+    raise SystemExit(main())

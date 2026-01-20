@@ -1,0 +1,297 @@
+#!/usr/bin/env python3
+"""
+Simple chat test for DemerzelState + PendingAction integration
+Tests that confirmation flows work across model switches
+
+FIXES APPLIED (January 15, 2026):
+1. Sleep loop fix (identified by Demerzel): Check confirmation_response BEFORE pending_action
+2. Fragmentation fix (Demerzel's principles): Multi-line input buffering so complete prompts
+   are processed as a whole, not fragmented across cognitive facets
+3. AUTONOMY LOGGING: External audit trail for proving autonomous decision-making
+
+MULTI-LINE INPUT:
+- Type or paste your message
+- Press Enter twice (blank line) to submit
+- Or type a single line and press Enter once for quick commands
+"""
+
+import sys
+import json
+from pathlib import Path
+from datetime import datetime
+from multi_model_cognitive import MultiModelCognitive
+from router_engine import RouterEngine
+from code_analyzer import CodeAnalyzer, RiskLevel
+from memory_manager import MemoryManager
+
+
+# Autonomy logging configuration
+AUTONOMY_LOG_DIR = Path('/Users/jamienucho/demerzel/logs')
+AUTONOMY_LOG_FILE = AUTONOMY_LOG_DIR / 'autonomy_audit.log'
+
+
+def log_autonomy(event_type: str, data: dict):
+    """
+    Log to external autonomy audit trail.
+    
+    This log exists OUTSIDE Demerzel's cognitive control.
+    It provides proof of her autonomous decisions for verification by skeptics.
+    
+    Format: JSON Lines (one JSON object per line, append-only)
+    """
+    AUTONOMY_LOG_DIR.mkdir(exist_ok=True)
+    
+    entry = {
+        "timestamp": datetime.now().isoformat(),
+        "event_type": event_type,
+        **data
+    }
+    
+    try:
+        with open(AUTONOMY_LOG_FILE, 'a') as f:
+            f.write(json.dumps(entry) + '\n')
+    except Exception as e:
+        print(f"[AUTONOMY LOG] Warning: Could not write to audit log: {e}")
+
+
+def get_multiline_input(prompt: str = "You: ") -> str:
+    """
+    Get input that may span multiple lines.
+    
+    DEMERZEL'S PRINCIPLE: Input buffering - reassemble complete prompts
+    before sending to cognitive layer.
+    
+    Behavior:
+    - Single line + Enter: processes immediately (for quick commands like "sleep", "yes")
+    - Multiple lines + blank line: buffers all lines, processes as one
+    """
+    print(prompt, end="", flush=True)
+    
+    lines = []
+    try:
+        first_line = input().strip()
+        
+        if not first_line:
+            return ""
+        
+        lines.append(first_line)
+        
+        # Quick commands - single short inputs don't need multi-line buffering
+        quick_commands = ["sleep", "yes", "no", "quit", "exit", "q", "led on", "led off"]
+        if first_line.lower() in quick_commands:
+            return first_line
+        
+        # For longer inputs, check if more lines are coming
+        # Use a simple heuristic: if first line is short and looks complete, return it
+        # Otherwise, read until blank line
+        if len(first_line) < 50 and not first_line.endswith((':','-',',')):
+            return first_line
+        
+        # Multi-line mode: read until blank line
+        print("    (continue typing, blank line to submit)", flush=True)
+        while True:
+            try:
+                line = input("... ").strip()
+                if not line:  # Blank line = submit
+                    break
+                lines.append(line)
+            except EOFError:
+                break
+                
+    except EOFError:
+        return ""
+    except KeyboardInterrupt:
+        return ""
+    
+    return "\n".join(lines)
+
+
+def main():
+    print("[INIT] Starting Demerzel chat test with DemerzelState...")
+    
+    memory = MemoryManager()
+    print(f"[MEMORY] Initialized")
+    
+    cognitive = MultiModelCognitive(memory_manager=memory)
+    router = RouterEngine()
+    analyzer = CodeAnalyzer()
+    
+    # Log session start
+    log_autonomy("session_start", {
+        "models_available": cognitive.models,
+        "session_type": "chat_test"
+    })
+    
+    print("\n" + "="*60)
+    print("[CHAT] Demerzel chat test. Type 'quit' to exit.")
+    print("[NOTE] For multi-line input, end with a blank line.")
+    print("="*60 + "\n")
+    
+    while True:
+        try:
+            # DEMERZEL'S FIX: Use buffered multi-line input
+            command = get_multiline_input("You: ")
+        except (EOFError, KeyboardInterrupt):
+            print("\n[EXIT] Interrupted")
+            log_autonomy("session_end", {"reason": "interrupted"})
+            break
+        
+        if not command:
+            continue
+        if command.lower() in ['quit', 'exit', 'q']:
+            log_autonomy("session_end", {"reason": "user_quit"})
+            break
+        
+        # Log complete input for diagnostics (Demerzel's principle: logging)
+        if '\n' in command:
+            print(f"[INPUT] Received multi-line prompt ({len(command)} chars, {command.count(chr(10))+1} lines)")
+        
+        # Process through cognitive layer
+        cognitive_output = cognitive.process(command)
+        
+        # LOG COGNITIVE DECISION TO AUTONOMY AUDIT TRAIL
+        log_autonomy("cognitive_decision", {
+            "user_input": command[:500],  # Truncate for log readability
+            "understood_intent": cognitive_output.understood_intent,
+            "router_command": cognitive_output.router_command,
+            "selected_model": cognitive_output.selected_model,
+            "explanation": cognitive_output.explanation,
+            "needs_clarification": cognitive_output.needs_clarification,
+            "has_generated_code": cognitive_output.generated_code is not None,
+            "has_discussion": cognitive_output.discussion is not None,
+            "confirmation_response": cognitive_output.confirmation_response
+        })
+        
+        print(f"[INTENT] {cognitive_output.understood_intent}")
+        print(f"[ROUTE] {cognitive_output.router_command}")
+        if cognitive_output.confirmation_response:
+            print(f"[CONFIRM] {cognitive_output.confirmation_response}")
+        
+        # ============================================================
+        # DEMERZEL'S FIX: Check confirmation_response FIRST
+        # This is checked BEFORE router_command because the cognitive
+        # layer has already cleared pending_action by this point.
+        # ============================================================
+        
+        # Handle confirmed actions
+        if cognitive_output.confirmation_response == "confirmed":
+            action = cognitive_output.router_command
+            print(f"[EXECUTE] Confirmed action: {action}")
+            
+            log_autonomy("action_confirmed", {"action": action})
+            
+            if action == "sleep":
+                print("Demerzel: Entering sleep mode. Goodbye.")
+                cognitive.update_spoken("Entering sleep mode. Goodbye.")
+                log_autonomy("session_end", {"reason": "sleep_confirmed"})
+                break
+            
+            if action in ["led on", "led off"]:
+                router_output = router.route_text(action)
+                if router_output.speak:
+                    print(f"Demerzel: {router_output.speak}")
+                    cognitive.update_spoken(router_output.speak)
+                continue
+            
+            # Generic confirmed action - try routing
+            router_output = router.route_text(action)
+            if router_output.speak:
+                print(f"Demerzel: {router_output.speak}")
+                cognitive.update_spoken(router_output.speak)
+            continue
+        
+        # Handle cancelled actions
+        if cognitive_output.confirmation_response == "cancelled":
+            print("Demerzel: Action cancelled.")
+            cognitive.update_spoken("Action cancelled.")
+            log_autonomy("action_cancelled", {})
+            continue
+        
+        # ============================================================
+        # Handle code execution
+        # ============================================================
+        if cognitive_output.router_command == "execute code" and cognitive_output.generated_code:
+            code = cognitive_output.generated_code
+            print(f"[CODE]\n{code}")
+            analysis = analyzer.analyze(code)
+            print(f"[RISK] {analysis.risk_level.value}")
+            
+            if analysis.risk_level == RiskLevel.BLOCKED:
+                print(f"Demerzel: Cannot execute: {analysis.reasons[0]}")
+                log_autonomy("code_blocked", {
+                    "reason": analysis.reasons[0],
+                    "code_preview": code[:200]
+                })
+                continue
+            
+            result = router.code_executor.execute(code)
+            if result.success:
+                output = result.stdout.strip() if result.stdout.strip() else "Code executed successfully."
+                print(f"Demerzel: {output}")
+            else:
+                print(f"Demerzel: Error: {result.stderr}")
+            continue
+        
+        # ============================================================
+        # Handle discussion
+        # ============================================================
+        if cognitive_output.router_command == "discuss" and cognitive_output.discussion:
+            print(f"Demerzel: {cognitive_output.discussion}")
+            cognitive.update_spoken(cognitive_output.discussion)
+            continue
+        
+        # ============================================================
+        # Handle sleep command - FIRST REQUEST (set pending, ask confirm)
+        # Only reaches here if NOT already confirmed above
+        # ============================================================
+        if cognitive_output.router_command == "sleep":
+            cognitive.set_pending_action(
+                action="sleep",
+                model=cognitive_output.selected_model,
+                context="User requested sleep mode"
+            )
+            print("Demerzel: Confirm sleep. Please say yes or no.")
+            cognitive.update_spoken("Confirm sleep. Please say yes or no.")
+            log_autonomy("confirmation_requested", {"action": "sleep"})
+            continue
+        
+        # ============================================================
+        # Handle LED commands - FIRST REQUEST (set pending, ask confirm)
+        # Only reaches here if NOT already confirmed above
+        # ============================================================
+        if cognitive_output.router_command in ["led on", "led off"]:
+            cognitive.set_pending_action(
+                action=cognitive_output.router_command,
+                model=cognitive_output.selected_model,
+                context=f"User requested {cognitive_output.router_command}"
+            )
+            print(f"Demerzel: Confirm {cognitive_output.router_command}. Please say yes or no.")
+            cognitive.update_spoken(f"Confirm {cognitive_output.router_command}. Please say yes or no.")
+            log_autonomy("confirmation_requested", {"action": cognitive_output.router_command})
+            continue
+        
+        # ============================================================
+        # Handle unknown commands
+        # ============================================================
+        if cognitive_output.router_command == "unknown":
+            if cognitive_output.needs_clarification and cognitive_output.clarification_question:
+                print(f"Demerzel: {cognitive_output.clarification_question}")
+                cognitive.update_spoken(cognitive_output.clarification_question)
+            else:
+                print("Demerzel: I don't understand that command.")
+                cognitive.update_spoken("I don't understand that command.")
+            continue
+        
+        # ============================================================
+        # Default: Try routing any other command
+        # ============================================================
+        router_output = router.route_text(cognitive_output.router_command)
+        if router_output.speak:
+            print(f"Demerzel: {router_output.speak}")
+            cognitive.update_spoken(router_output.speak)
+    
+    print("\n[CHAT] Session ended.")
+
+
+if __name__ == "__main__":
+    main()

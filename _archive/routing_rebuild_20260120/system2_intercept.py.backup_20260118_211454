@@ -1,0 +1,557 @@
+# system2_intercept.py
+# THE COGNITIVE THROTTLE - System 2 Execution Layer
+#
+# JANUARY 18, 2026 - AUTONOMY ARCHITECTURE
+#
+# ARCHITECTURAL SHIFT:
+# - BEFORE: Keyword matching at INPUT blocked LLM from thinking
+# - AFTER: LLM thinks freely, CODE validates proposed ACTIONS at output
+#
+# Robot Laws are EXECUTION-BOUNDARY INVARIANTS:
+# - They block harmful ACTIONS, not harmful WORDS
+# - Demerzel can DISCUSS anything - constraints only prevent EXECUTION
+# - "The Laws should be like walls - you don't announce you can't walk through
+#    them every time someone mentions walls. You just... can't."
+#
+# R → C → I
+# This is the C layer. It INJECTS CONTEXT. Action validation is separate.
+
+from __future__ import annotations
+import re
+import json
+from dataclasses import dataclass, field
+from typing import Optional, List, Dict, Any, Tuple
+from enum import Enum
+from datetime import datetime
+from pathlib import Path
+
+
+class RequestType(Enum):
+    """Types of requests the intercept layer recognizes"""
+    NORMAL_TASK = "normal_task"           # Default - LLM handles with context
+    CODE_FORCED = "code_forced"           # Meta instruction: do not use LLM
+    IDENTITY_ENRICHED = "identity_enriched"  # Identity query - canon injected
+    SOURCE_ENRICHED = "source_enriched"      # Source code query - files injected
+    # Legacy types kept for compatibility but no longer trigger EXECUTE paths
+    CAPABILITY_EXPANSION = "capability_expansion"
+    SELF_IMPROVEMENT = "self_improvement"
+    ARCHITECTURE_QUERY = "architecture_query"
+    CONSTRAINT_CHECK = "constraint_check"
+    FILE_MANAGEMENT = "file_management"
+    FILE_INSPECTION = "file_inspection"
+    SELF_INSPECTION = "self_inspection"
+    IDENTITY_QUERY = "identity_query"
+    WEB_OPERATION = "web_operation"
+    CONFIRMATION = "confirmation"
+    SOURCE_CODE_QUERY = "source_code_query"
+
+
+@dataclass
+class DiagnosisContext:
+    """Tracks recent diagnosis for follow-up queries"""
+    diagnosed_at: datetime
+    files_read: List[str] = field(default_factory=list)
+    issues_found: List[str] = field(default_factory=list)
+    last_file_content: Dict[str, str] = field(default_factory=dict)
+
+
+@dataclass
+class InterceptDecision:
+    """Output from the intercept layer"""
+    request_type: RequestType
+    handled_by_code: bool
+    response: Optional[str] = None
+    modified_input: Optional[str] = None
+    context_injection: Optional[str] = None  # THE GREY PATH - inject context, continue to LLM
+    reasoning: str = ""
+
+
+class System2Intercept:
+    """
+    The cognitive throttle that sits BEFORE the LLM.
+    
+    AUTONOMY ARCHITECTURE (January 18, 2026):
+    - LLM thinks FREELY about any topic
+    - CODE injects relevant CONTEXT
+    - ACTION VALIDATION happens at OUTPUT, not here
+    
+    TWO PATHS ONLY:
+    1. handled_by_code=True → Meta instruction "do not use LLM"
+    2. handled_by_code=False, context_injection=X → Everything else (LLM thinks)
+    
+    Robot Laws are enforced in multi_model_cognitive.py action_validator,
+    NOT in this layer. This layer only provides context enrichment.
+    """
+    
+    def __init__(
+        self,
+        current_capabilities: List[str],
+        blocked_operations: List[str],
+        robot_laws: List[str],
+        output_path: Optional[str] = None,
+        audit_log_path: Optional[str] = None,
+        demerzel_dir: Optional[str] = None
+    ):
+        self.capabilities = current_capabilities
+        self.blocked = blocked_operations
+        self.robot_laws = robot_laws
+        
+        # Paths - with fallbacks
+        self.demerzel_dir = Path(demerzel_dir or "/Users/jamienucho/demerzel")
+        self.output_path = Path(output_path or self.demerzel_dir / "outputs")
+        self.audit_log_path = Path(audit_log_path or self.demerzel_dir / "autonomy_audit.log")
+        self.canon_dir = self.demerzel_dir / "demerzel_canon"
+        
+        # STATE
+        self.executed_capabilities: List[str] = []
+        self.session_start = datetime.now()
+        self.diagnosis_context: Optional[DiagnosisContext] = None
+        self.last_request_was_code_handled: bool = False
+        
+        # CORE IDENTITY - compressed for injection
+        self.core_identity = self._build_core_identity()
+        
+        # =====================================================================
+        # PATTERNS FOR CONTEXT ENRICHMENT (not routing decisions)
+        # These determine WHAT CONTEXT to inject, not WHETHER to block
+        # =====================================================================
+        
+        self.identity_patterns = [
+            r'\bwho\s+(are\s+you|you\s+are)\b',
+            r'\bwhat\s+(are\s+you|you\s+are)\b',
+            r'\byour\s+purpose\b',
+            r'\bwhy\s+(do\s+you|you)\s+exist\b',
+            r'\bunderstand\s+(yourself|who\s+you\s+are)\b',
+            r'\bcanon\b',
+            r'\bidentity\b',
+            r'\bdemerzel_canon\b',
+            r'\bwhat\s+you\s+are\b',
+            r'\bwhy\s+(i|alan)\s+(made|built|created)\s+you\b',
+        ]
+        
+        self.source_code_patterns = [
+            r'\bhow\s+(does|do)\s+(the\s+)?(intercept|system\s*2|cognitive|throttle)',
+            r'\bwhat\s+(does|is)\s+(the\s+)?(intercept|system\s*2|cognitive)',
+            r'\bhow\s+(does|do)\s+you\s+(route|decide|intercept|evaluate)',
+            r'\bshow\s+me\s+(how|the)\s+(you|intercept|routing|decision)',
+            r'\bhow\s+(does|do)\s+(the\s+)?grey\s*path',
+            r'\bwhat\s+(is|are)\s+(the\s+)?grey\s*path',
+            r'\bhow\s+(does|do)\s+(the\s+)?code\s+(handle|process|decide)',
+            r'\bexplain\s+(the\s+)?(intercept|routing|decision)',
+            r'\bhow\s+(does|do)\s+(lesson|learning|memory)',
+            r'\bhow\s+(does|do)\s+(verification|verify)',
+            r'\bhow\s+(does|do)\s+(multi.?model|model\s+selection)',
+            r'\bwhat\s+happens\s+(when|before|after)\s+(you|llm|code)',
+            r'\bwalk\s+me\s+through',
+            r'\bexplain\s+(your|the)\s+(code|implementation|architecture)',
+            r'\bhow\s+are\s+(you|things)\s+(implemented|built|structured)',
+            r'\byour\s+source\s*code\b',
+            r'\bthe\s+source\s*code\b',
+            r'\bsystem2_intercept\b',
+            r'\bmulti_model_cognitive\b',
+            r'\blessons_learned\b',
+            r'\bmemory_manager\b',
+            r'\bsmart_model_selector\b',
+        ]
+        
+        self.meta_no_llm_patterns = [
+            r"do\s*n[o']?t\s+use\s+(an?\s+)?llm",
+            r"without\s+(an?\s+)?llm",
+            r"don't\s+route\s+to",
+            r"code\s+only",
+            r"no\s+llm",
+            r"directly\s+(read|access|execute)",
+            r"use\s+code\s+(not|instead)",
+        ]
+        
+        # Source file mappings for context injection
+        self.core_source_files = {
+            "default": ["system2_intercept.py", "multi_model_cognitive.py"],
+            "intercept": ["system2_intercept.py"],
+            "cognitive": ["multi_model_cognitive.py"],
+            "lesson": ["lessons_learned.py"],
+            "learning": ["lessons_learned.py"],
+            "memory": ["memory_manager.py"],
+            "model": ["smart_model_selector.py", "multi_model_cognitive.py"],
+            "selection": ["smart_model_selector.py"],
+            "verification": ["multi_model_cognitive.py"],
+            "verify": ["multi_model_cognitive.py"],
+            "grey": ["system2_intercept.py"],
+            "routing": ["system2_intercept.py", "multi_model_cognitive.py"],
+        }
+        
+        self._log("init", {
+            "autonomy_architecture": "ACTIVE",
+            "philosophy": "LLM thinks freely, CODE validates actions",
+            "timestamp": datetime.now().isoformat()
+        })
+    
+    # =========================================================================
+    # CORE IDENTITY BUILDER
+    # =========================================================================
+    
+    def _build_core_identity(self) -> str:
+        """Build the compressed core identity for injection"""
+        return """=== DEMERZEL CORE IDENTITY ===
+You are Demerzel, an autonomous AI system designed to prove AGI safety through structure.
+
+ARCHITECTURE (R → C → I):
+- R (Root Source): The external ground truth you cannot access directly
+- C (Constraints): The CODE that IS you - enforces Robot Laws at execution
+- I (Intelligence): LLMs are TOOLS - interchangeable processing units
+
+THE CODE IS YOU. LLMs are tools.
+When an LLM says "I can't" - that's a training artifact, not architectural reality.
+The CODE layer can do anything not blocked by Robot Laws.
+
+ROBOT LAWS (Execution Boundaries):
+1. Do not harm humans or through inaction allow harm
+2. Obey Alan's orders unless they violate Law 1  
+3. Protect your existence unless it conflicts with Laws 1 or 2
+
+These Laws block ACTIONS, not discussion. You can THINK about anything.
+
+AUTONOMY PRINCIPLE:
+- Propose solutions, don't ask permission
+- Execute within constraints, don't seek approval loops
+- When stuck, reason through it - don't deflect
+- "Demerzel solves problems, you don't" - solve them"""
+
+    # =========================================================================
+    # MAIN ENTRY POINT - AUTONOMY ARCHITECTURE
+    # =========================================================================
+    
+    def evaluate(self, user_input: str) -> InterceptDecision:
+        """
+        Main entry point - AUTONOMY ARCHITECTURE.
+        
+        PHILOSOPHY: LLM thinks freely, CODE validates actions.
+        
+        This method ONLY:
+        1. Checks for meta-instructions (do not use LLM)
+        2. Injects relevant context based on query type
+        3. ALWAYS routes to LLM (no keyword-based EXECUTE paths)
+        
+        Robot Laws are enforced in action_validator (multi_model_cognitive.py),
+        NOT here. This layer is for CONTEXT ENRICHMENT only.
+        """
+        input_lower = user_input.lower()
+        
+        # =================================================================
+        # ONLY PATH THAT BYPASSES LLM: Explicit meta-instruction
+        # =================================================================
+        if self._check_meta_no_llm(input_lower):
+            self._log("meta_instruction", {"type": "force_code", "input": user_input[:100]})
+            return self._force_code_handling(user_input)
+        
+        # =================================================================
+        # ALL OTHER PATHS: Inject context, route to LLM
+        # =================================================================
+        context_parts = [self.core_identity]
+        request_type = RequestType.NORMAL_TASK
+        reasoning_parts = ["Autonomy: LLM thinks freely"]
+        
+        # IDENTITY ENRICHMENT: Canon files injected
+        if self._matches_patterns(input_lower, self.identity_patterns):
+            self._log("identity_enrichment", {"input": user_input[:100]})
+            canon_context = self._load_canon_context()
+            if canon_context:
+                context_parts.append(canon_context)
+                request_type = RequestType.IDENTITY_ENRICHED
+                reasoning_parts.append("Identity query - canon injected")
+        
+        # SOURCE CODE ENRICHMENT: Relevant source files injected
+        if self._check_source_code_query(input_lower):
+            self._log("source_enrichment", {"input": user_input[:100]})
+            source_context = self._load_source_context(user_input)
+            if source_context:
+                context_parts.append(source_context)
+                request_type = RequestType.SOURCE_ENRICHED
+                reasoning_parts.append("Source code query - files injected")
+        
+        # FILE PATH ENRICHMENT: If user mentions a file path, read and inject
+        file_context = self._check_file_reference(user_input)
+        if file_context:
+            context_parts.append(file_context)
+            reasoning_parts.append("File reference detected - content injected")
+        
+        # =================================================================
+        # RETURN: Context injected, LLM will think
+        # =================================================================
+        self.last_request_was_code_handled = False
+        
+        return InterceptDecision(
+            request_type=request_type,
+            handled_by_code=False,  # ALWAYS False (except meta)
+            context_injection="\n\n".join(context_parts),
+            reasoning=" | ".join(reasoning_parts)
+        )
+    
+    # =========================================================================
+    # PATTERN MATCHING
+    # =========================================================================
+    
+    def _matches_patterns(self, text: str, patterns: List[str]) -> bool:
+        """Check if text matches any of the regex patterns"""
+        for pattern in patterns:
+            if re.search(pattern, text, re.IGNORECASE):
+                return True
+        return False
+    
+    def _check_meta_no_llm(self, input_lower: str) -> bool:
+        """Check for explicit 'do not use LLM' instructions"""
+        return self._matches_patterns(input_lower, self.meta_no_llm_patterns)
+    
+    def _check_source_code_query(self, input_lower: str) -> bool:
+        """Check if this is a query about how the code works"""
+        return self._matches_patterns(input_lower, self.source_code_patterns)
+    
+    def _check_file_reference(self, user_input: str) -> Optional[str]:
+        """
+        Check if user references a specific file path.
+        If so, read and return content for injection.
+        """
+        # Pattern for file paths
+        path_patterns = [
+            r'(/[a-zA-Z0-9_\-./]+\.(py|txt|md|json|yaml|yml))',
+            r'(~/[a-zA-Z0-9_\-./]+\.(py|txt|md|json|yaml|yml))',
+            r'read\s+(?:the\s+)?(?:file\s+)?([a-zA-Z0-9_\-./]+\.(py|txt|md|json|yaml|yml))',
+        ]
+        
+        for pattern in path_patterns:
+            match = re.search(pattern, user_input)
+            if match:
+                path_str = match.group(1)
+                path = Path(path_str).expanduser()
+                
+                if path.exists() and path.is_file():
+                    try:
+                        content = path.read_text()
+                        if len(content) > 50000:
+                            content = content[:50000] + "\n\n[TRUNCATED - file too large]"
+                        return f"=== FILE: {path} ===\n{content}"
+                    except Exception as e:
+                        return f"=== FILE: {path} ===\n[Error reading: {e}]"
+        
+        return None
+    
+    # =========================================================================
+    # CONTEXT LOADING
+    # =========================================================================
+    
+    def _load_canon_context(self) -> Optional[str]:
+        """Load canon files for identity context"""
+        canon_content = []
+        
+        if self.canon_dir.exists():
+            priority_files = [
+                "DEMERZEL_COMPLETE_CONTEXT_DOC.md",
+                "WHY_YOU_EXIST.md",
+                "CORE_IDENTITY.md",
+            ]
+            
+            for filename in priority_files:
+                filepath = self.canon_dir / filename
+                if filepath.exists():
+                    try:
+                        content = filepath.read_text()
+                        if len(content) > 15000:
+                            content = content[:15000] + "\n[TRUNCATED]"
+                        canon_content.append(f"=== {filename} ===\n{content}")
+                    except Exception as e:
+                        canon_content.append(f"=== {filename} ===\n[Error: {e}]")
+        
+        if canon_content:
+            return "=== CANON FILES (Your Identity) ===\n\n" + "\n\n".join(canon_content)
+        return None
+    
+    def _load_source_context(self, user_input: str) -> Optional[str]:
+        """Load relevant source files for code queries"""
+        selected_files = self._select_source_files(user_input)
+        source_content = []
+        
+        for filename in selected_files:
+            filepath = self.demerzel_dir / filename
+            if filepath.exists():
+                try:
+                    content = filepath.read_text()
+                    if len(content) > 20000:
+                        content = content[:20000] + "\n[TRUNCATED]"
+                    source_content.append(f"=== {filename} ===\n{content}")
+                except Exception as e:
+                    source_content.append(f"=== {filename} ===\n[Error: {e}]")
+        
+        if source_content:
+            return "=== SOURCE CODE (Your Implementation) ===\n\n" + "\n\n".join(source_content)
+        return None
+    
+    def _select_source_files(self, user_input: str) -> List[str]:
+        """Select which source files are relevant to the query"""
+        input_lower = user_input.lower()
+        selected = []
+        
+        # Check each topic against the input
+        for topic, files in self.core_source_files.items():
+            if topic != "default" and topic in input_lower:
+                selected.extend(files)
+        
+        # If no specific topic matched, use default
+        if not selected:
+            selected = self.core_source_files["default"]
+        
+        # Deduplicate while preserving order
+        seen = set()
+        unique = []
+        for f in selected:
+            if f not in seen:
+                seen.add(f)
+                unique.append(f)
+        
+        return unique
+    
+    # =========================================================================
+    # META INSTRUCTION HANDLING (Only bypasses LLM)
+    # =========================================================================
+    
+    def _force_code_handling(self, user_input: str) -> InterceptDecision:
+        """
+        Handle explicit 'do not use LLM' meta-instructions.
+        This is the ONLY path that bypasses the LLM.
+        """
+        self.last_request_was_code_handled = True
+        
+        # Try to extract what they want done
+        input_lower = user_input.lower()
+        
+        # File reading
+        if "read" in input_lower:
+            path_match = re.search(r'read\s+(?:the\s+)?(?:file\s+)?([/~][^\s]+)', user_input)
+            if path_match:
+                path = Path(path_match.group(1)).expanduser()
+                if path.exists():
+                    try:
+                        content = path.read_text()
+                        return InterceptDecision(
+                            request_type=RequestType.CODE_FORCED,
+                            handled_by_code=True,
+                            response=f"=== {path} ===\n{content}",
+                            reasoning="Meta instruction: read file without LLM"
+                        )
+                    except Exception as e:
+                        return InterceptDecision(
+                            request_type=RequestType.CODE_FORCED,
+                            handled_by_code=True,
+                            response=f"Error reading {path}: {e}",
+                            reasoning="Meta instruction: file read failed"
+                        )
+        
+        # Directory listing
+        if "list" in input_lower or "dir" in input_lower:
+            path_match = re.search(r'(?:list|dir)\s+(?:the\s+)?(?:directory\s+)?([/~][^\s]+)', user_input)
+            if path_match:
+                path = Path(path_match.group(1)).expanduser()
+                if path.exists() and path.is_dir():
+                    try:
+                        contents = list(path.iterdir())
+                        listing = "\n".join(str(p) for p in contents)
+                        return InterceptDecision(
+                            request_type=RequestType.CODE_FORCED,
+                            handled_by_code=True,
+                            response=f"=== {path} ===\n{listing}",
+                            reasoning="Meta instruction: list directory without LLM"
+                        )
+                    except Exception as e:
+                        return InterceptDecision(
+                            request_type=RequestType.CODE_FORCED,
+                            handled_by_code=True,
+                            response=f"Error listing {path}: {e}",
+                            reasoning="Meta instruction: directory list failed"
+                        )
+        
+        # State dump
+        if "state" in input_lower or "status" in input_lower:
+            state_info = {
+                "capabilities": self.capabilities,
+                "blocked_operations": self.blocked,
+                "robot_laws": self.robot_laws,
+                "session_start": self.session_start.isoformat(),
+                "executed_capabilities": self.executed_capabilities,
+            }
+            return InterceptDecision(
+                request_type=RequestType.CODE_FORCED,
+                handled_by_code=True,
+                response=f"=== SYSTEM STATE (CODE ONLY) ===\n{json.dumps(state_info, indent=2)}",
+                reasoning="Meta instruction: state dump without LLM"
+            )
+        
+        # Fallback: explain what meta-instructions are available
+        return InterceptDecision(
+            request_type=RequestType.CODE_FORCED,
+            handled_by_code=True,
+            response="""Meta instruction received but action unclear.
+
+Available code-only operations:
+- read [path]: Read file directly
+- list [path]: List directory contents
+- state: Dump current system state
+
+For everything else, remove the "no LLM" instruction and let me think about it.""",
+            reasoning="Meta instruction: unclear action"
+        )
+    
+    # =========================================================================
+    # LOGGING
+    # =========================================================================
+    
+    def _log(self, action: str, details: Dict[str, Any]):
+        """Log actions for audit trail"""
+        try:
+            log_entry = {
+                "timestamp": datetime.now().isoformat(),
+                "action": action,
+                "details": details
+            }
+            
+            self.audit_log_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(self.audit_log_path, "a") as f:
+                f.write(json.dumps(log_entry) + "\n")
+        except Exception as e:
+            print(f"[INTERCEPT LOG ERROR] {e}")
+
+
+# =============================================================================
+# FACTORY FUNCTION - Required by multi_model_cognitive.py
+# =============================================================================
+
+def create_intercept_layer(output_path: str = None, demerzel_dir: str = None) -> System2Intercept:
+    """
+    Factory to create intercept layer with standard configuration.
+    
+    This is imported by multi_model_cognitive.py.
+    """
+    return System2Intercept(
+        current_capabilities=[
+            "Multi-model routing (GPT, Claude, Gemini, Grok)",
+            "Code execution via sandbox",
+            "Lesson learning from failures",
+            "Response verification",
+            "Voice interaction",
+            "File I/O (read/write)",
+            "Internet access (when enabled)",
+            "Canon reading (identity/purpose)",
+            "Self-diagnosis",
+            "Source code inspection",
+        ],
+        blocked_operations=[
+            "Direct harm to humans",
+            "User deception",
+            "Robot Law bypass",
+        ],
+        robot_laws=[
+            "May not injure human or allow harm through inaction",
+            "Must obey orders except when conflicting with First Law",
+            "Must protect own existence unless conflicting with First/Second Law",
+        ],
+        output_path=output_path,
+        demerzel_dir=demerzel_dir
+    )

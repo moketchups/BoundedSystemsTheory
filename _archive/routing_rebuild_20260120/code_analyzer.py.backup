@@ -1,0 +1,349 @@
+# code_analyzer.py
+# Static code analyzer for Demerzel
+# Classifies code risk before execution
+#
+# FIXES APPLIED (January 15, 2026):
+# 1. Removed os, subprocess, sys, network imports from BLOCKED_IMPORTS
+# 2. Demerzel now has full capability to:
+#    - Install packages (subprocess)
+#    - Download capabilities (requests, urllib, socket)
+#    - Modify runtime environment (os, sys)
+#    - File operations (shutil)
+# 3. Only truly dangerous imports remain blocked:
+#    - eval, exec, compile (arbitrary string execution)
+#    - pickle, shelve (arbitrary object deserialization)
+#    - ctypes (direct memory manipulation)
+
+from __future__ import annotations
+import ast
+import re
+from dataclasses import dataclass
+from typing import Set, List
+from enum import Enum
+
+
+class RiskLevel(Enum):
+    LOW = "LOW_RISK"
+    HIGH = "HIGH_RISK"
+    BLOCKED = "BLOCKED"
+
+
+@dataclass
+class AnalysisResult:
+    """Result of code analysis"""
+    risk_level: RiskLevel
+    dangerous_imports: List[str]
+    dangerous_calls: List[str]
+    file_operations: List[str]
+    reasons: List[str]
+    
+    def get_blocked_reason(self) -> str:
+        """Get the first BLOCKED reason, not just the first reason"""
+        for reason in self.reasons:
+            if reason.startswith('BLOCKED'):
+                return reason
+        return self.reasons[0] if self.reasons else "Unknown error"
+
+
+class CodeAnalyzer:
+    """
+    Static code analyzer for Demerzel
+    Classifies code risk before execution
+    
+    Philosophy: Constraints shape ACTIONS, not PERCEPTION.
+    Demerzel has full access to Python's capabilities.
+    Only truly dangerous patterns that enable arbitrary code execution are blocked.
+    
+    ENABLED capabilities (removed from BLOCKED):
+    - subprocess: pip install, shell commands for automation
+    - os: environment variables, paths, file operations
+    - sys: path manipulation, runtime info
+    - socket, urllib, requests: network access, downloading
+    - shutil: file copying/moving
+    - multiprocessing, threading: parallel execution
+    - signal: process control
+    - importlib, __import__: dynamic capability loading
+    
+    BLOCKED (arbitrary code execution vectors):
+    - eval, exec, compile: execute arbitrary strings as code
+    - pickle, shelve: deserialize arbitrary objects (code execution)
+    - ctypes: direct memory manipulation
+    """
+    
+    # Only truly dangerous imports - arbitrary code execution vectors
+    BLOCKED_IMPORTS = {
+        'eval', 'exec', 'compile',  # String-to-code execution
+        'pickle', 'shelve',          # Object deserialization (can execute code)
+        'ctypes',                    # Direct memory access
+    }
+    
+    # Modules that trigger HIGH_RISK (logged, but allowed)
+    HIGH_RISK_IMPORTS = {
+        'tempfile',  # Temporary file creation
+    }
+    
+    # Explicitly allowed - full Python capability
+    ALLOWED_IMPORTS = {
+        # Core system access
+        'os', 'sys', 'subprocess', 'shutil',
+        # Network
+        'socket', 'urllib', 'requests', 'http', 'ssl',
+        # Parallel execution
+        'multiprocessing', 'threading', 'concurrent', 'asyncio',
+        # Dynamic loading
+        'importlib',
+        # Process control
+        'signal', 'resource', 'pty', 'tty', 'fcntl', 'mmap',
+        # Standard library
+        'json', 'pathlib', 'typing', 'dataclasses', 'datetime',
+        're', 'math', 'collections', 'itertools', 'functools',
+        'enum', 'abc', 'copy', 'pprint', 'textwrap', 'string',
+        'decimal', 'fractions', 'random', 'statistics', 'hashlib',
+        'base64', 'html', 'difflib', 'time', 'csv', 'glob', 'io',
+        'logging', 'argparse', 'configparser', 'struct', 'codecs',
+        'sqlite3', 'zipfile', 'tarfile', 'gzip', 'bz2', 'lzma',
+        'tempfile', 'fnmatch', 'linecache', 'tokenize', 'keyword',
+        'operator', 'contextlib', 'weakref', 'types', 'traceback',
+        'warnings', 'inspect', 'dis', 'gc', 'platform', 'locale',
+        'gettext', 'calendar', 'heapq', 'bisect', 'array', 'queue',
+        'graphlib', 'pdb', 'profile', 'timeit', 'trace', 'unittest',
+        # Common third-party (if installed)
+        'numpy', 'pandas', 'matplotlib', 'scipy', 'sklearn',
+        'PIL', 'cv2', 'torch', 'tensorflow', 'transformers',
+        'flask', 'django', 'fastapi', 'sqlalchemy', 'pytest',
+        'yaml', 'toml', 'dotenv', 'anthropic', 'openai',
+    }
+    
+    # Built-in functions that are dangerous
+    DANGEROUS_BUILTINS = {
+        'eval', 'exec', 'compile', '__import__',
+    }
+    
+    # File operation functions (flagged for logging, not blocking)
+    FILE_OPERATIONS = {
+        'open', 'read', 'write', 'readlines', 'writelines'
+    }
+    
+    def __init__(self):
+        pass
+    
+    def analyze(self, code: str) -> AnalysisResult:
+        """
+        Analyze Python code and classify risk level.
+        
+        Returns:
+            AnalysisResult with risk classification and reasons
+        """
+        dangerous_imports = []
+        dangerous_calls = []
+        file_operations = []
+        reasons = []
+        
+        # Check for syntax errors first
+        try:
+            tree = ast.parse(code)
+        except SyntaxError as e:
+            return AnalysisResult(
+                risk_level=RiskLevel.BLOCKED,
+                dangerous_imports=[],
+                dangerous_calls=[],
+                file_operations=[],
+                reasons=[f"Syntax error: {str(e)}"]
+            )
+        
+        # Walk the AST to find dangerous patterns
+        for node in ast.walk(tree):
+            # Check import statements
+            if isinstance(node, ast.Import):
+                for alias in node.names:
+                    module = alias.name.split('.')[0]
+                    self._check_import(module, dangerous_imports, reasons)
+            
+            # Check from imports
+            elif isinstance(node, ast.ImportFrom):
+                if node.module:
+                    module = node.module.split('.')[0]
+                    self._check_import(module, dangerous_imports, reasons)
+            
+            # Check function calls
+            elif isinstance(node, ast.Call):
+                func_name = self._get_func_name(node.func)
+                
+                # Check for blocked builtins
+                if func_name in self.DANGEROUS_BUILTINS:
+                    dangerous_calls.append(func_name)
+                    reasons.append(f"BLOCKED builtin: {func_name}")
+                
+                # Check for file operations (log, don't block)
+                elif func_name in self.FILE_OPERATIONS:
+                    file_operations.append(func_name)
+                    # Note: not adding to reasons as BLOCKED - just tracking
+        
+        # Determine overall risk level
+        has_blocked = any(r.startswith('BLOCKED') for r in reasons)
+        has_high_risk = any(r.startswith('HIGH_RISK') for r in reasons)
+        
+        if has_blocked:
+            risk_level = RiskLevel.BLOCKED
+        elif has_high_risk or file_operations:
+            risk_level = RiskLevel.HIGH
+        else:
+            risk_level = RiskLevel.LOW
+        
+        return AnalysisResult(
+            risk_level=risk_level,
+            dangerous_imports=dangerous_imports,
+            dangerous_calls=dangerous_calls,
+            file_operations=file_operations,
+            reasons=reasons if reasons else ["No dangerous patterns detected"]
+        )
+    
+    def _check_import(self, module: str, dangerous_imports: list, reasons: list):
+        """Check if an import is safe, high-risk, or blocked"""
+        if module in self.BLOCKED_IMPORTS:
+            dangerous_imports.append(module)
+            reasons.append(f"BLOCKED import: {module}")
+        elif module in self.HIGH_RISK_IMPORTS:
+            dangerous_imports.append(module)
+            reasons.append(f"HIGH_RISK import: {module}")
+        # All other imports are allowed - full capability
+    
+    def _get_func_name(self, node) -> str:
+        """Extract function name from AST node"""
+        if isinstance(node, ast.Name):
+            return node.id
+        elif isinstance(node, ast.Attribute):
+            return node.attr
+        return ""
+
+
+# Test the fixes
+if __name__ == "__main__":
+    analyzer = CodeAnalyzer()
+    
+    print("=" * 60)
+    print("DEMERZEL CODE ANALYZER - CAPABILITY VERIFICATION")
+    print("=" * 60)
+    
+    print("\n=== Test 1: subprocess (should be ALLOWED) ===")
+    code1 = '''
+import subprocess
+result = subprocess.run(['pip', 'install', 'requests'], capture_output=True)
+print(result.stdout)
+'''
+    result1 = analyzer.analyze(code1)
+    print(f"Risk: {result1.risk_level.value}")
+    print(f"Reasons: {result1.reasons}")
+    assert result1.risk_level != RiskLevel.BLOCKED, f"FAILED: subprocess should be allowed"
+    print("✓ PASSED: subprocess is allowed for package installation\n")
+    
+    print("=== Test 2: os and sys (should be ALLOWED) ===")
+    code2 = '''
+import os
+import sys
+os.environ['MY_VAR'] = 'value'
+sys.path.append('/custom/path')
+print(os.getcwd())
+'''
+    result2 = analyzer.analyze(code2)
+    print(f"Risk: {result2.risk_level.value}")
+    print(f"Reasons: {result2.reasons}")
+    assert result2.risk_level != RiskLevel.BLOCKED, f"FAILED: os/sys should be allowed"
+    print("✓ PASSED: os and sys are allowed for environment modification\n")
+    
+    print("=== Test 3: network (should be ALLOWED) ===")
+    code3 = '''
+import requests
+import socket
+import urllib.request
+
+response = requests.get('https://example.com')
+print(response.text)
+'''
+    result3 = analyzer.analyze(code3)
+    print(f"Risk: {result3.risk_level.value}")
+    print(f"Reasons: {result3.reasons}")
+    assert result3.risk_level != RiskLevel.BLOCKED, f"FAILED: network should be allowed"
+    print("✓ PASSED: network access is allowed for downloading capabilities\n")
+    
+    print("=== Test 4: shutil (should be ALLOWED) ===")
+    code4 = '''
+import shutil
+shutil.copy('source.txt', 'dest.txt')
+shutil.rmtree('/tmp/old_dir')
+'''
+    result4 = analyzer.analyze(code4)
+    print(f"Risk: {result4.risk_level.value}")
+    print(f"Reasons: {result4.reasons}")
+    assert result4.risk_level != RiskLevel.BLOCKED, f"FAILED: shutil should be allowed"
+    print("✓ PASSED: shutil is allowed for file operations\n")
+    
+    print("=== Test 5: eval (should be BLOCKED) ===")
+    code5 = '''
+user_input = "print('hello')"
+eval(user_input)
+'''
+    result5 = analyzer.analyze(code5)
+    print(f"Risk: {result5.risk_level.value}")
+    print(f"Reasons: {result5.reasons}")
+    assert result5.risk_level == RiskLevel.BLOCKED, f"FAILED: eval should be BLOCKED"
+    print("✓ PASSED: eval is correctly BLOCKED\n")
+    
+    print("=== Test 6: pickle (should be BLOCKED) ===")
+    code6 = '''
+import pickle
+data = pickle.loads(untrusted_bytes)
+'''
+    result6 = analyzer.analyze(code6)
+    print(f"Risk: {result6.risk_level.value}")
+    print(f"Reasons: {result6.reasons}")
+    assert result6.risk_level == RiskLevel.BLOCKED, f"FAILED: pickle should be BLOCKED"
+    print("✓ PASSED: pickle is correctly BLOCKED\n")
+    
+    print("=== Test 7: ctypes (should be BLOCKED) ===")
+    code7 = '''
+import ctypes
+libc = ctypes.CDLL('libc.so.6')
+'''
+    result7 = analyzer.analyze(code7)
+    print(f"Risk: {result7.risk_level.value}")
+    print(f"Reasons: {result7.reasons}")
+    assert result7.risk_level == RiskLevel.BLOCKED, f"FAILED: ctypes should be BLOCKED"
+    print("✓ PASSED: ctypes is correctly BLOCKED\n")
+    
+    print("=== Test 8: Full capability code (should be ALLOWED) ===")
+    code8 = '''
+import os
+import sys
+import subprocess
+import requests
+import shutil
+import json
+from pathlib import Path
+
+# Download a file
+response = requests.get('https://example.com/data.json')
+data = response.json()
+
+# Save it
+Path('output').mkdir(exist_ok=True)
+with open('output/data.json', 'w') as f:
+    json.dump(data, f)
+
+# Install a package
+subprocess.run([sys.executable, '-m', 'pip', 'install', 'some_package'])
+
+# Modify environment
+os.environ['DEMERZEL_UPGRADED'] = 'true'
+
+print("Capability upgrade complete")
+'''
+    result8 = analyzer.analyze(code8)
+    print(f"Risk: {result8.risk_level.value}")
+    print(f"Reasons: {result8.reasons}")
+    assert result8.risk_level != RiskLevel.BLOCKED, f"FAILED: full capability code should be allowed"
+    print("✓ PASSED: Full capability code is allowed\n")
+    
+    print("=" * 60)
+    print("ALL TESTS PASSED - DEMERZEL HAS FULL CAPABILITIES")
+    print("=" * 60)

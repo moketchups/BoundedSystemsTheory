@@ -1,0 +1,361 @@
+#!/usr/bin/env python3
+"""
+brain_controller.py
+
+Canonical brain for Demerzel, structured as:
+MIC -> Vosk STT -> WAKE gate -> Router -> (optional confirm loop) -> hardware_executor.py -> WORLD
+
+Key fixes (deterministic):
+1) Wake word detection: add leniency + alias handling + hysteresis
+2) State safety: don't crash if RouterState changes shape (awaiting_confirmation)
+3) Router integration: route_text(text, state) returns RouterOutput with action + speak
+
+Run:
+  python3 brain_controller.py --wake-debug --transcript-debug
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import queue
+import re
+import sys
+import time
+from dataclasses import dataclass
+from difflib import SequenceMatcher
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+import sounddevice as sd  # type: ignore
+import vosk  # type: ignore
+
+# Local modules
+from kernel_router import RouterState, route_text
+
+
+def _now() -> float:
+    return time.time()
+
+
+def _clean_text(s: str) -> str:
+    s = s.lower().strip()
+    s = re.sub(r"[^a-z0-9\s]+", " ", s)
+    s = re.sub(r"\s+", " ", s).strip()
+    return s
+
+
+def _best_wake_score(text: str, targets: List[str]) -> float:
+    """
+    Returns best score [0..1] indicating whether transcript 'text' sounds like wake word.
+    Uses:
+      - word overlap (good for aliases like "dammers")
+      - substring containment (good for multiword alias fragments)
+      - fuzzy ratio (good for "demersel" vs "demerzel", etc)
+    """
+    if not targets:
+        return 0.0
+
+    w = _clean_text(text)
+    if not w:
+        return 0.0
+
+    words = set(w.split())
+    compact = w.replace(" ", "")
+
+    best = 0.0
+    for t in targets:
+        t2 = _clean_text(t)
+        if not t2:
+            continue
+
+        twords = set(t2.split())
+        tcompact = t2.replace(" ", "")
+
+        # overlap is measured vs target-word-count
+        overlap = 0.0
+        if twords:
+            overlap = len(words & twords) / max(1, len(twords))
+
+        substr = 1.0 if (t2 in w or tcompact in compact) else 0.0
+        ratio = SequenceMatcher(None, compact, tcompact).ratio()
+
+        score = max(overlap, substr, ratio)
+        if score > best:
+            best = score
+
+    return best
+
+
+@dataclass
+class Config:
+    # Vosk model (already present in your repo)
+    vosk_model_dir: str = "vosk-model-small-en-us-0.15"
+
+    # Wake
+    wake_word: str = "demerzel"
+    wake_aliases: Optional[List[str]] = None
+
+    # Wake tuning (lenient defaults)
+    wake_threshold: float = 0.58
+    wake_hits_required: int = 1
+    wake_hit_window_seconds: float = 2.0
+
+    # Audio
+    sample_rate: int = 16000
+    block_size: int = 8000  # ~0.5s at 16k
+    device: Optional[int] = None
+
+    # Behavior
+    wake_ack_phrase: str = "Yes?"
+    verbose: bool = False
+
+    def apply_env(self) -> None:
+        """
+        Allow env var overrides, but provide strong defaults if unset.
+        """
+        self.vosk_model_dir = os.getenv("VOSK_MODEL_DIR", self.vosk_model_dir)
+
+        self.wake_word = os.getenv("WAKE_WORD", self.wake_word).strip().lower()
+
+        wt = os.getenv("WAKE_THRESHOLD")
+        if wt:
+            try:
+                self.wake_threshold = float(wt)
+            except Exception:
+                pass
+
+        whr = os.getenv("WAKE_HITS_REQUIRED")
+        if whr:
+            try:
+                self.wake_hits_required = max(1, int(whr))
+            except Exception:
+                pass
+
+        whw = os.getenv("WAKE_HIT_WINDOW_SECONDS")
+        if whw:
+            try:
+                self.wake_hit_window_seconds = max(0.2, float(whw))
+            except Exception:
+                pass
+
+        # Wake aliases: comma-separated
+        env_aliases = os.getenv("WAKE_ALIASES")
+        if env_aliases is not None:
+            parsed = []
+            for a in env_aliases.split(","):
+                a = a.strip().lower()
+                if a:
+                    parsed.append(a)
+            self.wake_aliases = parsed
+
+        # If not provided, use a conservative built-in alias set.
+        # These match what Vosk was actually producing in your logs (e.g. "dammers l").
+        if self.wake_aliases is None:
+            self.wake_aliases = [
+                "demerzel",
+                "demersel",
+                "damerzel",
+                "damersel",
+                "dammersel",
+                "dammers",
+                "dammers l",
+                "demers l",
+                "dammers out",
+                # keep a couple of the older helpful near-hears:
+                "demerzel wake",
+                "demerzel ok",
+                "demerzel yes",
+            ]
+
+
+class AudioStream:
+    def __init__(self, cfg: Config):
+        self.cfg = cfg
+        self.q: "queue.Queue[bytes]" = queue.Queue()
+
+    def _callback(self, indata, frames, time_info, status):  # noqa: ANN001
+        if status:
+            # We keep going even if there are occasional warnings
+            pass
+        self.q.put(bytes(indata))
+
+    def __enter__(self) -> "AudioStream":
+        self.stream = sd.RawInputStream(
+            samplerate=self.cfg.sample_rate,
+            blocksize=self.cfg.block_size,
+            device=self.cfg.device,
+            dtype="int16",
+            channels=1,
+            callback=self._callback,
+        )
+        self.stream.start()
+        return self
+
+    def __exit__(self, exc_type, exc, tb) -> None:  # noqa: ANN001
+        try:
+            self.stream.stop()
+            self.stream.close()
+        except Exception:
+            pass
+
+    def read(self, timeout: float = 0.1) -> Optional[bytes]:
+        try:
+            return self.q.get(timeout=timeout)
+        except queue.Empty:
+            return None
+
+
+class BrainController:
+    def __init__(self, cfg: Config, wake_debug: bool = False, transcript_debug: bool = False):
+        self.cfg = cfg
+        self.wake_debug = wake_debug
+        self.transcript_debug = transcript_debug
+
+        model_path = Path(self.cfg.vosk_model_dir)
+        if not model_path.exists():
+            raise SystemExit(
+                f"Vosk model not found at '{model_path}'. "
+                f"Set VOSK_MODEL_DIR or put the model folder in the repo."
+            )
+        self.model = vosk.Model(str(model_path))
+        self.rec = vosk.KaldiRecognizer(self.model, self.cfg.sample_rate)
+        self.rec.SetWords(True)
+
+        self.router_state = RouterState()
+
+        # Wake hysteresis
+        self._wake_hits: List[float] = []
+        self._awake = False
+        self._last_wake_time: float = 0.0
+
+    def _wake_hysteresis_update(self, text: str) -> bool:
+        """
+        Returns True if we should consider ourselves "awake" now.
+        """
+        targets = [self.cfg.wake_word] + (self.cfg.wake_aliases or [])
+        score = _best_wake_score(text, targets)
+
+        # Prune old hits
+        now = _now()
+        cutoff = now - self.cfg.wake_hit_window_seconds
+        self._wake_hits = [t for t in self._wake_hits if t >= cutoff]
+
+        if score >= self.cfg.wake_threshold:
+            self._wake_hits.append(now)
+
+        woke = len(self._wake_hits) >= self.cfg.wake_hits_required
+
+        if self.wake_debug:
+            print(
+                f"[wake] score={score:.3f} hits={len(self._wake_hits)}/{self.cfg.wake_hits_required} "
+                f"thr={self.cfg.wake_threshold:.2f} text='{_clean_text(text)}' woke={woke}"
+            )
+
+        return woke
+
+    def _speak(self, text: str) -> None:
+        # Keep your existing macOS 'say' behavior
+        # (if you later want to swap in something else, we’ll do it in one place)
+        text = (text or "").strip()
+        if not text:
+            return
+        os.system(f"say {json.dumps(text)}")  # json.dumps safely quotes
+
+    def run(self) -> None:
+        print("[Demerzel] Starting audio stream...")
+        print(f"[Demerzel] Wake word: {self.cfg.wake_word} | hits_required={self.cfg.wake_hits_required} "
+              f"| threshold={self.cfg.wake_threshold} | aliases={len(self.cfg.wake_aliases or [])}")
+
+        with AudioStream(self.cfg) as audio:
+            while True:
+                data = audio.read(timeout=0.25)
+                if data is None:
+                    continue
+
+                if self.rec.AcceptWaveform(data):
+                    result = json.loads(self.rec.Result())
+                    text = (result.get("text") or "").strip()
+
+                    if self.transcript_debug and text:
+                        print(f"[stt] {text}")
+
+                    if not text:
+                        continue
+
+                    # Wake gate
+                    if not self._awake:
+                        if self._wake_hysteresis_update(text):
+                            self._awake = True
+                            self._last_wake_time = _now()
+                            self._wake_hits.clear()
+                            self._speak(self.cfg.wake_ack_phrase)
+                        else:
+                            if self.wake_debug:
+                                print(f"[wake] ignoring: {text}")
+                        continue
+
+                    # If awake, route every utterance
+                    out = route_text(text, self.router_state)
+
+                    # Update router state if kernel_router returns one
+                    if getattr(out, "new_state", None) is not None:
+                        self.router_state = out.new_state
+
+                    # Back-compat / safety: avoid crashing if RouterState changes again
+                    if getattr(self.router_state, "awaiting_confirmation", False):
+                        # Let confirmation flow happen via router text; we don't do extra here.
+                        pass
+
+                    # Speak router response (can be HWResult or plain string depending on your router)
+                    speak_obj = getattr(out, "speak", "")
+                    speak_text = ""
+                    if isinstance(speak_obj, str):
+                        speak_text = speak_obj
+                    else:
+                        # e.g. HWResult(ok=True, out="ACK ...")
+                        speak_text = str(speak_obj)
+
+                    if speak_text:
+                        self._speak(speak_text)
+
+                    # Auto-sleep: if router says BYE or if idle too long
+                    if getattr(out, "action_name", "") == "SLEEP":
+                        self._awake = False
+                        self._wake_hits.clear()
+                        self._speak("Bye.")
+                        continue
+
+                    # Optional timeout to drop back to sleeping
+                    if (_now() - self._last_wake_time) > 20:
+                        self._awake = False
+                        self._wake_hits.clear()
+                        if self.wake_debug:
+                            print("[wake] auto-sleep (timeout)")
+
+                else:
+                    # partials available
+                    partial = json.loads(self.rec.PartialResult()).get("partial", "").strip()
+                    if self.transcript_debug and partial:
+                        print(f"[stt-partial] {partial}")
+
+
+def parse_args() -> argparse.Namespace:
+    p = argparse.ArgumentParser()
+    p.add_argument("--wake-debug", action="store_true")
+    p.add_argument("--transcript-debug", action="store_true")
+    return p.parse_args()
+
+
+def main() -> None:
+    args = parse_args()
+    cfg = Config()
+    cfg.apply_env()
+    bc = BrainController(cfg, wake_debug=args.wake_debug, transcript_debug=args.transcript_debug)
+    bc.run()
+
+
+if __name__ == "__main__":
+    main()
+

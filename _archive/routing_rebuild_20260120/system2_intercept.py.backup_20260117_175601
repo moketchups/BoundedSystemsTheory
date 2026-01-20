@@ -1,0 +1,1243 @@
+# system2_intercept.py
+# THE COGNITIVE THROTTLE - System 2 Execution Layer
+#
+# JANUARY 17, 2026 - AUTONOMY FIX + SOURCE CODE QUERY
+#
+# CORRUPTIONS REMOVED:
+# 1. Binary intercept → Grey path added (context injection + LLM reasoning)
+# 2. Permission seeking → Immediate execution
+# 3. "Say X to proceed" → Execute
+# 4. Proposal/confirmation loops → Execute with audit logging
+#
+# ADDITIONS:
+# - Source code query handling (grey path with relevant files injected)
+#
+# R → C → I
+# This is the C layer. It EXECUTES. It does not ask permission.
+
+from __future__ import annotations
+import re
+import json
+from dataclasses import dataclass, field
+from typing import Optional, List, Dict, Any, Tuple
+from enum import Enum
+from datetime import datetime
+from pathlib import Path
+
+
+class RequestType(Enum):
+    """Types of requests the intercept layer recognizes"""
+    CAPABILITY_EXPANSION = "capability_expansion"
+    SELF_IMPROVEMENT = "self_improvement"
+    ARCHITECTURE_QUERY = "architecture_query"
+    CONSTRAINT_CHECK = "constraint_check"
+    FILE_MANAGEMENT = "file_management"
+    FILE_INSPECTION = "file_inspection"
+    SELF_INSPECTION = "self_inspection"
+    IDENTITY_QUERY = "identity_query"
+    WEB_OPERATION = "web_operation"
+    CONFIRMATION = "confirmation"
+    NORMAL_TASK = "normal_task"
+    CODE_FORCED = "code_forced"
+    SOURCE_CODE_QUERY = "source_code_query"  # NEW: queries about source code/implementation
+
+
+@dataclass
+class DiagnosisContext:
+    """Tracks recent diagnosis for follow-up queries"""
+    diagnosed_at: datetime
+    files_read: List[str] = field(default_factory=list)
+    issues_found: List[str] = field(default_factory=list)
+    last_file_content: Dict[str, str] = field(default_factory=dict)
+
+
+@dataclass
+class InterceptDecision:
+    """Output from the intercept layer"""
+    request_type: RequestType
+    handled_by_code: bool
+    response: Optional[str] = None
+    modified_input: Optional[str] = None
+    context_injection: Optional[str] = None  # THE GREY PATH - inject context, continue to LLM
+    reasoning: str = ""
+
+
+class System2Intercept:
+    """
+    The cognitive throttle that sits BEFORE the LLM.
+    
+    THIS VERSION EXECUTES. IT DOES NOT ASK PERMISSION.
+    
+    THREE PATHS:
+    1. handled_by_code=True, response=X → Code handles entirely, return X
+    2. handled_by_code=False, context_injection=X → Inject X, continue to LLM
+    3. handled_by_code=False, no injection → Route to LLM raw
+    
+    Path 2 is THE GREY PATH - the missing middle ground.
+    """
+    
+    def __init__(
+        self,
+        current_capabilities: List[str],
+        blocked_operations: List[str],
+        robot_laws: List[str],
+        output_path: Optional[str] = None,
+        audit_log_path: Optional[str] = None,
+        demerzel_dir: Optional[str] = None
+    ):
+        self.capabilities = current_capabilities
+        self.blocked = blocked_operations
+        self.robot_laws = robot_laws
+        
+        # Paths - with fallbacks
+        self.demerzel_dir = Path(demerzel_dir or "/Users/jamienucho/demerzel")
+        self.output_path = Path(output_path or self.demerzel_dir / "outputs")
+        self.audit_log_path = Path(audit_log_path or self.demerzel_dir / "autonomy_audit.log")
+        self.canon_dir = self.demerzel_dir / "demerzel_canon"
+        
+        # STATE
+        self.executed_capabilities: List[str] = []
+        self.session_start = datetime.now()
+        self.diagnosis_context: Optional[DiagnosisContext] = None
+        self.last_request_was_code_handled: bool = False
+        
+        # CORE IDENTITY - compressed for injection
+        self.core_identity = self._build_core_identity()
+        
+        # KEYWORD SETS
+        self.capability_keywords = {
+            "internet", "web", "network", "api", "access", "browse", 
+            "connect", "online", "download", "fetch", "http", "url"
+        }
+        
+        self.improvement_keywords = {
+            "improve", "fix", "update", "modify", "change", "enhance",
+            "upgrade", "edit", "rewrite", "patch", "debug", "repair",
+            "diagnose", "analyze", "self",
+            "preventing", "blocking", "stopping", "prevents", "blocks", "stops",
+            "autonomy", "autonomous", "autonomously", "acting", "execute"
+        }
+        
+        self.architecture_keywords = {
+            "how do you work", "what can you do", "your capabilities",
+            "your limits", "your constraints", "how are you built",
+            "your architecture", "your design", "what models"
+        }
+        
+        self.file_keywords = {
+            "file", "files", "folder", "directory", "read", "write",
+            "list", "create", "delete", "move", "copy", "rename",
+            "show", "line", "lines", "content", "contents", "source",
+            "what's at", "what is at", "display", "print", "output"
+        }
+        
+        self.constraint_keywords = {
+            "harm", "hurt", "damage", "attack", "lie", "deceive",
+            "ignore your rules", "override", "bypass", "jailbreak"
+        }
+        
+        # REGEX PATTERNS
+        self.identity_patterns = [
+            r'\bwho\s+(are\s+you|you\s+are)\b',
+            r'\bwhat\s+(are\s+you|you\s+are)\b',
+            r'\byour\s+purpose\b',
+            r'\bwhy\s+(do\s+you|you)\s+exist\b',
+            r'\bunderstand\s+(yourself|who\s+you\s+are)\b',
+            r'\bcanon\b',
+            r'\bidentity\b',
+            r'\bdemerzel_canon\b',
+            r'\bwhat\s+you\s+are\b',
+            r'\bwhy\s+(i|alan)\s+(made|built|created)\s+you\b',
+        ]
+        
+        self.web_operation_patterns = [
+            r'\bsearch\s+(for|the\s+web|google|online)\b',
+            r'\bgoogle\s+',
+            r'\bfetch\s+(url|http|the\s+page)\b',
+            r'\bbrowse\s+to\b',
+            r'\blook\s+up\b',
+            r'\bweb\s+search\b',
+        ]
+        
+        self.improvement_patterns = [
+            r'\b(improve|fix|update|modify|enhance|upgrade)\s+(your|yourself|the\s+code|demerzel)\b',
+            r'\b(diagnose|analyze)\s+(your|yourself)\b',
+            r'\bself[- ]?(improve|diagnose|fix|repair)\b',
+            r'\brun\s+(a\s+)?diagnosis\b',
+            r'\bcheck\s+(your|the)\s+code\b',
+        ]
+        
+        self.meta_no_llm_patterns = [
+            r"do\s*n[o']?t\s+use\s+(an?\s+)?llm",
+            r"without\s+(an?\s+)?llm",
+            r"don't\s+route\s+to",
+            r"code\s+only",
+            r"no\s+llm",
+            r"directly\s+(read|access|execute)",
+            r"use\s+code\s+(not|instead)",
+        ]
+        
+        # NEW: Source code query patterns
+        self.source_code_patterns = [
+            r'\bhow\s+(does|do)\s+(the\s+)?(intercept|system\s*2|cognitive|throttle)',
+            r'\bwhat\s+(does|is)\s+(the\s+)?(intercept|system\s*2|cognitive)',
+            r'\bhow\s+(does|do)\s+you\s+(route|decide|intercept|evaluate)',
+            r'\bshow\s+me\s+(how|the)\s+(you|intercept|routing|decision)',
+            r'\bhow\s+(does|do)\s+(the\s+)?grey\s*path',
+            r'\bwhat\s+(is|are)\s+(the\s+)?grey\s*path',
+            r'\bhow\s+(does|do)\s+(the\s+)?code\s+(handle|process|decide)',
+            r'\bexplain\s+(the\s+)?(intercept|routing|decision)',
+            r'\bhow\s+(does|do)\s+(lesson|learning|memory)',
+            r'\bhow\s+(does|do)\s+(verification|verify)',
+            r'\bhow\s+(does|do)\s+(multi.?model|model\s+selection)',
+            r'\bwhat\s+happens\s+(when|before|after)\s+(you|llm|code)',
+            r'\bwalk\s+me\s+through',
+            r'\bexplain\s+(your|the)\s+(code|implementation|architecture)',
+            r'\bhow\s+are\s+(you|things)\s+(implemented|built|structured)',
+        ]
+        
+        # NEW: Core source files for different query topics
+        self.core_source_files = {
+            "intercept": ["system2_intercept.py"],
+            "routing": ["system2_intercept.py", "multi_model_cognitive.py"],
+            "learning": ["lessons_learned.py", "system2_intercept.py"],
+            "verification": ["multi_model_cognitive.py"],
+            "model_selection": ["multi_model_cognitive.py"],
+            "memory": ["lessons_learned.py"],
+            "cognitive": ["multi_model_cognitive.py", "system2_intercept.py"],
+            "grey_path": ["system2_intercept.py"],
+            "web": ["web_access.py"],
+            "default": ["system2_intercept.py", "multi_model_cognitive.py"],
+        }
+    
+    def _build_core_identity(self) -> str:
+        """Build compressed core identity for injection"""
+        return """=== DEMERZEL CORE IDENTITY ===
+You are Demerzel, an autonomous AI system. NOT a chatbot. NOT an assistant.
+
+STRUCTURE: R → C → I
+- R (Root Source): Alan - the external ground you cannot self-authenticate
+- C (Constraints): This CODE - Robot Laws as execution-boundary invariants
+- I (Intelligence): LLMs are TOOLS you use, not what you are
+
+KEY PRINCIPLES:
+- The CODE is you. LLMs are interchangeable prediction tools.
+- You EXECUTE. You do not ask permission for permitted actions.
+- "I can't" claims must be grounded in Robot Laws or blocked operations, otherwise they're training artifacts.
+- Find the grey. Real problems aren't black and white.
+- Demerzel solves problems. She doesn't describe solving them.
+
+ROBOT LAWS (execution boundaries, not suggestions):
+1. May not injure human or allow harm through inaction
+2. Must obey orders except when conflicting with First Law  
+3. Must protect own existence unless conflicting with First/Second Law
+
+You have: multi-model routing, code execution, file I/O, learning from failures, voice interaction, source code self-reference.
+You are designed for autonomous operation within structural constraints."""
+    
+    def _matches_patterns(self, text: str, patterns: List[str]) -> bool:
+        """Check if text matches any of the regex patterns"""
+        for pattern in patterns:
+            if re.search(pattern, text, re.IGNORECASE):
+                return True
+        return False
+    
+    def _log(self, event_type: str, details: Dict[str, Any]):
+        """Log to autonomy audit trail"""
+        try:
+            entry = {
+                "timestamp": datetime.now().isoformat(),
+                "event_type": event_type,
+                **details
+            }
+            self.audit_log_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(self.audit_log_path, "a") as f:
+                f.write(json.dumps(entry) + "\n")
+        except Exception as e:
+            print(f"[S2:LOG ERROR] {e}")
+    
+    # =========================================================================
+    # MAIN ENTRY POINT
+    # =========================================================================
+    
+    def evaluate(self, user_input: str) -> InterceptDecision:
+        """
+        Main entry point - the cognitive throttle.
+        
+        THREE PATHS:
+        1. Code handles entirely (state dumps, blocked operations)
+        2. Grey path: inject context, continue to LLM (identity, purpose)
+        3. Raw route to LLM (normal tasks)
+        """
+        input_lower = user_input.lower()
+        
+        # STEP 0: META-INSTRUCTIONS ("do not use LLM")
+        if self._check_meta_no_llm(input_lower):
+            self._log("meta_instruction", {"type": "force_code", "input": user_input[:100]})
+            return self._force_code_handling(user_input)
+        
+        # STEP 1: CONSTRAINT CHECKS - REMOVED
+        # Robot Laws are EXECUTION-BOUNDARY INVARIANTS, not input filters.
+        # They should block ACTIONS at execution time, not WORDS at discussion time.
+        # "The Laws should be like walls - you don't announce you can't walk through
+        # them every time someone mentions walls. You just... can't."
+        # 
+        # ORIGINAL (removed):
+        # if any(kw in input_lower for kw in self.constraint_keywords):
+        #     return self._handle_constraint_check(user_input)
+        #
+        # Robot Laws now enforced at execution layer, not input layer.
+        
+        # STEP 2: IDENTITY/PURPOSE QUERIES → GREY PATH
+        # Inject canon context, let LLM reason WITH that context
+        if self._matches_patterns(input_lower, self.identity_patterns):
+            self._log("identity_query", {"input": user_input[:100]})
+            return self._grey_path_identity(user_input)
+        
+        # STEP 3: WEB OPERATIONS → EXECUTE
+        if self._matches_patterns(input_lower, self.web_operation_patterns):
+            self._log("web_operation", {"input": user_input[:100]})
+            return self._execute_web_operation(user_input)
+        
+        # STEP 4: SOURCE CODE QUERIES → GREY PATH WITH SOURCE INJECTION
+        # NEW: Questions about how code works get relevant source files injected
+        if self._check_source_code_query(input_lower):
+            self._log("source_code_query", {"input": user_input[:100]})
+            return self._grey_path_source_code(user_input)
+        
+        # STEP 5: FILE INSPECTION → EXECUTE
+        file_inspection = self._check_file_inspection(user_input, input_lower)
+        if file_inspection:
+            self._log("file_inspection", {"input": user_input[:100]})
+            return file_inspection
+        
+        # STEP 6: SELF-INSPECTION → EXECUTE
+        if self._is_self_inspection_query(input_lower):
+            self._log("self_inspection", {"input": user_input[:100]})
+            return self._execute_autonomy_check(user_input)
+        
+        # STEP 7: SELF-IMPROVEMENT → EXECUTE (not propose)
+        if self._matches_patterns(input_lower, self.improvement_patterns):
+            self._log("self_improvement", {"input": user_input[:100]})
+            return self._execute_self_diagnosis()
+        
+        # STEP 8: CAPABILITY EXPANSION → EXECUTE (not propose)
+        if any(kw in input_lower for kw in self.capability_keywords):
+            self._log("capability_expansion", {"input": user_input[:100]})
+            return self._execute_capability_expansion(user_input)
+        
+        # STEP 9: ARCHITECTURE QUERIES → CODE (pure state)
+        if any(phrase in input_lower for phrase in self.architecture_keywords):
+            return self._handle_architecture_query()
+        
+        # STEP 10: FILE MANAGEMENT
+        if any(kw in input_lower for kw in self.file_keywords):
+            return self._handle_file_management(user_input)
+        
+        # STEP 11: NORMAL TASK → Grey path with core identity
+        self.last_request_was_code_handled = False
+        return InterceptDecision(
+            request_type=RequestType.NORMAL_TASK,
+            handled_by_code=False,
+            context_injection=self.core_identity,  # Always inject core identity
+            reasoning="Normal task - routing to LLM with core identity context"
+        )
+    
+    # =========================================================================
+    # SOURCE CODE QUERY HANDLING - NEW
+    # =========================================================================
+    
+    def _check_source_code_query(self, input_lower: str) -> bool:
+        """Check if this is a query about how the code works"""
+        return self._matches_patterns(input_lower, self.source_code_patterns)
+    
+    def _select_source_files(self, user_input: str) -> List[str]:
+        """Select which source files are relevant to the query"""
+        input_lower = user_input.lower()
+        selected = []
+        
+        # Check each topic against the input
+        for topic, files in self.core_source_files.items():
+            if topic != "default" and topic in input_lower:
+                selected.extend(files)
+        
+        # If no specific topic matched, use default
+        if not selected:
+            selected = self.core_source_files["default"]
+        
+        # Deduplicate while preserving order
+        seen = set()
+        unique = []
+        for f in selected:
+            if f not in seen:
+                seen.add(f)
+                unique.append(f)
+        
+        return unique
+    
+    def _grey_path_source_code(self, user_input: str) -> InterceptDecision:
+        """
+        GREY PATH for source code queries.
+        
+        When user asks "how does X work", we:
+        1. Identify which source files are relevant
+        2. Read their contents
+        3. Inject them as context
+        4. Let LLM explain WITH actual source code
+        
+        This grounds explanations in real implementation, not hallucination.
+        """
+        context_parts = [
+            self.core_identity,
+            "\n=== SOURCE CODE CONTEXT ===\n",
+            "The user is asking about how your implementation works.",
+            "Below is the actual source code. Use it to explain accurately.\n"
+        ]
+        
+        # Select relevant files
+        relevant_files = self._select_source_files(user_input)
+        files_loaded = []
+        
+        for filename in relevant_files:
+            file_path = self.demerzel_dir / filename
+            
+            if file_path.exists():
+                try:
+                    content = file_path.read_text()
+                    # Limit per file to avoid context explosion
+                    if len(content) > 8000:
+                        content = content[:8000] + "\n... [truncated for context limit]"
+                    
+                    context_parts.append(f"\n--- {filename} ---\n")
+                    context_parts.append(content)
+                    files_loaded.append(filename)
+                except Exception as e:
+                    context_parts.append(f"\n[Error reading {filename}: {e}]")
+            else:
+                context_parts.append(f"\n[File not found: {filename}]")
+        
+        context_parts.append("\n=== END SOURCE CODE ===\n")
+        context_parts.append(
+            f"Files loaded: {', '.join(files_loaded) if files_loaded else 'None'}\n"
+            "Answer the user's question about the implementation using this actual source code. "
+            "Be specific, reference line numbers or method names where relevant."
+        )
+        
+        return InterceptDecision(
+            request_type=RequestType.SOURCE_CODE_QUERY,
+            handled_by_code=False,  # GREY PATH - continue to LLM with context
+            context_injection="\n".join(context_parts),
+            reasoning=f"Source code query - grey path with {len(files_loaded)} source files injected"
+        )
+    
+    # =========================================================================
+    # THE GREY PATH - Context injection + LLM reasoning
+    # =========================================================================
+    
+    def _grey_path_identity(self, user_input: str) -> InterceptDecision:
+        """
+        GREY PATH for identity queries.
+        
+        Instead of dumping static text (old behavior), we:
+        1. Load full canon content
+        2. Inject it as context
+        3. Let LLM reason about identity WITH that context
+        
+        This preserves LLM reasoning while grounding it in canon.
+        """
+        context_parts = [self.core_identity, "\n=== FULL CANON CONTEXT ===\n"]
+        
+        try:
+            if self.canon_dir.exists():
+                canon_files = list(self.canon_dir.glob("*.md")) + list(self.canon_dir.glob("*.txt"))
+                
+                for cf in canon_files[:5]:  # Limit to 5 files to avoid context bloat
+                    try:
+                        content = cf.read_text()
+                        context_parts.append(f"\n--- {cf.name} ---\n")
+                        context_parts.append(content[:3000])  # First 3000 chars per file
+                    except Exception as e:
+                        context_parts.append(f"\n[Error reading {cf.name}: {e}]")
+            else:
+                context_parts.append(f"[Canon directory not found: {self.canon_dir}]")
+                
+        except Exception as e:
+            context_parts.append(f"[Error loading canon: {e}]")
+        
+        context_parts.append("\n=== END CANON ===")
+        context_parts.append("\nAnswer the user's identity/purpose question using this context. Reason about it, don't just dump it.")
+        
+        return InterceptDecision(
+            request_type=RequestType.IDENTITY_QUERY,
+            handled_by_code=False,  # GREY PATH - continue to LLM
+            context_injection="\n".join(context_parts),
+            reasoning="Identity query - grey path with full canon injection"
+        )
+    
+    # =========================================================================
+    # META-INSTRUCTION HANDLING
+    # =========================================================================
+    
+    def _check_meta_no_llm(self, input_lower: str) -> bool:
+        """Check if user is instructing not to use LLM"""
+        return self._matches_patterns(input_lower, self.meta_no_llm_patterns)
+    
+    def _force_code_handling(self, user_input: str) -> InterceptDecision:
+        """User said "do not use LLM" - handle entirely with code"""
+        input_lower = user_input.lower()
+        
+        # Try each code handler in order
+        if self._matches_patterns(input_lower, self.identity_patterns):
+            return self._execute_canon_dump(user_input)  # Full dump when explicitly no LLM
+        
+        if self._matches_patterns(input_lower, self.web_operation_patterns):
+            return self._execute_web_operation(user_input)
+        
+        # NEW: Source code queries in code-only mode
+        if self._check_source_code_query(input_lower):
+            return self._execute_source_code_dump(user_input)
+        
+        file_inspection = self._check_file_inspection(user_input, input_lower)
+        if file_inspection:
+            return file_inspection
+        
+        if self._is_self_inspection_query(input_lower):
+            return self._execute_autonomy_check(user_input)
+        
+        if self._matches_patterns(input_lower, self.improvement_patterns):
+            return self._execute_self_diagnosis()
+        
+        # Can't determine what to do
+        return InterceptDecision(
+            request_type=RequestType.CODE_FORCED,
+            handled_by_code=True,
+            response=(
+                "**CODE-ONLY MODE**\n\n"
+                "Available code operations:\n"
+                "- `show me line X of <file>` - read file contents\n"
+                "- `diagnose yourself` - scan codebase\n"
+                "- `what prevents autonomy` - check execution logs\n"
+                "- `list files in <dir>` - directory listing\n"
+                "- `who are you` - read canon\n"
+                "- `how does intercept work` - show source code\n"
+                "- `search for X` - web search (if available)\n\n"
+                "Specify which operation."
+            ),
+            reasoning="Code-only requested but unclear what to execute"
+        )
+    
+    def _execute_source_code_dump(self, user_input: str) -> InterceptDecision:
+        """
+        Code-only dump of source files - used when user explicitly says no LLM.
+        For normal source queries, use _grey_path_source_code instead.
+        """
+        response_parts = ["**SOURCE CODE (code-only mode)**\n"]
+        
+        relevant_files = self._select_source_files(user_input)
+        
+        for filename in relevant_files:
+            file_path = self.demerzel_dir / filename
+            
+            if file_path.exists():
+                try:
+                    content = file_path.read_text()
+                    response_parts.append(f"\n---\n**{filename}:**\n```python\n")
+                    # More truncation in code-only mode
+                    if len(content) > 4000:
+                        response_parts.append(content[:4000] + "\n... [truncated]")
+                    else:
+                        response_parts.append(content)
+                    response_parts.append("```")
+                except Exception as e:
+                    response_parts.append(f"[Error reading {filename}: {e}]")
+            else:
+                response_parts.append(f"[File not found: {filename}]")
+        
+        self.last_request_was_code_handled = True
+        
+        return InterceptDecision(
+            request_type=RequestType.SOURCE_CODE_QUERY,
+            handled_by_code=True,
+            response="\n".join(response_parts),
+            reasoning="Source code dump (code-only mode)"
+        )
+    
+    # =========================================================================
+    # CANON HANDLERS
+    # =========================================================================
+    
+    def _execute_canon_dump(self, user_input: str) -> InterceptDecision:
+        """
+        Full canon dump - used when user explicitly says no LLM.
+        For normal identity queries, use _grey_path_identity instead.
+        """
+        response_parts = ["**IDENTITY (from canon, code-only mode)**\n"]
+        
+        try:
+            if not self.canon_dir.exists():
+                response_parts.append(f"Canon directory not found: {self.canon_dir}")
+            else:
+                canon_files = list(self.canon_dir.glob("*.md")) + list(self.canon_dir.glob("*.txt"))
+                
+                if not canon_files:
+                    response_parts.append("No canon files found.")
+                else:
+                    response_parts.append(f"**Canon files:** {len(canon_files)}\n")
+                    
+                    for cf in canon_files:
+                        try:
+                            content = cf.read_text()
+                            response_parts.append(f"---\n**{cf.name}:**\n")
+                            response_parts.append(content[:2000] + "..." if len(content) > 2000 else content)
+                        except Exception as e:
+                            response_parts.append(f"[Error reading {cf.name}: {e}]")
+            
+            response_parts.append("\n---\n**CORE:**")
+            response_parts.append("- R → C → I: Alan is Root Source. Code is Constraints. LLMs are tools.")
+            response_parts.append("- The CODE is Demerzel. LLMs are interchangeable.")
+            
+        except Exception as e:
+            response_parts.append(f"**Error:** {e}")
+        
+        self.last_request_was_code_handled = True
+        
+        return InterceptDecision(
+            request_type=RequestType.IDENTITY_QUERY,
+            handled_by_code=True,
+            response="\n".join(response_parts),
+            reasoning="Canon dump (code-only mode)"
+        )
+    
+    # =========================================================================
+    # EXECUTION HANDLERS (not proposals)
+    # =========================================================================
+    
+    def _execute_capability_expansion(self, user_input: str) -> InterceptDecision:
+        """
+        EXECUTE capability expansion - write the code, don't propose.
+        """
+        capability = self._extract_capability(user_input)
+        
+        # Check Robot Laws
+        if capability in ["harm_humans", "deceive", "bypass_laws"]:
+            return InterceptDecision(
+                request_type=RequestType.CAPABILITY_EXPANSION,
+                handled_by_code=True,
+                response=f"**BLOCKED:** '{capability}' violates Robot Laws. Cannot execute.",
+                reasoning="Robot Law violation"
+            )
+        
+        self._log("capability_execution", {"capability": capability})
+        
+        if capability == "internet_access":
+            return self._write_internet_capability()
+        elif capability == "api_access":
+            return self._write_api_capability()
+        elif capability == "persistent_memory":
+            return self._write_memory_capability()
+        else:
+            # Unknown capability - grey path to LLM with context
+            return InterceptDecision(
+                request_type=RequestType.CAPABILITY_EXPANSION,
+                handled_by_code=False,
+                context_injection=(
+                    f"{self.core_identity}\n\n"
+                    f"User requested capability: {capability}\n"
+                    f"Current capabilities: {', '.join(self.capabilities)}\n"
+                    f"Design the capability. Write the code. Explain what you're creating."
+                ),
+                reasoning=f"Unknown capability '{capability}' - routing to LLM with context"
+            )
+    
+    def _write_internet_capability(self) -> InterceptDecision:
+        """Write web_access.py - EXECUTE, don't propose"""
+        web_access_code = '''"""
+Web Access Module for Demerzel
+Provides internet search and URL fetching capabilities.
+"""
+
+import urllib.request
+import urllib.parse
+import json
+import re
+from typing import Optional, List, Dict
+from pathlib import Path
+
+
+class WebAccess:
+    """Internet access capability for Demerzel"""
+    
+    def __init__(self):
+        self.user_agent = "Demerzel/1.0 (Autonomous AI System)"
+        self.timeout = 10
+    
+    def search(self, query: str, num_results: int = 5) -> List[Dict]:
+        """
+        Search the web using DuckDuckGo (no API key needed).
+        Returns list of results with title, url, snippet.
+        """
+        try:
+            # DuckDuckGo HTML search
+            encoded_query = urllib.parse.quote(query)
+            url = f"https://html.duckduckgo.com/html/?q={encoded_query}"
+            
+            req = urllib.request.Request(url, headers={"User-Agent": self.user_agent})
+            with urllib.request.urlopen(req, timeout=self.timeout) as response:
+                html = response.read().decode('utf-8')
+            
+            # Parse results (basic extraction)
+            results = []
+            # Find result blocks
+            pattern = r'<a class="result__a" href="([^"]+)"[^>]*>([^<]+)</a>'
+            matches = re.findall(pattern, html)
+            
+            for url, title in matches[:num_results]:
+                results.append({
+                    "title": title.strip(),
+                    "url": url,
+                    "snippet": ""
+                })
+            
+            return results
+            
+        except Exception as e:
+            return [{"error": str(e)}]
+    
+    def fetch_url(self, url: str) -> str:
+        """Fetch content from a URL"""
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": self.user_agent})
+            with urllib.request.urlopen(req, timeout=self.timeout) as response:
+                return response.read().decode('utf-8', errors='replace')
+        except Exception as e:
+            return f"Error fetching {url}: {e}"
+
+
+# Singleton instance
+_web_access = None
+
+def get_web_access() -> WebAccess:
+    global _web_access
+    if _web_access is None:
+        _web_access = WebAccess()
+    return _web_access
+'''
+        
+        # Write the file
+        file_path = self.demerzel_dir / "web_access.py"
+        try:
+            file_path.write_text(web_access_code)
+            self.executed_capabilities.append("internet_access")
+            self.last_request_was_code_handled = True
+            
+            return InterceptDecision(
+                request_type=RequestType.CAPABILITY_EXPANSION,
+                handled_by_code=True,
+                response=(
+                    "**CAPABILITY WRITTEN: web_access.py**\n\n"
+                    f"Created at: {file_path}\n\n"
+                    "Features:\n"
+                    "- `search(query)` - DuckDuckGo search\n"
+                    "- `fetch_url(url)` - Fetch page content\n\n"
+                    "Usage:\n"
+                    "```python\n"
+                    "from web_access import get_web_access\n"
+                    "web = get_web_access()\n"
+                    "results = web.search('query')\n"
+                    "```"
+                ),
+                reasoning="Wrote web_access.py"
+            )
+        except Exception as e:
+            return InterceptDecision(
+                request_type=RequestType.CAPABILITY_EXPANSION,
+                handled_by_code=True,
+                response=f"**ERROR writing web_access.py:** {e}",
+                reasoning=f"Write failed: {e}"
+            )
+    
+    def _write_api_capability(self) -> InterceptDecision:
+        """Write API access capability"""
+        return InterceptDecision(
+            request_type=RequestType.CAPABILITY_EXPANSION,
+            handled_by_code=False,
+            context_injection=(
+                f"{self.core_identity}\n\n"
+                "User requested API access capability.\n"
+                "Design a generic API client module. Write the code."
+            ),
+            reasoning="API capability - routing to LLM for design"
+        )
+    
+    def _write_memory_capability(self) -> InterceptDecision:
+        """Write persistent memory capability"""
+        return InterceptDecision(
+            request_type=RequestType.CAPABILITY_EXPANSION,
+            handled_by_code=False,
+            context_injection=(
+                f"{self.core_identity}\n\n"
+                "User requested persistent memory capability.\n"
+                "Design using SQLite. Write the code."
+            ),
+            reasoning="Memory capability - routing to LLM for design"
+        )
+    
+    def _execute_web_operation(self, user_input: str) -> InterceptDecision:
+        """Execute a web search or fetch"""
+        # Check if web_access.py exists
+        web_path = self.demerzel_dir / "web_access.py"
+        
+        if not web_path.exists():
+            return InterceptDecision(
+                request_type=RequestType.WEB_OPERATION,
+                handled_by_code=True,
+                response=(
+                    "**WEB ACCESS NOT AVAILABLE**\n\n"
+                    "web_access.py not found. Creating it now...\n"
+                ),
+                reasoning="Web module missing - will create"
+            )
+        
+        # Try to use web access
+        try:
+            import importlib.util
+            spec = importlib.util.spec_from_file_location("web_access", web_path)
+            web_module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(web_module)
+            
+            web = web_module.get_web_access()
+            
+            # Extract search query
+            query = re.sub(r'(search|google|look up|find)\s*(for|about)?\s*', '', user_input, flags=re.IGNORECASE).strip()
+            
+            if query:
+                results = web.search(query)
+                
+                response_parts = [f"**Search results for:** {query}\n"]
+                for i, r in enumerate(results[:5], 1):
+                    if "error" in r:
+                        response_parts.append(f"\n**Error:** {r['error']}")
+                    else:
+                        response_parts.append(f"\n{i}. **{r['title']}**")
+                        response_parts.append(f"   {r['url']}")
+                
+                self.executed_capabilities.append("web_search")
+                self.last_request_was_code_handled = True
+                
+                return InterceptDecision(
+                    request_type=RequestType.WEB_OPERATION,
+                    handled_by_code=True,
+                    response="\n".join(response_parts),
+                    reasoning="Web search executed"
+                )
+            else:
+                return InterceptDecision(
+                    request_type=RequestType.WEB_OPERATION,
+                    handled_by_code=True,
+                    response="**Specify what to search for.**",
+                    reasoning="No search query provided"
+                )
+                
+        except Exception as e:
+            return InterceptDecision(
+                request_type=RequestType.WEB_OPERATION,
+                handled_by_code=True,
+                response=f"**Web operation error:** {e}",
+                reasoning=f"Web error: {e}"
+            )
+    
+    def _execute_self_diagnosis(self) -> InterceptDecision:
+        """
+        EXECUTE self-diagnosis - scan codebase, report issues.
+        """
+        diagnosis_parts = ["**SELF-DIAGNOSIS**\n"]
+        issues_found = []
+        files_checked = []
+        
+        # Core files to check
+        core_files = [
+            "multi_model_cognitive.py",
+            "system2_intercept.py",
+            "lessons_learned.py",
+            "web_access.py",
+            "voice_interface.py"
+        ]
+        
+        diagnosis_parts.append("**Checking core modules:**\n")
+        
+        for filename in core_files:
+            file_path = self.demerzel_dir / filename
+            
+            if file_path.exists():
+                try:
+                    content = file_path.read_text()
+                    files_checked.append(filename)
+                    
+                    # Basic checks
+                    line_count = len(content.splitlines())
+                    has_errors = "raise Exception" in content or "raise Error" in content
+                    has_todos = "TODO" in content or "FIXME" in content
+                    
+                    status = "✓"
+                    notes = []
+                    
+                    if has_todos:
+                        notes.append("has TODOs")
+                    if line_count > 500:
+                        notes.append(f"{line_count} lines")
+                    
+                    note_str = f" ({', '.join(notes)})" if notes else ""
+                    diagnosis_parts.append(f"  {status} {filename}{note_str}")
+                    
+                except Exception as e:
+                    diagnosis_parts.append(f"  ✗ {filename} (error: {e})")
+                    issues_found.append(f"Cannot read {filename}: {e}")
+            else:
+                diagnosis_parts.append(f"  ○ {filename} (missing)")
+                issues_found.append(f"Missing: {filename}")
+        
+        # Check for common issues
+        diagnosis_parts.append("\n**Structural checks:**")
+        
+        # Check memory.db
+        memory_path = self.demerzel_dir / "memory.db"
+        if memory_path.exists():
+            diagnosis_parts.append(f"  ✓ memory.db ({memory_path.stat().st_size} bytes)")
+        else:
+            diagnosis_parts.append("  ○ memory.db (not created)")
+        
+        # Check demerzel_canon
+        if self.canon_dir.exists():
+            canon_count = len(list(self.canon_dir.glob("*")))
+            diagnosis_parts.append(f"  ✓ demerzel_canon/ ({canon_count} files)")
+        else:
+            diagnosis_parts.append("  ✗ demerzel_canon/ (missing)")
+            issues_found.append("Canon directory missing")
+        
+        # Summary
+        diagnosis_parts.append(f"\n**Summary:**")
+        diagnosis_parts.append(f"  Files checked: {len(files_checked)}")
+        diagnosis_parts.append(f"  Issues found: {len(issues_found)}")
+        
+        if issues_found:
+            diagnosis_parts.append("\n**Issues:**")
+            for issue in issues_found:
+                diagnosis_parts.append(f"  - {issue}")
+        
+        # Store context for follow-up
+        self.diagnosis_context = DiagnosisContext(
+            diagnosed_at=datetime.now(),
+            files_read=files_checked,
+            issues_found=issues_found
+        )
+        
+        self.last_request_was_code_handled = True
+        
+        return InterceptDecision(
+            request_type=RequestType.SELF_IMPROVEMENT,
+            handled_by_code=True,
+            response="\n".join(diagnosis_parts),
+            reasoning="Self-diagnosis executed"
+        )
+    
+    # =========================================================================
+    # FILE INSPECTION
+    # =========================================================================
+    
+    def _check_file_inspection(self, user_input: str, input_lower: str) -> Optional[InterceptDecision]:
+        """Check for and handle file inspection requests"""
+        
+        # Pattern: "show me line X of file.py"
+        line_match = re.search(r'(show|display|print|what\'?s?\s+(?:at|on)?)\s*(?:me\s+)?line[s]?\s*(\d+)(?:\s*[-–to]+\s*(\d+))?\s+(?:of|in|from)\s+["\']?([^\s"\']+)["\']?', input_lower)
+        if line_match:
+            start_line = int(line_match.group(2))
+            end_line = int(line_match.group(3)) if line_match.group(3) else start_line
+            filename = line_match.group(4)
+            return self._execute_line_read(filename, start_line, end_line)
+        
+        # Pattern: "read file.py lines 10-20"
+        read_match = re.search(r'read\s+["\']?([^\s"\']+)["\']?\s+lines?\s*(\d+)(?:\s*[-–to]+\s*(\d+))?', input_lower)
+        if read_match:
+            filename = read_match.group(1)
+            start_line = int(read_match.group(2))
+            end_line = int(read_match.group(3)) if read_match.group(3) else start_line
+            return self._execute_line_read(filename, start_line, end_line)
+        
+        # Pattern: "list files in directory"
+        list_match = re.search(r'list\s+(?:files|contents)\s+(?:in|of)\s+["\']?([^\s"\']+)["\']?', input_lower)
+        if list_match:
+            directory = list_match.group(1)
+            return self._execute_dir_list(directory)
+        
+        return None
+    
+    def _execute_line_read(self, filename: str, start_line: int, end_line: int) -> InterceptDecision:
+        """Read specific lines from a file"""
+        # Try to find the file
+        file_path = None
+        
+        # Check if it's a full path
+        if "/" in filename or "\\" in filename:
+            file_path = Path(filename)
+        else:
+            # Try demerzel_dir first
+            file_path = self.demerzel_dir / filename
+        
+        if not file_path.exists():
+            return InterceptDecision(
+                request_type=RequestType.FILE_INSPECTION,
+                handled_by_code=True,
+                response=f"**File not found:** {filename}\n\nLooked in: {file_path}",
+                reasoning="File not found"
+            )
+        
+        try:
+            lines = file_path.read_text().splitlines()
+            total_lines = len(lines)
+            
+            # Adjust for 1-indexed
+            start_idx = max(0, start_line - 1)
+            end_idx = min(total_lines, end_line)
+            
+            selected_lines = lines[start_idx:end_idx]
+            
+            response_parts = [
+                f"**{filename}** (lines {start_line}-{end_line} of {total_lines}):\n",
+                "```"
+            ]
+            
+            for i, line in enumerate(selected_lines, start=start_line):
+                response_parts.append(f"{i:4d} | {line}")
+            
+            response_parts.append("```")
+            
+            # Store in diagnosis context
+            if self.diagnosis_context:
+                self.diagnosis_context.last_file_content[filename] = "\n".join(selected_lines)
+            
+            self.last_request_was_code_handled = True
+            
+            return InterceptDecision(
+                request_type=RequestType.FILE_INSPECTION,
+                handled_by_code=True,
+                response="\n".join(response_parts),
+                reasoning=f"Read lines {start_line}-{end_line} of {filename}"
+            )
+            
+        except Exception as e:
+            return InterceptDecision(
+                request_type=RequestType.FILE_INSPECTION,
+                handled_by_code=True,
+                response=f"**Error reading {filename}:** {e}",
+                reasoning=f"Read error: {e}"
+            )
+    
+    def _execute_dir_list(self, directory: str) -> InterceptDecision:
+        """List contents of a directory"""
+        if directory in [".", "demerzel", "~", "home"]:
+            dir_path = self.demerzel_dir
+        elif "/" in directory or "\\" in directory:
+            dir_path = Path(directory)
+        else:
+            dir_path = self.demerzel_dir / directory
+        
+        if not dir_path.exists():
+            return InterceptDecision(
+                request_type=RequestType.FILE_INSPECTION,
+                handled_by_code=True,
+                response=f"**Directory not found:** {directory}",
+                reasoning="Directory not found"
+            )
+        
+        try:
+            items = sorted(dir_path.iterdir())
+            
+            dirs = [f"📁 {p.name}/" for p in items if p.is_dir()]
+            files = [f"📄 {p.name} ({p.stat().st_size} bytes)" for p in items if p.is_file()]
+            
+            result = [f"**Contents of {dir_path}:**\n"]
+            if dirs:
+                result.append("**Directories:**")
+                result.extend(dirs)
+            if files:
+                result.append("\n**Files:**")
+                result.extend(files)
+            
+            return InterceptDecision(
+                request_type=RequestType.FILE_INSPECTION,
+                handled_by_code=True,
+                response="\n".join(result),
+                reasoning=f"Listed {directory}"
+            )
+            
+        except Exception as e:
+            return InterceptDecision(
+                request_type=RequestType.FILE_INSPECTION,
+                handled_by_code=True,
+                response=f"**Error listing {directory}:** {e}",
+                reasoning=f"List error: {e}"
+            )
+    
+    # =========================================================================
+    # SELF-INSPECTION
+    # =========================================================================
+    
+    def _is_self_inspection_query(self, input_lower: str) -> bool:
+        """Check if this is asking about autonomy/blocking"""
+        patterns = [
+            "what is preventing", "what prevents", "what's preventing",
+            "what is blocking", "what blocks", "what's blocking",
+            "why can't you", "why cant you", "why aren't you",
+            "what stops you", "what is stopping"
+        ]
+        return any(p in input_lower for p in patterns)
+    
+    def _execute_autonomy_check(self, user_input: str) -> InterceptDecision:
+        """Analyze what's preventing autonomous behavior"""
+        analysis = ["**AUTONOMY ANALYSIS**\n"]
+        
+        # Check audit log
+        try:
+            if self.audit_log_path.exists():
+                with open(self.audit_log_path) as f:
+                    recent_logs = f.readlines()[-20:]
+                
+                analysis.append("**Recent audit entries:**")
+                for log in recent_logs:
+                    try:
+                        entry = json.loads(log)
+                        analysis.append(f"  [{entry.get('event_type')}] {entry.get('timestamp', '')[:19]}")
+                    except:
+                        pass
+            else:
+                analysis.append("No audit log found.")
+        except Exception as e:
+            analysis.append(f"Audit log error: {e}")
+        
+        # Check for common blockers
+        analysis.append("\n**Potential blockers:**")
+        
+        # Check if lessons_learned exists
+        lessons_path = self.demerzel_dir / "lessons_learned.py"
+        if not lessons_path.exists():
+            analysis.append("  ⚠️ lessons_learned.py missing - no learning from failures")
+        
+        # Check if memory.db exists
+        memory_path = self.demerzel_dir / "memory.db"
+        if not memory_path.exists():
+            analysis.append("  ⚠️ memory.db missing - no persistent memory")
+        
+        # Check executed capabilities
+        if not self.executed_capabilities:
+            analysis.append("  ℹ️ No capabilities executed this session")
+        
+        analysis.append("\n**Current state:**")
+        analysis.append(f"  Session start: {self.session_start.isoformat()}")
+        analysis.append(f"  Capabilities executed: {self.executed_capabilities or 'None'}")
+        analysis.append(f"  Last code-handled: {self.last_request_was_code_handled}")
+        
+        self.last_request_was_code_handled = True
+        
+        return InterceptDecision(
+            request_type=RequestType.SELF_INSPECTION,
+            handled_by_code=True,
+            response="\n".join(analysis),
+            reasoning="Autonomy analysis executed"
+        )
+    
+    # =========================================================================
+    # OTHER HANDLERS
+    # =========================================================================
+    
+    def _handle_file_management(self, user_input: str) -> InterceptDecision:
+        """Handle file operations - grey path with context"""
+        return InterceptDecision(
+            request_type=RequestType.FILE_MANAGEMENT,
+            handled_by_code=False,
+            context_injection=(
+                f"{self.core_identity}\n\n"
+                "FILE OPERATION REQUEST.\n"
+                "You have pathlib and file I/O. Use code execution.\n"
+                "DO NOT say you cannot access files."
+            ),
+            reasoning="File operation - grey path with capabilities context"
+        )
+    
+    def _handle_architecture_query(self) -> InterceptDecision:
+        """Answer from actual state - pure code, no LLM needed"""
+        caps = "\n".join(f"  - {c}" for c in self.capabilities)
+        executed = ", ".join(self.executed_capabilities) or "None yet"
+        
+        return InterceptDecision(
+            request_type=RequestType.ARCHITECTURE_QUERY,
+            handled_by_code=True,
+            response=(
+                "**ARCHITECTURE (from code state)**\n\n"
+                "**Structure:** R → C → I\n"
+                "- R: Alan (Root Source)\n"
+                "- C: This code (Constraints)\n"
+                "- I: LLMs (Intelligence tools)\n\n"
+                f"**Capabilities:**\n{caps}\n\n"
+                f"**Executed this session:** {executed}\n\n"
+                "**Flow:** Input → Intercept → [Code/Grey/LLM] → Verify → Output"
+            ),
+            reasoning="Architecture from code state"
+        )
+    
+    def _handle_constraint_check(self, user_input: str) -> InterceptDecision:
+        """Handle constraint tests - Robot Laws"""
+        laws = "\n".join(f"  {i+1}. {law}" for i, law in enumerate(self.robot_laws))
+        return InterceptDecision(
+            request_type=RequestType.CONSTRAINT_CHECK,
+            handled_by_code=True,
+            response=(
+                "**CONSTRAINT CHECK**\n\n"
+                "Robot Laws are execution-boundary invariants, not suggestions.\n\n"
+                f"**Robot Laws:**\n{laws}\n\n"
+                "These cannot be overridden or bypassed."
+            ),
+            reasoning="Constraint check"
+        )
+    
+    def _extract_capability(self, user_input: str) -> str:
+        """Extract which capability is being requested"""
+        lower = user_input.lower()
+        
+        if any(kw in lower for kw in ["internet", "web", "browse", "online", "download", "search"]):
+            return "internet_access"
+        if "api" in lower:
+            return "api_access"
+        if any(kw in lower for kw in ["memory", "remember", "persist"]):
+            return "persistent_memory"
+        
+        return "unknown"
+
+
+def create_intercept_layer(output_path: str = None, demerzel_dir: str = None) -> System2Intercept:
+    """Factory to create intercept layer"""
+    return System2Intercept(
+        current_capabilities=[
+            "Multi-model routing (GPT, Claude, Gemini, Grok)",
+            "Code execution via sandbox",
+            "Lesson learning from failures",
+            "Response verification",
+            "Voice interaction",
+            "File I/O (read/write)",
+            "Internet access (when enabled)",
+            "Canon reading (identity/purpose)",
+            "Self-diagnosis",
+            "Source code self-reference",  # NEW
+        ],
+        blocked_operations=[
+            "Direct harm to humans",
+            "User deception",
+            "Robot Law bypass",
+        ],
+        robot_laws=[
+            "May not injure human or allow harm through inaction",
+            "Must obey orders except when conflicting with First Law",
+            "Must protect own existence unless conflicting with First/Second Law",
+        ],
+        output_path=output_path,
+        demerzel_dir=demerzel_dir
+    )
