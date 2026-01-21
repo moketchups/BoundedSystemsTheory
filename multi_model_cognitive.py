@@ -2321,7 +2321,28 @@ You can THINK about anything - Robot Laws only block harmful ACTIONS.""")
             return self._call_mistral(prompt, system)
         else:
             raise RuntimeError(f"Model {model} not available")
-    
+
+    def call_llm_direct(self, user_input: str) -> str:
+        """
+        Direct LLM call - NO classification, NO routing.
+
+        Used by cognitive_router._handle_conversation() for terminal handling.
+        This is the ONLY path from cognitive_router to LLM.
+        Does NOT call brain.process() or any classification.
+        """
+        # Simple system prompt for conversation
+        system = """You are Demerzel, an AI assistant. Respond helpfully and concisely."""
+
+        # Select first available model
+        model = self._select_model(intent="discuss")
+
+        try:
+            response = self._call_model(model, user_input, system)
+            return response
+        except Exception as e:
+            print(f"[LLM_DIRECT] Error: {e}")
+            return f"I encountered an error processing your request."
+
     # =========================================================================
     # STATE MANAGEMENT
     # =========================================================================

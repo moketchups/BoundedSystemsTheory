@@ -358,98 +358,22 @@ def main_voice_loop():
             print(f"[PROCESSING] '{command}'")
             memory.store_conversation("user", command)
 
-            # NEW: Use unified cognitive_router
+            # Use unified cognitive_router - SINGLE classifier, handlers are terminal
+            # llm_handler calls LLM directly - NO re-classification
             result = route_input(command, context={
-                "llm_handler": lambda x: cognitive.process(x).discussion,
+                "llm_handler": lambda x: cognitive.call_llm_direct(x),
                 "memory_manager": memory,
             })
 
-            # For intents handled by cognitive_router directly, speak the response
-            if result.intent in (Intent.GREETING, Intent.FAREWELL, Intent.GRATITUDE, Intent.IDENTITY):
-                speak(tts, result.response, stream, recognizer)
-                follow_up = transcribe_followup(recognizer, stream, timeout=5.0, vision=vision)
-                if follow_up:
-                    command = follow_up
-                else:
-                    command = None
-                continue
+            # Speak the response - handler already completed the request
+            speak(tts, result.response[:500], stream, recognizer)
 
-            # Handle execute intent
-            if result.intent == Intent.EXECUTE:
-                speak(tts, result.response[:200], stream, recognizer)
-                follow_up = transcribe_followup(recognizer, stream, timeout=5.0, vision=vision)
-                if follow_up:
-                    command = follow_up
-                else:
-                    command = None
-                continue
-
-            # Handle file operations
-            if result.intent in (Intent.FILE_READ, Intent.FILE_WRITE):
-                speak(tts, result.response[:200], stream, recognizer)
+            # Check for follow-up
+            follow_up = transcribe_followup(recognizer, stream, timeout=5.0, vision=vision)
+            if follow_up:
+                command = follow_up
+            else:
                 command = None
-                continue
-
-            # For CONVERSATION intent, use cognitive layer for code generation
-            if result.intent == Intent.CONVERSATION:
-                cognitive_output = cognitive.process(command)
-                print(f"[INTENT] {cognitive_output.understood_intent}")
-                print(f"[ROUTE] {cognitive_output.router_command}")
-
-                if cognitive_output.needs_clarification:
-                    speak(tts, cognitive_output.clarification_question, stream, recognizer)
-                    command = None
-                    continue
-
-                if cognitive_output.router_command == "execute code" and cognitive_output.generated_code:
-                    code = cognitive_output.generated_code
-                    print(f"[CODE]\n{code}")
-                    analysis = analyzer.analyze(code)
-                    print(f"[RISK] {analysis.risk_level.value}")
-
-                    if analysis.risk_level == RiskLevel.BLOCKED:
-                        speak(tts, f"Cannot execute: {analysis.reasons[0]}", stream, recognizer)
-                        command = None
-                        continue
-
-                    if analysis.risk_level == RiskLevel.HIGH:
-                        speak(tts, "High risk. Say yes to proceed.", stream, recognizer)
-                        confirm = transcribe_command(recognizer, stream, timeout=5.0, vision=vision)
-                        if "yes" not in confirm.lower():
-                            speak(tts, "Cancelled.", stream, recognizer)
-                            command = None
-                            continue
-
-                    print("[EXEC] Running...")
-                    exec_result = router.code_executor.execute(code)
-                    if exec_result.success:
-                        lines = [l for l in exec_result.stdout.strip().split("\n") if not l.startswith("[FILE")]
-                        output = "\n".join(lines).strip() or "(no output)"
-                        print(f"[OUTPUT] {output}")
-                        speak(tts, f"Result: {output[:100]}", stream, recognizer)
-                    else:
-                        speak(tts, f"Error: {exec_result.stderr[:100]}", stream, recognizer)
-
-                    follow_up = transcribe_followup(recognizer, stream, timeout=5.0, vision=vision)
-                    if follow_up:
-                        command = follow_up
-                    else:
-                        print("[VOICE] No follow-up")
-                        command = None
-                    continue
-
-                if cognitive_output.router_command == "discuss" and cognitive_output.discussion:
-                    speak(tts, cognitive_output.discussion, stream, recognizer)
-                    follow_up = transcribe_followup(recognizer, stream, timeout=5.0, vision=vision)
-                    if follow_up:
-                        command = follow_up
-                    else:
-                        command = None
-                    continue
-
-            # Default: speak the router response
-            speak(tts, result.response, stream, recognizer)
-            command = None
 
     finally:
         print("\n[VOICE] Shutting down...")
@@ -487,40 +411,15 @@ def main_chat_loop():
 
         memory.store_conversation("user", command)
 
-        # NEW: Use unified cognitive_router
+        # Use unified cognitive_router - SINGLE classifier, handlers are terminal
+        # llm_handler calls LLM directly via cognitive.call_llm_direct()
+        # Does NOT call cognitive.process() which would re-classify
         result = route_input(command, context={
-            "llm_handler": lambda x: cognitive.process(x).discussion,
+            "llm_handler": lambda x: cognitive.call_llm_direct(x),
             "memory_manager": memory,
         })
 
-        # Handle execute intent with code analyzer for risk check
-        if result.intent == Intent.EXECUTE and "Block" in result.response:
-            # If execute handler already ran code, the response contains results
-            print(f"Demerzel: {result.response}")
-            continue
-
-        # Handle code generation from LLM fallback
-        if result.intent == Intent.CONVERSATION:
-            # Check if cognitive layer generated code
-            cognitive_output = cognitive.process(command)
-            if cognitive_output.router_command == "execute code" and cognitive_output.generated_code:
-                code = cognitive_output.generated_code
-                print(f"[CODE]\n{code}")
-                analysis = analyzer.analyze(code)
-                print(f"[RISK] {analysis.risk_level.value}")
-
-                if analysis.risk_level == RiskLevel.BLOCKED:
-                    print(f"Demerzel: Cannot execute: {analysis.reasons[0]}")
-                    continue
-
-                exec_result = router.code_executor.execute(code)
-                if exec_result.success:
-                    print(f"Demerzel: {exec_result.stdout.strip()}")
-                else:
-                    print(f"Demerzel: Error: {exec_result.stderr}")
-                continue
-
-        # Print the unified router response
+        # Print the router response - handler already completed the request
         print(f"Demerzel: {result.response}")
 
     print("\n[CHAT] Goodbye.")
