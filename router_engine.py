@@ -9,6 +9,7 @@ from datetime import datetime
 from typing import Optional, List
 
 import kernel_router as kr
+from kernel_contract import Intent
 from hardware_executor import HardwareExecutor, default_config
 from code_executor import CodeExecutor
 from code_analyzer import CodeAnalyzer, RiskLevel
@@ -28,7 +29,7 @@ class RouterEngine:
         self.state = new_state
 
         # Handle TIME intent
-        if out.intent == "TIME" and out.speak == "__TIME__":
+        if out.intent == Intent.TIME and out.speak == "__TIME__":
             now = datetime.now()
             return replace(out, speak=now.strftime("It is %I:%M %p."))
 
@@ -37,12 +38,13 @@ class RouterEngine:
             hw = self.hardware.send_to_arduino(out.hw_cmd)
             if hw.ok:
                 speak = hw.out.strip() or f"ACK {out.hw_cmd}"
+                return replace(out, speak=speak, did_execute=True, error=None)
             else:
                 speak = f"Hardware error: {hw.err or hw.out or 'unknown'}"
-            return replace(out, speak=speak, did_execute=False, error=hw.err or hw.out)
+                return replace(out, speak=speak, did_execute=False, error=hw.err or hw.out)
 
         # Handle code execution
-        if out.intent == "EXECUTE_CODE" and out.code_to_execute:
+        if out.intent == Intent.EXECUTE_CODE and out.code_to_execute:
             return self._handle_code_execution(out)
 
         return out
