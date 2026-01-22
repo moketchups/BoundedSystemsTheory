@@ -1,103 +1,95 @@
-#!/usr/bin/env python3
 """
-router_engine.py
-
-RouterEngine is the single canonical pipeline wrapper.
-
-Goal:
-- All entrypoints (voice + REPL) call RouterEngine.process().
-- Router decision happens in kernel_router.route_text().
-- Hardware execution happens ONLY at the engine boundary (in Step 6 we move it fully here).
-- Every interaction is logged to the append-only action ledger.
-
-Safety rule (important for Step 5):
-- We only execute hardware IF kernel_router indicates a hw_cmd is ready AND it did not already
-  execute it (no hw_ack present).
-  This prevents double execution while we transition.
+RouterEngine: coordinates kernel_router + hardware executor.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Optional, Dict, Any
+from dataclasses import replace
+from datetime import datetime
+from typing import Optional, List
 
-from kernel_router import route_text, RouterState, RouterOutput
-import action_ledger
-import hardware_executor
+import kernel_router as kr
+from hardware_executor import HardwareExecutor, default_config
+from code_executor import CodeExecutor
+from code_analyzer import CodeAnalyzer, RiskLevel
 
-
-def _get(d: Dict[str, Any], k: str) -> Any:
-    try:
-        return d.get(k)
-    except Exception:
-        return None
-
-
-@dataclass
 class RouterEngine:
-    """
-    Stateless wrapper: caller supplies RouterState, we return RouterOutput.
-    The caller (brain_controller / REPL) owns state updates.
-    """
+    def __init__(self, hardware: Optional[HardwareExecutor] = None, wake_aliases: Optional[List[str]] = None):
+        self.state = kr.RouterState()
+        self.hardware = hardware or HardwareExecutor(default_config())
+        self.wake_aliases = [w.strip().lower() for w in (wake_aliases or ["demerzel"]) if w.strip()]
+        
+        # Code execution components
+        self.code_executor = CodeExecutor(timeout=30)
+        self.code_analyzer = CodeAnalyzer()
 
-    def process(self, raw_text: str, state: Optional[RouterState] = None) -> RouterOutput:
-        st = state or RouterState()
-        out = route_text(raw_text, st)
+    def route_text(self, text: str) -> kr.RouterOutput:
+        out, new_state = kr.route_text(text, self.state)
+        self.state = new_state
 
-        # Decide whether we should execute hardware here.
-        dbg = out.debug or {}
-        hw_cmd = _get(dbg, "hw_cmd") or _get(dbg, "pending_hw_cmd")
-        hw_ack = _get(dbg, "hw_ack")
+        # Handle TIME intent
+        if out.intent == "TIME" and out.speak == "__TIME__":
+            now = datetime.now()
+            return replace(out, speak=now.strftime("It is %I:%M %p."))
 
-        # Only execute if:
-        #  - there is a hw_cmd
-        #  - we are NOT in confirmation-awaiting state
-        #  - and the router/kernel did not already execute it (no hw_ack)
-        should_execute_hw = bool(hw_cmd) and (not out.new_state.awaiting_confirmation) and (not hw_ack)
+        # Handle hardware commands
+        if out.hw_cmd and out.did_execute:
+            hw = self.hardware.send_to_arduino(out.hw_cmd)
+            if hw.ok:
+                speak = hw.out.strip() or f"ACK {out.hw_cmd}"
+            else:
+                speak = f"Hardware error: {hw.err or hw.out or 'unknown'}"
+            return replace(out, speak=speak, did_execute=False, error=hw.err or hw.out)
 
-        if should_execute_hw:
-            try:
-                ack = hardware_executor.send_to_arduino(str(hw_cmd))
-                new_dbg = {**dbg, "hw_cmd": str(hw_cmd), "hw_ack": ack, "hw_executed_by": "router_engine"}
-                out = RouterOutput(
-                    speak=ack,  # override speak with real ACK line
-                    new_state=out.new_state,
-                    effects=out.effects,
-                    debug=new_dbg,
-                )
-            except Exception as e:
-                # Fail closed: no silent failure, speak the error
-                msg = f"ERROR: hardware failed: {e}"
-                new_dbg = {**dbg, "hw_cmd": str(hw_cmd), "error": repr(e), "hw_executed_by": "router_engine"}
-                out = RouterOutput(
-                    speak=msg,
-                    new_state=out.new_state,
-                    effects=out.effects,
-                    debug=new_dbg,
-                )
-
-        # Ledger logging (must never crash)
-        try:
-            dbg2 = out.debug or {}
-            ev = action_ledger.make_router_event(
-                raw_text=str(_get(dbg2, "raw") or raw_text or ""),
-                cleaned_text=str(_get(dbg2, "cleaned") or ""),
-                mode=str(_get(dbg2, "mode") or ""),
-                intent=str(_get(dbg2, "intent") or _get(dbg2, "pending_intent") or ""),
-                confidence=_get(dbg2, "confidence"),
-                confirm_required=_get(dbg2, "router_confirmation_required"),
-                speak=str(out.speak or ""),
-                effects=out.effects,
-                error=str(_get(dbg2, "error") or "") or None,
-                hw_cmd=str(_get(dbg2, "hw_cmd") or _get(dbg2, "pending_hw_cmd") or "") or None,
-                hw_result=str(_get(dbg2, "hw_ack") or "") or None,
-            )
-            action_ledger.append_event(ev)
-        except Exception:
-            pass
+        # Handle code execution
+        if out.intent == "EXECUTE_CODE" and out.code_to_execute:
+            return self._handle_code_execution(out)
 
         return out
-
-
-# Back-compat alias (some older scripts may import Router)
-Router = RouterEngine
+    
+    def _handle_code_execution(self, out: kr.RouterOutput) -> kr.RouterOutput:
+        """Handle code execution with risk analysis and confirmation"""
+        code = out.code_to_execute
+        
+        # Analyze code for risk
+        analysis = self.code_analyzer.analyze(code)
+        
+        print(f"[CODE ANALYSIS] Risk: {analysis.risk_level.value}")
+        print(f"[CODE ANALYSIS] Reasons: {analysis.reasons}")
+        
+        # BLOCKED code - never execute
+        if analysis.risk_level == RiskLevel.BLOCKED:
+            return replace(
+                out,
+                speak=f"Code execution blocked: {', '.join(analysis.reasons)}",
+                did_execute=False,
+                error=f"BLOCKED: {', '.join(analysis.reasons)}"
+            )
+        
+        # HIGH_RISK code - requires confirmation (already handled by kernel)
+        # If we're here with HIGH_RISK, confirmation was approved
+        if analysis.risk_level == RiskLevel.HIGH:
+            print(f"[CODE EXECUTION] HIGH_RISK code approved, executing...")
+        
+        # Execute code
+        result = self.code_executor.execute(code)
+        
+        if result.success:
+            output = result.stdout.strip() or "(no output)"
+            speak = f"Code executed successfully. Output: {output[:200]}"
+            if len(result.stdout) > 200:
+                speak += "... (truncated)"
+        else:
+            error_msg = result.stderr.strip() or "Unknown error"
+            speak = f"Code execution failed: {error_msg[:200]}"
+        
+        return replace(
+            out,
+            speak=speak,
+            did_execute=True,
+            error=result.stderr if not result.success else None
+        )
+    
+    def is_awaiting_confirmation(self):
+        """Check if router is waiting for confirmation"""
+        return self.state.pending_intent is not None and self.state.confirm_stage > 0

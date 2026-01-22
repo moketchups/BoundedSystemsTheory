@@ -1,78 +1,60 @@
-# hardware_executor.py
+"""
+HardwareExecutor: single place that actually calls the Pi / Arduino.
+"""
 from __future__ import annotations
 
-from dataclasses import dataclass
+import os
 import subprocess
-from typing import Optional, List
-
-
-PI_USER = "moketchups"
-PI_HOST = "192.168.0.161"
-PI_ARDUINO_CMD = "/home/moketchups/arduino_cmd.py"
+from dataclasses import dataclass
+from typing import Optional
 
 
 @dataclass
-class HWResult:
+class HwResult:
+    """Hardware execution result"""
     ok: bool
     out: str = ""
     err: str = ""
     rc: int = 0
 
+@dataclass
+class HardwareExecutorConfig:
+    pi_host: str
+    pi_user: str
+    arduino_cmd_path: str
+    ssh_key_path: Optional[str] = None
+    connect_timeout_s: int = 6
+    cmd_timeout_s: int = 10
 
-def _run(cmd: List[str], timeout_s: float = 8.0) -> HWResult:
-    try:
-        p = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=timeout_s,
-        )
-        out = (p.stdout or "").strip()
-        err = (p.stderr or "").strip()
-        return HWResult(ok=(p.returncode == 0), out=out, err=err, rc=p.returncode)
-    except subprocess.TimeoutExpired as e:
-        return HWResult(ok=False, out="", err=f"timeout after {timeout_s}s", rc=124)
-    except Exception as e:
-        return HWResult(ok=False, out="", err=str(e), rc=1)
+def _env(name: str, default: str) -> str:
+    v = os.environ.get(name, "").strip()
+    return v or default
 
-
-def send_to_arduino(arduino_command: str, timeout_s: float = 8.0) -> HWResult:
-    """
-    Module-level function expected by some router versions.
-    Sends a single command to the Pi-side arduino_cmd.py over SSH.
-    """
-    remote = f"python3 {PI_ARDUINO_CMD} {arduino_command}"
-    cmd = ["ssh", f"{PI_USER}@{PI_HOST}", remote]
-    return _run(cmd, timeout_s=timeout_s)
-
+def default_config() -> HardwareExecutorConfig:
+    return HardwareExecutorConfig(
+        pi_host=_env("DEMERZEL_PI_HOST", "192.168.0.161"),
+        pi_user=_env("DEMERZEL_PI_USER", "moketchups"),
+        arduino_cmd_path=_env("DEMERZEL_ARDUINO_CMD", "/home/moketchups/arduino_cmd.py"),
+        ssh_key_path=os.environ.get("DEMERZEL_SSH_KEY") or None,
+    )
 
 class HardwareExecutor:
-    """
-    Class-based API expected by other versions.
-    """
-    def __init__(self, timeout_s: float = 8.0):
-        self.timeout_s = timeout_s
+    def __init__(self, cfg: Optional[HardwareExecutorConfig] = None):
+        self.cfg = cfg or default_config()
 
-    def send_to_arduino(self, arduino_command: str) -> HWResult:
-        return send_to_arduino(arduino_command, timeout_s=self.timeout_s)
-
-    def ping(self) -> HWResult:
-        return self.send_to_arduino("PING")
-
-    def led_on(self) -> HWResult:
-        return self.send_to_arduino("LED ON")
-
-    def led_off(self) -> HWResult:
-        return self.send_to_arduino("LED OFF")
-
-
-def _demo():
-    hw = HardwareExecutor()
-    for c in ["PING", "LED ON", "LED OFF"]:
-        r = hw.send_to_arduino(c)
-        print(f"{c} -> ok={r.ok} rc={r.rc} out='{r.out}' err='{r.err}'")
-
-
-if __name__ == "__main__":
-    _demo()
+    def send_to_arduino(self, cmd: str) -> HwResult:
+        remote = f'python3 {self.cfg.arduino_cmd_path} "{cmd}"'
+        ssh = ["ssh", "-o", "BatchMode=yes", "-o", f"ConnectTimeout={self.cfg.connect_timeout_s}"]
+        if self.cfg.ssh_key_path:
+            ssh += ["-i", self.cfg.ssh_key_path]
+        ssh += [f"{self.cfg.pi_user}@{self.cfg.pi_host}", remote]
+        try:
+            proc = subprocess.run(ssh, capture_output=True, text=True, timeout=self.cfg.cmd_timeout_s)
+            out = (proc.stdout or "").strip()
+            err = (proc.stderr or "").strip()
+            return HwResult(ok=(proc.returncode == 0), out=out, err=err)
+        except subprocess.TimeoutExpired as e:
+            return HwResult(ok=False, rc=124, out=(e.stdout or "").strip(), err="timeout")
+        except Exception as e:
+            return HwResult(ok=False, out="", err=str(e))
 

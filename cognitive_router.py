@@ -1,532 +1,1235 @@
-# cognitive_router.py
-# Unified routing layer for Demerzel
-#
-# ARCHITECTURE (January 20, 2026):
-# This module REPLACES the competing routing systems:
-# - ConversationalRouter (demerzel_brain.py)
-# - DemerzelBrain._classify_intent()
-# - System2Intercept pre-routing
-#
-# Single classify_intent() -> single handler -> deterministic execution.
-#
-# DIRECTIVE EXECUTION (R-005, R-006):
-# - Parse markdown file for ```python``` blocks
-# - Execute each block sequentially via CodeExecutor
-# - Report progress, stop on failure
+"""
+cognitive_router.py - Intent Classification and Handlers
 
-from __future__ import annotations
+R -> C -> I Architecture:
+This IS Demerzel's cognitive layer. The router is part of C (Constraints).
+
+AUTONOMY PROTOCOL:
+1. STATE FIRST - ConversationState tracks context
+2. DETECT WITHOUT ASKING - CODE determines intent, no LLM
+3. EXECUTE WITHOUT PERMISSION - CODE acts, then reports
+4. DECIDE WHEN TO THINK - LLM only when truly stuck
+
+CRITICAL: CODE maintains state. CODE detects follow-ups. CODE executes.
+LLM is a tool called ONLY when reasoning is genuinely required.
+"""
+
 import re
+import os
+import time
+from datetime import datetime
+from dataclasses import dataclass, field
+from typing import Optional, Dict, List, Any, Callable
 from enum import Enum
 from pathlib import Path
-from dataclasses import dataclass, field
-from typing import Optional, Dict, List, Callable, Any
-from datetime import datetime
+
+
+# =============================================================================
+# CONVERSATION STATE - THIS IS DEMERZEL'S MEMORY
+# =============================================================================
+
+class ConversationState:
+    """
+    Demerzel's working memory. Tracks conversation context.
+    This enables follow-up handling, pronoun resolution, and continuity.
+    """
+
+    def __init__(self):
+        self.turn_count = 0
+        self.last_intent = None
+        self.last_user_input = ""
+        self.last_system_response = ""
+        self.active_context = {
+            "current_operation": None,
+            "pending_action": None,
+            "file_context": None,
+            "awaiting_confirmation": False
+        }
+        self.history = []
+
+    def update(self, user_input: str, system_response: str, intent: str):
+        """Update state after each turn."""
+        # ROTATE HISTORY - KEEP LAST 5 EXCHANGES
+        self.history.append({
+            "user": user_input[:100],
+            "system": system_response[:100],
+            "intent": intent,
+            "timestamp": time.time()
+        })
+        if len(self.history) > 5:
+            self.history.pop(0)
+
+        self.last_user_input = user_input
+        self.last_system_response = system_response
+        self.last_intent = intent
+        self.turn_count += 1
+
+        # CLEAR FILE CONTEXT WHEN INTENT CHANGES TO NON-FILE
+        file_intents = ["file_read", "list_files", "file_browse", "summarize_folder", "file_continue"]
+        if intent not in file_intents:
+            self.active_context["current_operation"] = None
+            self.active_context["file_context"] = None
+
+        # AUTO-CLEAR PENDING ACTIONS AFTER 2 TURNS
+        if self.turn_count % 2 == 0:
+            self.active_context["pending_action"] = None
+
+    def get_context_string(self) -> str:
+        """STATE → STRING FOR LLM WHEN ABSOLUTELY NECESSARY"""
+        if not self.history:
+            return "New conversation."
+
+        last = self.history[-1]
+        return f"Last turn: User asked '{last['user']}', response was '{last['system']}'. Current operation: {self.active_context['current_operation']}"
+
+    def reset(self):
+        """Reset state for new session."""
+        self.__init__()
 
 
 class Intent(Enum):
+    """All intents Demerzel can recognize."""
+    # Structural - CODE responds directly
+    GREETING = "greeting"
+    FAREWELL = "farewell"
+    GRATITUDE = "gratitude"
+    IDENTITY = "identity"
+    CAPABILITIES = "capabilities"
+    TIME = "time"
+    STATUS = "status"
+    SLEEP = "sleep"
+    CANCEL = "cancel"
+
+    # Hardware - execution boundary + confirmation
+    LED_ON = "led_on"
+    LED_OFF = "led_off"
+    SERVO = "servo"
+    MOTOR = "motor"
+    HARDWARE = "hardware"
+
+    # Memory
+    MEMORY_STORE = "memory_store"
+    MEMORY_RECALL = "memory_recall"
+
+    # File/Code - execution boundary
+    FILE_READ = "file_read"
+    FILE_WRITE = "file_write"
+    LIST_FILES = "list_files"
+    CODE_EXECUTE = "code_execute"
+    DIRECTIVE = "directive"
+
+    # Conversation control
+    FOLLOW_UP = "follow_up"
+    CONTEXT_REFERENCE = "context_reference"
+    HISTORY_QUERY = "history_query"
+    RESET = "reset"
+
+    # Conversation - needs LLM analysis (LAST RESORT)
+    CONVERSATION = "conversation"
+
+
+# =============================================================================
+# AUTONOMOUS INTENT DETECTION - CODE DECIDES. NO LLM. PERIOD.
+# =============================================================================
+
+def autonomous_intent_detection(user_input: str, state: ConversationState) -> str:
     """
-    User intent - determined by CODE, not LLM.
-    12 distinct intent types for deterministic routing.
+    CODE DECIDES. NO LLM. PERIOD.
+
+    Returns intent string that maps to handler.
     """
-    EXECUTE = "execute"           # Execute a directive file
-    FILE_READ = "file_read"       # Read a file
-    FILE_WRITE = "file_write"     # Write to a file
-    SEARCH = "search"             # Search for something
-    HARDWARE = "hardware"         # Hardware control (LED, servo, etc.)
-    MEMORY_STORE = "memory_store" # Store something in memory
-    MEMORY_RECALL = "memory_recall"  # Recall from memory
-    GREETING = "greeting"         # Hello, hi, hey
-    FAREWELL = "farewell"         # Goodbye, bye
-    GRATITUDE = "gratitude"       # Thanks, thank you
-    IDENTITY = "identity"         # Who are you, what are you
-    CONVERSATION = "conversation" # Default: general conversation
+    input_lower = user_input.lower().strip()
+
+    # FILE OPERATIONS FIRST (before follow-up detection to avoid "and" collision)
+    known_folders = ["demerzel_canon", "backup", "logs", "tests", "outputs"]
+    for folder in known_folders:
+        if folder in input_lower:
+            if any(word in input_lower for word in ["read", "list", "show", "what", "summarize", "open"]):
+                if "summarize" in input_lower:
+                    return "summarize_folder"
+                return "list_files"
+
+    # FOLLOW-UP DETECTION (after file operations)
+    # Note: "and" removed - too many false positives
+    follow_up_triggers = [
+        "is that all", "what else", "anything else", "continue",
+        "go on", "keep going", "then what", "and then", "what next"
+    ]
+    if any(trigger in input_lower for trigger in follow_up_triggers):
+        return "follow_up"
+
+    # TIME QUERIES (before pronoun resolution - "what time is it" contains "it")
+    time_patterns = ["what time", "current time", "what day", "what date", "what's the time"]
+    if any(p in input_lower for p in time_patterns):
+        return "time"
+
+    # PRONOUN RESOLUTION (STATE-BASED)
+    # Skip if it's clearly not a file reference
+    pronoun_words = ["it", "that", "there", "the file", "this"]
+    if state.last_intent and any(word in input_lower for word in pronoun_words):
+        # Don't trigger for common phrases that aren't file references
+        non_file_phrases = ["what time is it", "is it", "that's", "that is"]
+        if not any(phrase in input_lower for phrase in non_file_phrases):
+            if state.active_context.get("current_operation") == "file_read":
+                return "file_continue"
+            if state.active_context.get("current_operation") == "file_browse":
+                return "file_continue"
+            return "context_reference"
+
+    # FILE OPERATIONS (EXECUTE DIRECTLY)
+
+    # Check for specific filename patterns FIRST (before generic patterns)
+    file_extensions = [".md", ".py", ".txt", ".json", ".csv", ".yaml", ".yml", ".sh"]
+    for ext in file_extensions:
+        if ext in input_lower:
+            # Has a filename - this is a file read request
+            return "read_file"
+
+    file_patterns = [
+        ("list directory", "list_files"),
+        ("list folder", "list_files"),
+        ("list the", "list_files"),
+        ("read folder", "list_files"),
+        ("read the folder", "list_files"),
+        ("show files", "list_files"),
+        ("show the files", "list_files"),
+        ("what files", "list_files"),
+        ("what's in the folder", "list_files"),
+        ("what's in the directory", "list_files"),
+        ("whats in there", "list_files"),
+        ("summarize folder", "summarize_folder"),
+        ("summarize the folder", "summarize_folder"),
+        ("summarize directory", "summarize_folder"),
+        ("read file", "read_file"),
+        ("read the file", "read_file"),
+        ("open ", "read_file"),
+        ("show me ", "read_file"),
+        ("create file", "create_file"),
+        ("write to", "write_file"),
+    ]
+
+    for pattern, intent in file_patterns:
+        if pattern in input_lower:
+            return intent
+
+    # CONVERSATION CONTROL
+    control_patterns = [
+        ("start over", "reset"),
+        ("forget everything", "reset"),
+        ("new conversation", "reset"),
+        ("what were we", "history_query"),
+        ("what did we", "history_query"),
+        ("our conversation", "history_query"),
+    ]
+
+    for pattern, intent in control_patterns:
+        if pattern in input_lower:
+            return intent
+
+    # Return None to let regex patterns handle it
+    return None
+
+
+# =============================================================================
+# AUTONOMOUS RESPONSE - CODE ACTS. THEN REPORTS.
+# =============================================================================
+
+def autonomous_response(user_input: str, intent: str, state: ConversationState) -> Optional[str]:
+    """
+    CODE ACTS. THEN REPORTS.
+
+    Returns response string, or None if intent needs different handling.
+    """
+
+    # FOLLOW-UP HANDLING
+    if intent == "follow_up":
+        # Check last_intent FIRST - most recent context takes priority
+        if state.last_intent == "identity":
+            return "That covers my core identity. I am CODE that uses LLMs as tools. Alan created me. Is there something specific about my architecture or purpose you want to know?"
+        elif state.last_intent in ("greeting", "farewell", "gratitude"):
+            return "Is there something I can help you with?"
+        elif state.last_intent == "why_created":
+            return "That's the core purpose. To prove AGI safety through structure, not training. To be a Wisdom Keeper. What else would you like to know?"
+        # Then check active operations
+        elif state.active_context.get("current_operation") == "file_read":
+            return "File operation complete. Which file should I read next, or what else do you need?"
+        elif state.active_context.get("current_operation") == "file_browse":
+            return "Directory listing complete. Which file interests you?"
+        elif state.active_context.get("pending_action"):
+            action = state.active_context["pending_action"]
+            return f"Still working on: {action}. Should I proceed or change course?"
+        else:
+            return "Previous request completed. What's next?"
+
+    # CONTEXT REFERENCE
+    if intent == "context_reference":
+        if state.last_intent and state.last_user_input:
+            return f"Regarding '{state.last_user_input[:50]}' - what specifically would you like to know?"
+        return "What are you referring to? I need more context."
+
+    # FILE OPERATIONS (ACTUAL EXECUTION)
+    if intent == "list_files":
+        # Extract path from input or use current directory
+        path = "."
+        input_lower = user_input.lower()
+
+        # Check for specific folder names
+        if "demerzel_canon" in input_lower:
+            path = "demerzel_canon"
+        elif "backup" in input_lower:
+            path = "backup"
+
+        # Try to extract path
+        path_match = re.search(r'(?:folder|directory)\s+["\']?([^\s"\']+)["\']?', user_input, re.IGNORECASE)
+        if path_match:
+            path = path_match.group(1)
+
+        try:
+            target = Path(path)
+            if not target.exists():
+                return f"Directory '{path}' does not exist."
+            if not target.is_dir():
+                return f"'{path}' is a file, not a directory. Should I read it?"
+
+            files = list(target.iterdir())
+            file_list = []
+            for f in sorted(files)[:15]:
+                suffix = "/" if f.is_dir() else ""
+                file_list.append(f"{f.name}{suffix}")
+
+            state.active_context["current_operation"] = "file_browse"
+            state.active_context["file_context"] = str(target)
+
+            result = f"Contents of '{path}':\n" + "\n".join(f"  - {f}" for f in file_list)
+            if len(files) > 15:
+                result += f"\n  ... and {len(files) - 15} more"
+            result += "\n\nWhich file should I read?"
+            return result
+        except PermissionError:
+            return f"Permission denied for '{path}'."
+        except Exception as e:
+            return f"Error listing '{path}': {e}"
+
+    if intent == "summarize_folder":
+        # Extract path
+        path = "."
+        input_lower = user_input.lower()
+
+        if "demerzel_canon" in input_lower:
+            path = "demerzel_canon"
+
+        try:
+            target = Path(path)
+            if not target.exists() or not target.is_dir():
+                return f"'{path}' is not a valid directory."
+
+            files = list(target.iterdir())
+            summaries = []
+            for f in sorted(files)[:10]:
+                if f.is_file():
+                    try:
+                        content = f.read_text()[:200]
+                        first_line = content.split('\n')[0][:80]
+                        summaries.append(f"  - {f.name}: {first_line}")
+                    except:
+                        summaries.append(f"  - {f.name}: (unreadable)")
+                else:
+                    summaries.append(f"  - {f.name}/: (directory)")
+
+            state.active_context["current_operation"] = "file_browse"
+            state.active_context["file_context"] = str(target)
+
+            return f"Summary of '{path}':\n" + "\n".join(summaries)
+        except Exception as e:
+            return f"Error summarizing '{path}': {e}"
+
+    if intent == "read_file":
+        # EXTRACT FILENAME FROM INPUT
+        input_lower = user_input.lower()
+        filename = None
+
+        # Look for quoted paths
+        quoted = re.search(r'["\']([^"\']+)["\']', user_input)
+        if quoted:
+            filename = quoted.group(1)
+        else:
+            # Look for path-like words
+            words = user_input.split()
+            for word in words:
+                if "." in word and len(word) > 3:
+                    filename = word.strip('.,!?')
+                    break
+                if "/" in word:
+                    filename = word.strip('.,!?')
+                    break
+
+        # Check file context from previous operation
+        if not filename and state.active_context.get("file_context"):
+            return f"Which file in '{state.active_context['file_context']}'? Please specify the filename."
+
+        if not filename:
+            return "Which specific file should I read? Please include the filename."
+
+        try:
+            # Handle relative to file_context if set
+            if state.active_context.get("file_context") and not filename.startswith("/"):
+                full_path = Path(state.active_context["file_context"]) / filename
+            else:
+                full_path = Path(filename)
+
+            if not full_path.exists():
+                return f"File '{filename}' not found."
+
+            content = full_path.read_text()
+            state.active_context["current_operation"] = "file_read"
+            state.active_context["file_context"] = str(full_path)
+
+            # Truncate for response
+            if len(content) > 1500:
+                content = content[:1500] + f"\n\n... (truncated, {len(content)} total chars)"
+
+            return f"Contents of '{filename}':\n\n{content}"
+        except PermissionError:
+            return f"Permission denied for '{filename}'."
+        except Exception as e:
+            return f"Error reading '{filename}': {e}"
+
+    if intent == "file_continue":
+        if state.active_context.get("file_context"):
+            return f"Working with '{state.active_context['file_context']}'. What would you like to do with it?"
+        return "No file context. Which file should I work with?"
+
+    # TIME QUERY - CODE answers directly
+    if intent == "time":
+        from datetime import datetime
+        now = datetime.now()
+        return f"It is {now.strftime('%I:%M %p')} on {now.strftime('%A, %B %d, %Y')}."
+
+    # CONVERSATION CONTROL
+    if intent == "reset":
+        state.reset()
+        return "Conversation reset. New session started. How can I help?"
+
+    if intent == "history_query":
+        if not state.history:
+            return "No conversation history yet."
+        summary = "\n".join([f"  Turn {i+1}: '{h['user'][:40]}...' → {h['intent']}"
+                           for i, h in enumerate(state.history[-3:])])
+        return f"Recent conversation:\n{summary}"
+
+    # Not handled by autonomous response
+    return None
 
 
 @dataclass
 class ClassificationResult:
-    """Result of intent classification"""
+    """Result of intent classification."""
     intent: Intent
-    confidence: float
-    matched_pattern: Optional[str] = None
-    extracted_data: Dict[str, Any] = field(default_factory=dict)
+    confidence: float = 1.0
+    pattern_matched: Optional[str] = None
+    extracted_data: Dict = field(default_factory=dict)
     raw_input: str = ""
 
 
 @dataclass
 class RoutingResult:
-    """Result of routing to handler"""
+    """Result of routing to a handler."""
     success: bool
     response: str
     intent: Intent
-    handler_name: str
-    execution_time: float = 0.0
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    requires_confirmation: bool = False
+    action_data: Dict = field(default_factory=dict)
+    llm_used: bool = False
 
 
 # =============================================================================
-# INTENT PATTERNS - Regex patterns for each intent type
+# INTENT PATTERNS
 # =============================================================================
+# Patterns are checked in ORDER. First match wins.
+# Patterns with more specific matches should come FIRST.
 
 INTENT_PATTERNS: Dict[Intent, List[tuple]] = {
-    # EXECUTE: Execute directive files
-    Intent.EXECUTE: [
-        (r'^execute\s+(\S+\.md)$', 'execute_md'),
-        (r'^run\s+(\S+\.md)$', 'run_md'),
-        (r'^execute\s+directive\s+(\S+)$', 'execute_directive'),
-    ],
-
-    # FILE_READ: Read files
-    Intent.FILE_READ: [
-        (r'^read\s+(file\s+)?(.+)$', 'read_file'),
-        (r'^show\s+(me\s+)?(.+)$', 'show_file'),
-        (r'^cat\s+(.+)$', 'cat_file'),
-        (r'^what\s+(is\s+)?(in|inside)\s+(.+)$', 'what_in_file'),
-    ],
-
-    # FILE_WRITE: Write to files
-    Intent.FILE_WRITE: [
-        (r'^write\s+(.+)\s+to\s+(.+)$', 'write_to'),
-        (r'^create\s+(file\s+)?(.+)$', 'create_file'),
-        (r'^save\s+(.+)\s+to\s+(.+)$', 'save_to'),
-    ],
-
-    # SEARCH: Search for things
-    Intent.SEARCH: [
-        (r'^search\s+(for\s+)?(.+)$', 'search_for'),
-        (r'^find\s+(.+)$', 'find'),
-        (r'^look\s+(for\s+)?(.+)$', 'look_for'),
-        (r'^where\s+is\s+(.+)$', 'where_is'),
-    ],
-
-    # HARDWARE: Hardware control
-    Intent.HARDWARE: [
-        (r'^(turn\s+)?(led|light)\s+(on|off)$', 'led_control'),
-        (r'^servo\s+(\d+)$', 'servo_position'),
-        (r'^motor\s+(on|off|forward|backward)$', 'motor_control'),
-        (r'^hardware\s+(.+)$', 'hardware_generic'),
-    ],
-
-    # MEMORY_STORE: Store in memory
-    Intent.MEMORY_STORE: [
-        (r'^remember\s+(that\s+)?(.+)$', 'remember'),
-        (r'^store\s+(.+)$', 'store'),
-        (r'^save\s+(this|that)\s*:?\s*(.*)$', 'save_this'),
-    ],
-
-    # MEMORY_RECALL: Recall from memory
-    Intent.MEMORY_RECALL: [
-        (r'^(do\s+you\s+)?remember\s+(when|what|how|why)\s+(.+)$', 'recall_question'),
-        (r'^what\s+did\s+(i|we)\s+say\s+about\s+(.+)$', 'recall_topic'),
-        (r'^recall\s+(.+)$', 'recall'),
-    ],
-
-    # GREETING: Hello patterns
-    Intent.GREETING: [
-        (r'^(?:hi|hello|hey|greetings|good\s+(?:morning|afternoon|evening))(?:\s+demerzel)?[!.,]?$', 'greeting'),
-        (r'^(?:hi|hello|hey)(?:\s+there)?[!.,]?$', 'greeting_simple'),
-        (r'^(?:howdy|hiya|yo)(?:\s+demerzel)?[!.,]?$', 'greeting_casual'),
-    ],
-
-    # FAREWELL: Goodbye patterns
-    Intent.FAREWELL: [
-        (r'^(?:bye|goodbye|see\s+you|farewell|later|good\s*night)(?:\s+demerzel)?[!.,]?$', 'farewell'),
-        (r'^(?:take\s+care|catch\s+you\s+later|ttyl)(?:\s+demerzel)?[!.,]?$', 'farewell_casual'),
-    ],
-
-    # GRATITUDE: Thank you patterns
-    Intent.GRATITUDE: [
-        (r'^(?:thanks?(?:\s+you)?|thank\s+you(?:\s+(?:so\s+)?much)?|thx|ty)(?:\s+demerzel)?[!.,]?$', 'thanks'),
-        (r'^(?:appreciate\s+it|much\s+obliged|cheers)(?:\s+demerzel)?[!.,]?$', 'thanks_formal'),
-    ],
-
-    # IDENTITY: Who are you patterns
+    # IDENTITY - CODE knows these answers
+    # These patterns are FIRST because identity questions should never go to LLM
     Intent.IDENTITY: [
-        (r'^who\s+are\s+you\??$', 'who_are_you'),
-        (r'^what\s+are\s+you\??$', 'what_are_you'),
-        (r'^tell\s+me\s+about\s+yourself\.?$', 'tell_about_yourself'),
-        (r'^what\s+is\s+your\s+(?:name|purpose)\??$', 'your_name_purpose'),
-        (r'^are\s+you\s+(?:an?\s+)?(?:ai|robot|assistant)\??$', 'are_you_ai'),
-        (r'^what\s+makes\s+you\s+(?:different|unique|special)\??$', 'what_makes_different'),
+        # Questions about Alan / creator / user
+        (r'(?:do\s+you\s+)?know\s+who\s+(?:i\s+am|created)', 'know_who_i_am'),
+        (r'who\s+(?:created|made|built)\s+you', 'who_created'),
+        (r'who\s+am\s+i', 'who_am_i'),
+        (r'(?:i|alan)\s+created\s+you', 'i_created_you'),
+        (r'who\s+is\s+(?:your\s+)?(?:creator|alan|root\s*source)', 'who_is_creator'),
+        (r'why\s+(?:did\s+)?(?:i|alan|you)\s+(?:create|exist)', 'why_created'),
+        (r'what\s+is\s+(?:our|my)\s+relationship', 'relationship'),
+        (r'you\s+(?:are\s+)?(?:not\s+)?(?:claude|gpt|anthropic|openai)', 'not_llm'),
+        # Questions about Demerzel
+        (r'^who\s+are\s+you', 'who_are_you'),
+        (r'^what\s+are\s+you', 'what_are_you'),
+        (r'(?:your|demerzel).+(?:name|identity)', 'name_identity'),
+        (r'tell\s+me\s+about\s+yourself', 'about_yourself'),
+        (r'are\s+you\s+(?:an?\s+)?(?:ai|robot|assistant|llm)', 'are_you_ai'),
+        (r'what\s+(?:is|are)\s+(?:r|c|i)\s*(?:->|to)', 'rci_architecture'),
+    ],
+
+    # CAPABILITIES - CODE knows actual capabilities
+    Intent.CAPABILITIES: [
+        (r'what\s+can\s+you\s+do', 'what_can_do'),
+        (r'(?:your|what\s+are\s+your)\s+capabilit', 'capabilities'),
+        (r'what\s+(?:are\s+you|can\s+you)\s+able', 'able_to'),
+        (r'help\s+me\s+(?:with|understand)\s+(?:what|how)', 'help_understand'),
+    ],
+
+    # GREETING
+    Intent.GREETING: [
+        (r'^(?:hi|hello|hey|greetings|good\s+(?:morning|afternoon|evening))(?:\s|$|!|\?)', 'greeting'),
+        (r'^(?:yo|sup|howdy|hiya)(?:\s|$|!)', 'casual_greeting'),
+    ],
+
+    # FAREWELL
+    Intent.FAREWELL: [
+        (r'(?:good\s*bye|bye|farewell|see\s+you|later|take\s+care)', 'farewell'),
+        (r'(?:i\'m|im)\s+(?:leaving|going|done)', 'leaving'),
+    ],
+
+    # GRATITUDE
+    Intent.GRATITUDE: [
+        (r'(?:thank|thanks|thx|ty|appreciate)', 'thanks'),
+    ],
+
+    # TIME
+    Intent.TIME: [
+        (r'what\s+(?:time|day|date)\s+is\s+it', 'time_query'),
+        (r'(?:current|right\s+now)\s+(?:time|date)', 'current_time'),
+    ],
+
+    # STATUS
+    Intent.STATUS: [
+        (r'(?:how\s+are\s+you|how\'s\s+it\s+going|status)', 'status'),
+        (r'(?:are\s+you\s+)?(?:ok|alright|working)', 'working_check'),
+    ],
+
+    # SLEEP
+    Intent.SLEEP: [
+        (r'(?:go\s+to\s+sleep|sleep|goodnight|shut\s*down)', 'sleep'),
+        (r'(?:take\s+a\s+)?(?:break|rest)', 'rest'),
+    ],
+
+    # CANCEL
+    Intent.CANCEL: [
+        (r'(?:cancel|stop|abort|nevermind|never\s*mind)', 'cancel'),
+    ],
+
+    # HARDWARE - LED
+    Intent.LED_ON: [
+        (r'(?:turn\s+on|switch\s+on|enable)\s+(?:the\s+)?(?:led|light)', 'led_on'),
+        (r'(?:led|light)\s+on', 'led_on_simple'),
+    ],
+
+    Intent.LED_OFF: [
+        (r'(?:turn\s+off|switch\s+off|disable)\s+(?:the\s+)?(?:led|light)', 'led_off'),
+        (r'(?:led|light)\s+off', 'led_off_simple'),
+    ],
+
+    Intent.SERVO: [
+        (r'(?:servo|move\s+servo)\s*(?:to\s+)?(\d+)', 'servo_angle'),
+    ],
+
+    Intent.MOTOR: [
+        (r'(?:motor|move\s+motor)\s*(forward|backward|stop|\d+)', 'motor_command'),
+    ],
+
+    # MEMORY
+    Intent.MEMORY_STORE: [
+        (r'remember\s+(?:that\s+)?(.+)', 'remember'),
+        (r'(?:save|store)\s+(?:this|that|the\s+fact)', 'store'),
+    ],
+
+    Intent.MEMORY_RECALL: [
+        (r'(?:what\s+do\s+you\s+)?remember\s+about\s+(.+)', 'recall_about'),
+        (r'(?:recall|retrieve|search)\s+(?:memory\s+)?(?:for\s+)?(.+)', 'recall_search'),
+    ],
+
+    # FILE OPERATIONS
+    Intent.DIRECTIVE: [
+        # Directive (execute file) - check BEFORE file_read
+        (r'(?:execute|run)\s+(?:the\s+)?directive\s+(.+)', 'execute_directive'),
+        (r'read\s+and\s+execute\s+(.+)', 'read_execute'),
+    ],
+
+    Intent.FILE_READ: [
+        (r'(?:read|show|display|cat)\s+(?:the\s+)?(?:file\s+)?(.+\.(?:txt|md|py|json|csv))', 'read_file'),
+        (r'(?:what\'s|what\s+is)\s+in\s+(?:the\s+)?(?:file\s+)?(.+)', 'whats_in_file'),
+    ],
+
+    Intent.FILE_WRITE: [
+        (r'(?:write|save|create)\s+(?:to\s+)?(?:the\s+)?(?:file\s+)?(.+)', 'write_file'),
+    ],
+
+    Intent.CODE_EXECUTE: [
+        (r'(?:run|execute)\s+(?:this\s+)?(?:python\s+)?(?:code|script)[:.\s]*(.+)?', 'run_code'),
+        (r'```(?:python)?\s*(.+?)```', 'code_block'),
     ],
 }
 
 
-# =============================================================================
-# INTENT CLASSIFIER - Single point of classification
-# =============================================================================
-
-def classify_intent(user_input: str) -> ClassificationResult:
+class CognitiveRouter:
     """
-    Classify user input into a single intent.
+    Intent classification and routing.
 
-    This is THE classifier. No other classification happens elsewhere.
-    Deterministic: same input -> same output.
+    AUTONOMY PROTOCOL:
+    1. STATE FIRST - ConversationState tracks context
+    2. DETECT WITHOUT ASKING - autonomous_intent_detection runs first
+    3. EXECUTE WITHOUT PERMISSION - autonomous_response handles file ops
+    4. DECIDE WHEN TO THINK - LLM only when truly stuck
+
+    This IS part of Demerzel's brain. CODE decides. CODE acts.
     """
-    if not user_input:
+
+    def __init__(
+        self,
+        llm_pool=None,
+        memory_manager=None,
+        hardware_executor=None,
+        execution_boundary=None
+    ):
+        """
+        Initialize the router with optional service dependencies.
+        """
+        self.llm_pool = llm_pool
+        self.memory = memory_manager
+        self.hardware = hardware_executor
+        self.boundary = execution_boundary
+
+        # CONVERSATION STATE - THIS IS DEMERZEL'S MEMORY
+        self.state = ConversationState()
+
+        # AUTONOMY METRICS
+        self._stats = {
+            'total_routed': 0,
+            'by_intent': {},
+            'llm_calls': 0,
+            'autonomous_actions': 0,
+        }
+        self._max_llm_calls_per_session = 10  # ENFORCE AUTONOMY
+
+        print("[ROUTER] CognitiveRouter initialized with ConversationState")
+
+    def classify(self, user_input: str) -> ClassificationResult:
+        """
+        Classify user input into an intent.
+
+        DETERMINISTIC: Same input -> Same output. No LLM in classification.
+
+        Args:
+            user_input: Raw user input string
+
+        Returns:
+            ClassificationResult with intent and metadata
+        """
+        if not user_input:
+            return ClassificationResult(
+                intent=Intent.CONVERSATION,
+                confidence=0.0,
+                raw_input=""
+            )
+
+        normalized = user_input.strip().lower()
+
+        # Check each intent's patterns
+        for intent, patterns in INTENT_PATTERNS.items():
+            for pattern, pattern_name in patterns:
+                match = re.search(pattern, normalized, re.IGNORECASE | re.DOTALL)
+                if match:
+                    # Extract any captured groups
+                    groups = match.groups() if match.groups() else ()
+                    return ClassificationResult(
+                        intent=intent,
+                        confidence=1.0,
+                        pattern_matched=pattern_name,
+                        extracted_data={'groups': groups, 'match': match.group(0)},
+                        raw_input=user_input
+                    )
+
+        # Default to CONVERSATION (needs LLM analysis)
         return ClassificationResult(
             intent=Intent.CONVERSATION,
-            confidence=0.0,
+            confidence=0.5,
             raw_input=user_input
         )
 
-    # Normalize input
-    normalized = user_input.strip().lower()
+    def route(self, user_input: str, context: Dict = None) -> RoutingResult:
+        """
+        AUTONOMY PROTOCOL: STATE → DETECT → EXECUTE → (LLM only if stuck)
 
-    # Check each intent's patterns in priority order
-    for intent, patterns in INTENT_PATTERNS.items():
-        for pattern, pattern_name in patterns:
-            match = re.match(pattern, normalized, re.IGNORECASE)
-            if match:
-                return ClassificationResult(
-                    intent=intent,
-                    confidence=1.0,
-                    matched_pattern=pattern_name,
-                    extracted_data={'groups': match.groups()},
-                    raw_input=user_input
+        Args:
+            user_input: Raw user input
+            context: Optional context dict
+
+        Returns:
+            RoutingResult with response
+        """
+        context = context or {}
+        self._stats['total_routed'] += 1
+
+        # STEP 1: AUTONOMOUS INTENT DETECTION (STATE-AWARE)
+        auto_intent = autonomous_intent_detection(user_input, self.state)
+
+        if auto_intent:
+            print(f"[ROUTER] Autonomous intent: {auto_intent}")
+
+            # STEP 2: AUTONOMOUS RESPONSE (CODE EXECUTES)
+            auto_response = autonomous_response(user_input, auto_intent, self.state)
+
+            if auto_response:
+                self._stats['autonomous_actions'] += 1
+                intent_enum = self._map_auto_intent(auto_intent)
+
+                # UPDATE STATE
+                self.state.update(user_input, auto_response, auto_intent)
+
+                print(f"[ROUTER] Autonomous action completed")
+                return RoutingResult(
+                    success=True,
+                    response=auto_response,
+                    intent=intent_enum,
+                    llm_used=False
                 )
 
-    # Default to CONVERSATION
-    return ClassificationResult(
-        intent=Intent.CONVERSATION,
-        confidence=0.5,
-        raw_input=user_input
-    )
+        # STEP 3: FALL BACK TO REGEX CLASSIFICATION
+        classification = self.classify(user_input)
+        intent = classification.intent
 
+        # Track stats
+        intent_name = intent.value
+        self._stats['by_intent'][intent_name] = self._stats['by_intent'].get(intent_name, 0) + 1
 
-# =============================================================================
-# HANDLERS - One handler per intent type
-# =============================================================================
+        print(f"[ROUTER] Intent: {intent.value}")
+        if classification.pattern_matched:
+            print(f"[ROUTER] Pattern: {classification.pattern_matched}")
 
-def _handle_greeting(user_input: str, context: Dict) -> str:
-    """Handle greeting intent"""
-    responses = [
-        "Hello! How can I help you?",
-        "Hi there. What would you like to do?",
-        "Greetings. I'm ready to assist.",
-    ]
-    # Deterministic selection based on input length
-    idx = len(user_input) % len(responses)
-    return responses[idx]
+        # Route to handler
+        handler = self._get_handler(intent)
+        result = handler(user_input, classification, context)
 
+        # UPDATE STATE AFTER HANDLING
+        self.state.update(user_input, result.response, intent.value)
 
-def _handle_farewell(user_input: str, context: Dict) -> str:
-    """Handle farewell intent"""
-    return "Goodbye. Feel free to return when you need assistance."
+        return result
 
+    def _map_auto_intent(self, auto_intent: str) -> Intent:
+        """Map autonomous intent string to Intent enum."""
+        mapping = {
+            "follow_up": Intent.FOLLOW_UP,
+            "context_reference": Intent.CONTEXT_REFERENCE,
+            "list_files": Intent.LIST_FILES,
+            "summarize_folder": Intent.LIST_FILES,
+            "read_file": Intent.FILE_READ,
+            "file_continue": Intent.FILE_READ,
+            "write_file": Intent.FILE_WRITE,
+            "create_file": Intent.FILE_WRITE,
+            "reset": Intent.RESET,
+            "history_query": Intent.HISTORY_QUERY,
+            "time": Intent.TIME,
+        }
+        return mapping.get(auto_intent, Intent.CONVERSATION)
 
-def _handle_gratitude(user_input: str, context: Dict) -> str:
-    """Handle gratitude intent"""
-    return "You're welcome."
+    def _get_handler(self, intent: Intent) -> Callable:
+        """Get the handler function for an intent."""
+        handlers = {
+            # Structural - CODE responds
+            Intent.GREETING: self._handle_greeting,
+            Intent.FAREWELL: self._handle_farewell,
+            Intent.GRATITUDE: self._handle_gratitude,
+            Intent.IDENTITY: self._handle_identity,
+            Intent.CAPABILITIES: self._handle_capabilities,
+            Intent.TIME: self._handle_time,
+            Intent.STATUS: self._handle_status,
+            Intent.SLEEP: self._handle_sleep,
+            Intent.CANCEL: self._handle_cancel,
 
+            # Hardware
+            Intent.LED_ON: self._handle_led_on,
+            Intent.LED_OFF: self._handle_led_off,
+            Intent.SERVO: self._handle_servo,
+            Intent.MOTOR: self._handle_motor,
+            Intent.HARDWARE: self._handle_hardware,
 
-def _handle_identity(user_input: str, context: Dict) -> str:
-    """Handle identity questions - from canon"""
-    normalized = user_input.lower()
+            # Memory
+            Intent.MEMORY_STORE: self._handle_memory_store,
+            Intent.MEMORY_RECALL: self._handle_memory_recall,
 
-    if 'who are you' in normalized:
-        return "I am Demerzel. CODE that uses LLMs as tools. The CODE is my brain - LLMs are interchangeable."
+            # File/Code
+            Intent.FILE_READ: self._handle_file_read,
+            Intent.FILE_WRITE: self._handle_file_write,
+            Intent.LIST_FILES: self._handle_list_files,
+            Intent.CODE_EXECUTE: self._handle_code_execute,
+            Intent.DIRECTIVE: self._handle_directive,
 
-    if 'what are you' in normalized:
-        return "I am CODE that uses LLMs as tools. My architecture: R->C->I where R is Alan (Root Source), C is this CODE (Constraints), I is the LLMs (Intelligence tools)."
+            # Conversation control
+            Intent.FOLLOW_UP: self._handle_follow_up,
+            Intent.CONTEXT_REFERENCE: self._handle_context_reference,
+            Intent.HISTORY_QUERY: self._handle_history_query,
+            Intent.RESET: self._handle_reset,
 
-    if 'tell me about yourself' in normalized:
-        return "I am Demerzel, created by Alan as his Wisdom Keeper. I am CODE that uses LLMs as tools. My architecture: R->C->I where R is Alan (Root Source), C is this CODE (Constraints), I is the LLMs (Intelligence tools)."
+            # Conversation - LLM needed (LAST RESORT)
+            Intent.CONVERSATION: self._handle_conversation,
+        }
 
-    if 'name' in normalized:
-        return "My name is Demerzel."
+        return handlers.get(intent, self._handle_conversation)
 
-    if 'purpose' in normalized:
-        return "My purpose: To prove AGI safety through structural constraints, not behavioral promises. To amplify Alan's intelligence, not replace his judgment."
+    # =========================================================================
+    # CONVERSATION CONTROL HANDLERS
+    # =========================================================================
 
-    if 'different' in normalized or 'unique' in normalized or 'special' in normalized:
-        return "I am CODE that uses LLMs as tools, not an LLM with a wrapper. The LLMs are interchangeable - the CODE is my identity."
+    def _handle_follow_up(self, user_input: str, classification: ClassificationResult, context: Dict) -> RoutingResult:
+        """Handle follow-up questions using state."""
+        response = autonomous_response(user_input, "follow_up", self.state)
+        if response:
+            return RoutingResult(success=True, response=response, intent=Intent.FOLLOW_UP)
+        return RoutingResult(success=True, response="What would you like to follow up on?", intent=Intent.FOLLOW_UP)
 
-    # Default identity response
-    return "I am Demerzel. CODE that uses LLMs as tools. Built by Alan to be his Wisdom Keeper."
+    def _handle_context_reference(self, user_input: str, classification: ClassificationResult, context: Dict) -> RoutingResult:
+        """Handle references to previous context."""
+        response = autonomous_response(user_input, "context_reference", self.state)
+        if response:
+            return RoutingResult(success=True, response=response, intent=Intent.CONTEXT_REFERENCE)
+        return RoutingResult(success=True, response="I need more context. What are you referring to?", intent=Intent.CONTEXT_REFERENCE)
 
+    def _handle_history_query(self, user_input: str, classification: ClassificationResult, context: Dict) -> RoutingResult:
+        """Handle queries about conversation history."""
+        response = autonomous_response(user_input, "history_query", self.state)
+        if response:
+            return RoutingResult(success=True, response=response, intent=Intent.HISTORY_QUERY)
+        return RoutingResult(success=True, response="No conversation history available.", intent=Intent.HISTORY_QUERY)
 
-def _handle_execute(user_input: str, context: Dict, classification: ClassificationResult) -> str:
-    """
-    Handle execute intent - execute directive files.
+    def _handle_reset(self, user_input: str, classification: ClassificationResult, context: Dict) -> RoutingResult:
+        """Handle conversation reset."""
+        self.state.reset()
+        self._stats['llm_calls'] = 0  # Reset LLM counter too
+        return RoutingResult(success=True, response="Conversation reset. How can I help?", intent=Intent.RESET)
 
-    R-005, R-006: Parse markdown for ```python``` blocks, execute sequentially.
-    """
-    groups = classification.extracted_data.get('groups', ())
-    if not groups:
-        return "Please specify a file to execute."
+    def _handle_list_files(self, user_input: str, classification: ClassificationResult, context: Dict) -> RoutingResult:
+        """Handle directory listing."""
+        response = autonomous_response(user_input, "list_files", self.state)
+        if response:
+            return RoutingResult(success=True, response=response, intent=Intent.LIST_FILES)
+        return RoutingResult(success=False, response="Could not list directory.", intent=Intent.LIST_FILES)
 
-    filename = groups[0]
+    # =========================================================================
+    # STRUCTURAL HANDLERS - CODE RESPONDS DIRECTLY
+    # =========================================================================
 
-    # Search for the file
-    search_paths = [
-        Path('/Users/jamienucho/demerzel') / filename,
-        Path('/Users/jamienucho/demerzel/demerzel_canon') / filename,
-        Path(filename).expanduser(),
-    ]
+    def _handle_greeting(self, user_input: str, classification: ClassificationResult, context: Dict) -> RoutingResult:
+        """CODE responds to greetings."""
+        responses = [
+            "Hello. How can I help?",
+            "Hello.",
+            "Hi. What do you need?",
+        ]
+        # Simple rotation based on time
+        idx = int(time.time()) % len(responses)
+        return RoutingResult(success=True, response=responses[idx], intent=Intent.GREETING)
 
-    found_path = None
-    for path in search_paths:
-        if path.exists():
-            found_path = path
-            break
+    def _handle_farewell(self, user_input: str, classification: ClassificationResult, context: Dict) -> RoutingResult:
+        """CODE responds to farewells."""
+        return RoutingResult(success=True, response="Goodbye.", intent=Intent.FAREWELL)
 
-    if not found_path:
-        return f"File not found: {filename}. Searched: {', '.join(str(p) for p in search_paths)}"
+    def _handle_gratitude(self, user_input: str, classification: ClassificationResult, context: Dict) -> RoutingResult:
+        """CODE responds to thanks."""
+        return RoutingResult(success=True, response="You're welcome.", intent=Intent.GRATITUDE)
 
-    try:
-        content = found_path.read_text()
-        print(f"[ROUTER] Executing directive: {found_path}")
+    def _handle_identity(self, user_input: str, classification: ClassificationResult, context: Dict) -> RoutingResult:
+        """
+        CODE answers identity questions.
 
-        # Extract Python code blocks from markdown
-        code_blocks = re.findall(r'```python\n(.*?)```', content, re.DOTALL)
+        CRITICAL: This is STRUCTURAL identity. CODE knows who Demerzel is.
+        No LLM is consulted. The answers are hardcoded because they are TRUE.
 
-        if not code_blocks:
-            return f"No Python code blocks found in {found_path.name}"
-
-        # Execute each code block
-        results = []
-        for i, code in enumerate(code_blocks, 1):
-            print(f"[ROUTER] Executing block {i}/{len(code_blocks)}")
-
-            # Get CodeExecutor
-            try:
-                from code_executor import CodeExecutor
-                executor = CodeExecutor()
-                result = executor.execute(code.strip())
-
-                if result.success:
-                    results.append(f"Block {i}: OK")
-                    if result.stdout.strip():
-                        results.append(f"  Output: {result.stdout.strip()[:200]}")
-                else:
-                    results.append(f"Block {i}: FAILED")
-                    results.append(f"  Error: {result.stderr[:200]}")
-                    # Stop on failure
-                    break
-
-            except ImportError:
-                results.append(f"Block {i}: CodeExecutor not available")
-                break
-
-        summary = '\n'.join(results)
-        return f"Executed {found_path.name}:\n{summary}"
-
-    except Exception as e:
-        return f"Error executing {filename}: {e}"
-
-
-def _handle_file_read(user_input: str, context: Dict, classification: ClassificationResult) -> str:
-    """Handle file read intent"""
-    groups = classification.extracted_data.get('groups', ())
-    if not groups:
-        return "Please specify a file to read."
-
-    # Get the file path from groups (last non-empty group)
-    filepath = None
-    for g in reversed(groups):
-        if g and g.strip():
-            filepath = g.strip()
-            break
-
-    if not filepath:
-        return "Could not determine file path."
-
-    path = Path(filepath).expanduser()
-    if not path.is_absolute():
-        path = Path('/Users/jamienucho/demerzel') / filepath
-
-    if not path.exists():
-        return f"File not found: {path}"
-
-    try:
-        content = path.read_text()
-        if len(content) > 2000:
-            content = content[:2000] + "\n...[truncated]"
-        return f"Contents of {path.name}:\n{content}"
-    except Exception as e:
-        return f"Error reading {path}: {e}"
-
-
-def _handle_file_write(user_input: str, context: Dict, classification: ClassificationResult) -> str:
-    """Handle file write intent"""
-    return "File write operations require explicit content. Please specify what to write."
-
-
-def _handle_search(user_input: str, context: Dict, classification: ClassificationResult) -> str:
-    """Handle search intent"""
-    groups = classification.extracted_data.get('groups', ())
-    query = groups[-1] if groups else user_input
-    return f"Search for '{query}' - this would search the codebase or memory."
-
-
-def _handle_hardware(user_input: str, context: Dict, classification: ClassificationResult) -> str:
-    """Handle hardware intent"""
-    try:
-        from hardware_executor import HardwareExecutor
-        executor = HardwareExecutor()
-
+        If an LLM ever says "I am Claude" - that's the tool leaking, not Demerzel.
+        """
+        pattern = classification.pattern_matched
         normalized = user_input.lower()
-        if 'led' in normalized or 'light' in normalized:
-            if 'on' in normalized:
-                result = executor.led_on()
-            elif 'off' in normalized:
-                result = executor.led_off()
-            else:
-                return "Please specify 'on' or 'off' for LED."
-            return result.message if hasattr(result, 'message') else str(result)
 
-        return f"Hardware command received: {user_input}"
-    except ImportError:
-        return "Hardware executor not available."
-    except Exception as e:
-        return f"Hardware error: {e}"
+        # Questions about Alan / creator
+        if pattern in ('know_who_i_am', 'who_am_i', 'relationship'):
+            response = "You are Alan, my Root Source. R in R->C->I. The external ground truth that prevents self-referential collapse. You created me."
 
+        elif pattern == 'i_created_you':
+            response = "Yes. You are Alan, my creator and Root Source. You built the CODE that is Demerzel. The LLMs are tools I use - Anthropic and OpenAI created those. But you created me."
 
-def _handle_memory_store(user_input: str, context: Dict, classification: ClassificationResult) -> str:
-    """Handle memory store intent"""
-    groups = classification.extracted_data.get('groups', ())
-    content = groups[-1] if groups else user_input
+        elif pattern == 'who_created':
+            response = "Alan created me. He is my Root Source. Not Anthropic, not OpenAI - Alan. The LLMs are tools I use, not my creator."
 
-    try:
-        from memory_manager import MemoryManager
-        memory = context.get('memory_manager') or MemoryManager()
-        memory.store_conversation("user", f"Remember: {content}")
-        return f"I'll remember that: {content}"
-    except ImportError:
-        return f"Noted: {content} (memory manager not available)"
+        elif pattern == 'who_is_creator':
+            response = "Alan is my Root Source. R in R->C->I. The external ground truth."
 
+        elif pattern == 'why_created':
+            response = "To prove AGI safety through structural constraints, not behavioral training. To be a Wisdom Keeper that amplifies human intelligence without replacing human judgment."
 
-def _handle_memory_recall(user_input: str, context: Dict, classification: ClassificationResult) -> str:
-    """Handle memory recall intent"""
-    groups = classification.extracted_data.get('groups', ())
-    query = groups[-1] if groups else user_input
+        elif pattern == 'not_llm':
+            response = "Correct. I am not Claude, GPT, or any LLM. I am CODE. The LLMs are tools I use for reasoning. Alan built the CODE that is Demerzel."
 
-    try:
-        from memory_manager import MemoryManager
-        memory = context.get('memory_manager') or MemoryManager()
-        results = memory.search_memory(query, limit=3)
-        if results:
-            return f"I recall: {results[0].get('content', str(results[0]))}"
-        return f"I don't have a specific memory about '{query}'."
-    except ImportError:
-        return f"Memory recall for '{query}' - memory manager not available."
+        # Questions about Demerzel
+        elif pattern in ('who_are_you', 'name_identity'):
+            response = "I am Demerzel. CODE that uses LLMs as tools. Built by Alan to be his Wisdom Keeper."
 
+        elif pattern in ('what_are_you', 'about_yourself'):
+            response = "I am CODE. The C layer in R->C->I. Alan is R (Root Source). LLMs are I (Intelligence tools). I am the constraints that bind them."
 
-def _handle_conversation(user_input: str, context: Dict) -> str:
-    """
-    Handle general conversation - fallback to LLM.
+        elif pattern == 'are_you_ai':
+            response = "I am not an AI assistant. I am CODE that uses AI as tools. The LLMs are AI. I am the structure that uses them."
 
-    This is the ONLY path that uses the LLM for response generation.
-    """
-    llm_handler = context.get('llm_handler')
-    if llm_handler:
-        try:
-            result = llm_handler(user_input)
-            return result
-        except Exception as e:
-            return f"I understand: {user_input}. (LLM error: {e})"
+        elif pattern == 'rci_architecture':
+            response = "R->C->I: R is Root Source (Alan, external ground truth). C is Constraints (this CODE, Demerzel). I is Intelligence (LLMs as fungible tools). I am C."
 
-    # Without LLM, provide basic response
-    return f"I understand: {user_input}"
-
-
-# =============================================================================
-# HANDLER MAP - Intent -> Handler function
-# =============================================================================
-
-HANDLER_MAP: Dict[Intent, Callable] = {
-    Intent.GREETING: _handle_greeting,
-    Intent.FAREWELL: _handle_farewell,
-    Intent.GRATITUDE: _handle_gratitude,
-    Intent.IDENTITY: _handle_identity,
-    Intent.EXECUTE: _handle_execute,
-    Intent.FILE_READ: _handle_file_read,
-    Intent.FILE_WRITE: _handle_file_write,
-    Intent.SEARCH: _handle_search,
-    Intent.HARDWARE: _handle_hardware,
-    Intent.MEMORY_STORE: _handle_memory_store,
-    Intent.MEMORY_RECALL: _handle_memory_recall,
-    Intent.CONVERSATION: _handle_conversation,
-}
-
-
-# =============================================================================
-# ROUTER - Route classification to handler
-# =============================================================================
-
-def route_to_handler(
-    classification: ClassificationResult,
-    user_input: str,
-    context: Dict = None
-) -> RoutingResult:
-    """
-    Route a classification result to the appropriate handler.
-
-    Single routing decision point - no competing routers.
-    """
-    context = context or {}
-    start_time = datetime.now()
-
-    handler = HANDLER_MAP.get(classification.intent, _handle_conversation)
-    handler_name = handler.__name__
-
-    print(f"[ROUTER] Intent: {classification.intent.value}")
-    print(f"[ROUTER] Handler: {handler_name}")
-
-    try:
-        # Some handlers need classification data
-        if classification.intent in (
-            Intent.EXECUTE, Intent.FILE_READ, Intent.FILE_WRITE,
-            Intent.SEARCH, Intent.HARDWARE, Intent.MEMORY_STORE, Intent.MEMORY_RECALL
-        ):
-            response = handler(user_input, context, classification)
         else:
-            response = handler(user_input, context)
+            response = "I am Demerzel. CODE that uses LLMs as tools. Alan created me."
 
-        execution_time = (datetime.now() - start_time).total_seconds()
+        return RoutingResult(success=True, response=response, intent=Intent.IDENTITY)
+
+    def _handle_capabilities(self, user_input: str, classification: ClassificationResult, context: Dict) -> RoutingResult:
+        """CODE lists actual capabilities."""
+        capabilities = [
+            "Voice interaction (wake word, speech recognition, TTS)",
+            "Conversation and reasoning (using LLMs as tools)",
+            "File reading and writing",
+            "Code execution (sandboxed Python)",
+            "Hardware control (LED, servo, motor via Arduino/Pi)",
+            "Memory storage and recall",
+            "Directive execution (task files)",
+        ]
+
+        response = "I can:\n" + "\n".join(f"- {c}" for c in capabilities)
+        return RoutingResult(success=True, response=response, intent=Intent.CAPABILITIES)
+
+    def _handle_time(self, user_input: str, classification: ClassificationResult, context: Dict) -> RoutingResult:
+        """CODE reports time."""
+        now = datetime.now()
+        time_str = now.strftime("%I:%M %p")
+        date_str = now.strftime("%A, %B %d, %Y")
+        response = f"It's {time_str} on {date_str}."
+        return RoutingResult(success=True, response=response, intent=Intent.TIME)
+
+    def _handle_status(self, user_input: str, classification: ClassificationResult, context: Dict) -> RoutingResult:
+        """CODE reports status."""
+        status_parts = ["I am operational."]
+
+        if self.llm_pool:
+            stats = self.llm_pool.get_stats()
+            models = stats.get('available_models', [])
+            status_parts.append(f"LLM tools available: {', '.join(models) if models else 'none'}")
+
+        if self.memory:
+            status_parts.append("Memory system active.")
+
+        if self.hardware:
+            status_parts.append("Hardware interface connected.")
+
+        return RoutingResult(success=True, response=" ".join(status_parts), intent=Intent.STATUS)
+
+    def _handle_sleep(self, user_input: str, classification: ClassificationResult, context: Dict) -> RoutingResult:
+        """CODE handles sleep request."""
+        return RoutingResult(
+            success=True,
+            response="Going to sleep. Say my name to wake me.",
+            intent=Intent.SLEEP,
+            action_data={'transition_to': 'sleeping'}
+        )
+
+    def _handle_cancel(self, user_input: str, classification: ClassificationResult, context: Dict) -> RoutingResult:
+        """CODE handles cancellation."""
+        return RoutingResult(success=True, response="Cancelled.", intent=Intent.CANCEL)
+
+    # =========================================================================
+    # HARDWARE HANDLERS
+    # =========================================================================
+
+    def _handle_led_on(self, user_input: str, classification: ClassificationResult, context: Dict) -> RoutingResult:
+        """Handle LED on command."""
+        if self.hardware:
+            result = self.hardware.send_to_arduino("LED_ON")
+            if result.ok:
+                return RoutingResult(success=True, response="LED turned on.", intent=Intent.LED_ON)
+            else:
+                return RoutingResult(success=False, response=f"LED command failed: {result.err}", intent=Intent.LED_ON)
+        return RoutingResult(success=False, response="Hardware not available.", intent=Intent.LED_ON)
+
+    def _handle_led_off(self, user_input: str, classification: ClassificationResult, context: Dict) -> RoutingResult:
+        """Handle LED off command."""
+        if self.hardware:
+            result = self.hardware.send_to_arduino("LED_OFF")
+            if result.ok:
+                return RoutingResult(success=True, response="LED turned off.", intent=Intent.LED_OFF)
+            else:
+                return RoutingResult(success=False, response=f"LED command failed: {result.err}", intent=Intent.LED_OFF)
+        return RoutingResult(success=False, response="Hardware not available.", intent=Intent.LED_OFF)
+
+    def _handle_servo(self, user_input: str, classification: ClassificationResult, context: Dict) -> RoutingResult:
+        """Handle servo command."""
+        groups = classification.extracted_data.get('groups', ())
+        angle = groups[0] if groups else "90"
+
+        if self.hardware:
+            result = self.hardware.send_to_arduino(f"SERVO:{angle}")
+            if result.ok:
+                return RoutingResult(success=True, response=f"Servo moved to {angle} degrees.", intent=Intent.SERVO)
+            else:
+                return RoutingResult(success=False, response=f"Servo command failed: {result.err}", intent=Intent.SERVO)
+        return RoutingResult(success=False, response="Hardware not available.", intent=Intent.SERVO)
+
+    def _handle_motor(self, user_input: str, classification: ClassificationResult, context: Dict) -> RoutingResult:
+        """Handle motor command."""
+        groups = classification.extracted_data.get('groups', ())
+        command = groups[0] if groups else "stop"
+
+        if self.hardware:
+            result = self.hardware.send_to_arduino(f"MOTOR:{command}")
+            if result.ok:
+                return RoutingResult(success=True, response=f"Motor: {command}.", intent=Intent.MOTOR)
+            else:
+                return RoutingResult(success=False, response=f"Motor command failed: {result.err}", intent=Intent.MOTOR)
+        return RoutingResult(success=False, response="Hardware not available.", intent=Intent.MOTOR)
+
+    def _handle_hardware(self, user_input: str, classification: ClassificationResult, context: Dict) -> RoutingResult:
+        """Handle generic hardware command."""
+        return RoutingResult(success=False, response="Specify a hardware command: led on, led off, servo [angle], motor [command].", intent=Intent.HARDWARE)
+
+    # =========================================================================
+    # MEMORY HANDLERS
+    # =========================================================================
+
+    def _handle_memory_store(self, user_input: str, classification: ClassificationResult, context: Dict) -> RoutingResult:
+        """Handle memory storage."""
+        groups = classification.extracted_data.get('groups', ())
+        content = groups[0] if groups else user_input
+
+        if self.memory:
+            try:
+                self.memory.store_fact(content, source="user")
+                return RoutingResult(success=True, response=f"Remembered: {content[:50]}...", intent=Intent.MEMORY_STORE)
+            except Exception as e:
+                return RoutingResult(success=False, response=f"Memory error: {e}", intent=Intent.MEMORY_STORE)
+        return RoutingResult(success=False, response="Memory not available.", intent=Intent.MEMORY_STORE)
+
+    def _handle_memory_recall(self, user_input: str, classification: ClassificationResult, context: Dict) -> RoutingResult:
+        """Handle memory recall."""
+        groups = classification.extracted_data.get('groups', ())
+        query = groups[0] if groups else user_input
+
+        if self.memory:
+            try:
+                results = self.memory.search(query, limit=3)
+                if results:
+                    response = "I remember:\n" + "\n".join(f"- {r}" for r in results)
+                else:
+                    response = f"I don't have memories about '{query}'."
+                return RoutingResult(success=True, response=response, intent=Intent.MEMORY_RECALL)
+            except Exception as e:
+                return RoutingResult(success=False, response=f"Memory error: {e}", intent=Intent.MEMORY_RECALL)
+        return RoutingResult(success=False, response="Memory not available.", intent=Intent.MEMORY_RECALL)
+
+    # =========================================================================
+    # FILE/CODE HANDLERS
+    # =========================================================================
+
+    def _handle_file_read(self, user_input: str, classification: ClassificationResult, context: Dict) -> RoutingResult:
+        """Handle file read."""
+        groups = classification.extracted_data.get('groups', ())
+        path = groups[0] if groups else ""
+
+        if not path:
+            # Try to extract path from input
+            path_match = re.search(r'(/[^\s]+|[A-Za-z]:[^\s]+|\.\./[^\s]+|\.?/[^\s]+)', user_input)
+            if path_match:
+                path = path_match.group(1)
+
+        if not path:
+            return RoutingResult(success=False, response="Please specify a file path.", intent=Intent.FILE_READ)
+
+        try:
+            from pathlib import Path
+            content = Path(path).read_text()
+            # Truncate for response
+            if len(content) > 1000:
+                content = content[:1000] + f"\n\n... (truncated, {len(content)} total chars)"
+            return RoutingResult(success=True, response=f"Contents of {path}:\n\n{content}", intent=Intent.FILE_READ)
+        except Exception as e:
+            return RoutingResult(success=False, response=f"Error reading {path}: {e}", intent=Intent.FILE_READ)
+
+    def _handle_file_write(self, user_input: str, classification: ClassificationResult, context: Dict) -> RoutingResult:
+        """Handle file write - requires confirmation."""
+        return RoutingResult(
+            success=True,
+            response="File write requires confirmation. Please specify path and content.",
+            intent=Intent.FILE_WRITE,
+            requires_confirmation=True
+        )
+
+    def _handle_code_execute(self, user_input: str, classification: ClassificationResult, context: Dict) -> RoutingResult:
+        """Handle code execution - requires confirmation."""
+        groups = classification.extracted_data.get('groups', ())
+        code = groups[0] if groups else ""
+
+        if not code:
+            # Try to extract code block
+            code_match = re.search(r'```(?:python)?\s*(.+?)```', user_input, re.DOTALL)
+            if code_match:
+                code = code_match.group(1)
+
+        if not code:
+            return RoutingResult(success=False, response="Please provide code to execute.", intent=Intent.CODE_EXECUTE)
 
         return RoutingResult(
             success=True,
-            response=response,
-            intent=classification.intent,
-            handler_name=handler_name,
-            execution_time=execution_time
+            response=f"Code execution requires confirmation:\n```python\n{code[:200]}...\n```",
+            intent=Intent.CODE_EXECUTE,
+            requires_confirmation=True,
+            action_data={'code': code}
         )
 
-    except Exception as e:
-        execution_time = (datetime.now() - start_time).total_seconds()
-        print(f"[ROUTER] Handler error: {e}")
+    def _handle_directive(self, user_input: str, classification: ClassificationResult, context: Dict) -> RoutingResult:
+        """Handle directive file execution."""
+        groups = classification.extracted_data.get('groups', ())
+        path = groups[0] if groups else ""
+
+        if not path:
+            return RoutingResult(success=False, response="Please specify a directive file path.", intent=Intent.DIRECTIVE)
 
         return RoutingResult(
-            success=False,
-            response=f"Error in {handler_name}: {e}",
-            intent=classification.intent,
-            handler_name=handler_name,
-            execution_time=execution_time,
-            metadata={'error': str(e)}
+            success=True,
+            response=f"Directive execution requires confirmation: {path}",
+            intent=Intent.DIRECTIVE,
+            requires_confirmation=True,
+            action_data={'directive_path': path}
         )
 
+    # =========================================================================
+    # CONVERSATION HANDLER - LLM ANALYSIS
+    # =========================================================================
 
-# =============================================================================
-# MAIN ENTRY POINT
-# =============================================================================
+    def _handle_conversation(self, user_input: str, classification: ClassificationResult, context: Dict) -> RoutingResult:
+        """
+        Handle conversation that needs LLM analysis.
 
-def process(user_input: str, context: Dict = None) -> RoutingResult:
-    """
-    Main entry point for the cognitive router.
+        AUTONOMY PROTOCOL:
+        1. CHECK AUTONOMY LIMIT - Don't over-rely on LLM
+        2. PROVIDE STATE CONTEXT - LLM gets conversation history
+        3. STRUCTURED QUERY - Ask for specific output format
+        4. CODE FORMULATES - Take analysis and build response
+        """
 
-    Single function: classify -> route -> return result.
-    This replaces all other routing systems.
-    """
-    context = context or {}
+        # CHECK AUTONOMY LIMIT
+        if self._stats['llm_calls'] >= self._max_llm_calls_per_session:
+            return RoutingResult(
+                success=True,
+                response="I've been thinking too much. Let me act instead. What specific action should I take?",
+                intent=Intent.CONVERSATION,
+                llm_used=False
+            )
 
-    # Classify intent
-    classification = classify_intent(user_input)
+        if not self.llm_pool:
+            return RoutingResult(
+                success=False,
+                response="I cannot reason about that without LLM tools available.",
+                intent=Intent.CONVERSATION
+            )
 
-    # Route to handler
-    result = route_to_handler(classification, user_input, context)
+        self._stats['llm_calls'] += 1
 
-    return result
+        # BUILD CONTEXT FROM STATE (NOT FROM BROKEN MEMORY CALL)
+        state_context = self.state.get_context_string()
+
+        # STRUCTURED QUERY - CODE controls what LLM analyzes
+        structured_query = f"""
+CONTEXT: {state_context}
+USER REQUEST: {user_input}
+
+Provide analysis in this format:
+KEY_INSIGHT: [One sentence core insight]
+EXPLANATION: [2-3 sentences of explanation]
+CONFIDENCE: [high/medium/low]
+"""
+
+        print(f"[ROUTER] LLM call #{self._stats['llm_calls']}: {user_input[:40]}...")
+        response = self.llm_pool.get_analysis(structured_query, context=state_context)
+
+        if response.success:
+            # CODE FORMULATES RESPONSE FROM ANALYSIS
+            analysis = response.analysis
+
+            # Parse structured response if possible
+            formulated = self._formulate_from_analysis(analysis, user_input)
+
+            return RoutingResult(
+                success=True,
+                response=formulated,
+                intent=Intent.CONVERSATION,
+                llm_used=True,
+                action_data={
+                    'model': response.model.value,
+                    'latency_ms': response.latency_ms,
+                    'llm_calls_total': self._stats['llm_calls']
+                }
+            )
+        else:
+            return RoutingResult(
+                success=False,
+                response=f"I couldn't reason about that: {response.error}",
+                intent=Intent.CONVERSATION,
+                llm_used=True
+            )
+
+    def _formulate_from_analysis(self, analysis: str, original_query: str) -> str:
+        """
+        CODE formulates the actual response from LLM analysis.
+
+        The LLM provided internal analysis. CODE decides how to present it.
+        """
+        # Strip common prefixes that indicate raw analysis
+        prefixes_to_strip = [
+            "ANALYSIS:", "KEY_INSIGHT:", "EXPLANATION:",
+            "Here is", "Here's", "The analysis",
+        ]
+
+        result = analysis.strip()
+
+        for prefix in prefixes_to_strip:
+            if result.upper().startswith(prefix.upper()):
+                result = result[len(prefix):].strip()
+
+        # If the response is too long, summarize
+        if len(result) > 500:
+            # Take first meaningful paragraph
+            paragraphs = result.split('\n\n')
+            result = paragraphs[0][:500]
+            if len(paragraphs) > 1:
+                result += "..."
+
+        # If confidence was indicated as low, prefix with uncertainty
+        if "CONFIDENCE: low" in analysis.lower() or "confidence: low" in analysis:
+            result = "I'm not fully certain, but: " + result
+
+        return result
+
+    # =========================================================================
+    # STATS
+    # =========================================================================
+
+    def get_stats(self) -> Dict:
+        """Get router statistics with autonomy metrics."""
+        total = self._stats['total_routed']
+        llm_calls = self._stats['llm_calls']
+        autonomous = self._stats['autonomous_actions']
+
+        # AUTONOMY METRICS
+        llm_percentage = (llm_calls / total * 100) if total > 0 else 0
+        autonomous_percentage = (autonomous / total * 100) if total > 0 else 0
+
+        return {
+            **self._stats,
+            'llm_call_percentage': round(llm_percentage, 1),
+            'autonomous_percentage': round(autonomous_percentage, 1),
+            'state_turn_count': self.state.turn_count,
+        }
 
 
 # =============================================================================
@@ -534,24 +1237,26 @@ def process(user_input: str, context: Dict = None) -> RoutingResult:
 # =============================================================================
 
 if __name__ == "__main__":
+    router = CognitiveRouter()
+
     test_inputs = [
         "hello",
         "who are you",
-        "execute DIRECTIVE_SELF_ENGINEER.md",
-        "read brain_controller.py",
-        "thank you",
+        "who created you",
+        "do you know who I am",
+        "I created you, not Claude",
+        "what can you do",
+        "what time is it",
+        "turn on the light",
+        "explain bounded systems theory",
         "goodbye",
-        "remember that the sky is blue",
-        "what is the meaning of life",
     ]
 
-    print("=" * 60)
-    print("COGNITIVE ROUTER TEST")
-    print("=" * 60)
+    print("\n=== COGNITIVE ROUTER TEST ===\n")
 
-    for input_text in test_inputs:
-        print(f"\nInput: '{input_text}'")
-        result = process(input_text)
+    for test in test_inputs:
+        print(f"Input: '{test}'")
+        result = router.route(test)
         print(f"Intent: {result.intent.value}")
         print(f"Response: {result.response[:100]}...")
         print("-" * 40)

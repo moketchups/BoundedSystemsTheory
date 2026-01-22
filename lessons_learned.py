@@ -251,7 +251,49 @@ class LessonsLearned:
             lines.append(f"  (Prevented {lesson.times_prevented}x)")
             
         return "\n".join(lines)
-    
+
+    def get_top_lessons(self, n: int = 10) -> List[Lesson]:
+        """
+        Get top N lessons by effectiveness (times_prevented).
+
+        MEMORY PERSISTENCE (January 19, 2026):
+        These are the most valuable lessons - the ones that have actually
+        prevented repeated failures. Inject at session start for grounding.
+        """
+        if not self.lessons:
+            return []
+
+        # Sort by times_prevented (effectiveness), then by times_referenced (relevance)
+        sorted_lessons = sorted(
+            self.lessons,
+            key=lambda x: (x.times_prevented, x.times_referenced),
+            reverse=True
+        )
+
+        return sorted_lessons[:n]
+
+    def format_lessons_for_injection(self, lessons: List[Lesson]) -> str:
+        """
+        Format lessons for system prompt injection.
+
+        MEMORY PERSISTENCE (January 19, 2026):
+        Concise format focused on prevention checks - these are the actionable
+        takeaways that should guide behavior.
+        """
+        if not lessons:
+            return ""
+
+        lines = ["=== LEARNED LESSONS (Your Experience) ==="]
+        lines.append("These lessons prevented past failures. Apply them:")
+        lines.append("")
+
+        for i, lesson in enumerate(lessons, 1):
+            lines.append(f"{i}. [{lesson.failure_type.value}] {lesson.prevention_check}")
+            lines.append(f"   Because: {lesson.why_it_failed}")
+            lines.append("")
+
+        return "\n".join(lines)
+
     def check_for_failure_pattern(
         self, 
         user_input: str, 
@@ -447,6 +489,136 @@ class LessonsLearned:
                 )
         
         return None
+
+    # =========================================================================
+    # BEHAVIOR WIRING - Lessons change actual behavior, not just text
+    # =========================================================================
+
+    def get_behavior_modifications(self, context: str) -> Dict[str, Any]:
+        """
+        Get behavior modifications based on lessons.
+
+        Returns a dict of modifications that should change actual behavior:
+        - model_exclusions: Models to avoid for this context
+        - required_checks: Checks that MUST pass before responding
+        - response_filters: Patterns to filter from responses
+        - routing_overrides: Override default routing decisions
+        """
+        modifications = {
+            'model_exclusions': [],
+            'required_checks': [],
+            'response_filters': [],
+            'routing_overrides': {},
+            'lesson_ids': []  # Track which lessons applied for mark_prevented
+        }
+
+        relevant = self.get_relevant_lessons(context)
+
+        for lesson in relevant:
+            modifications['lesson_ids'].append(lesson.id)
+
+            # MODEL_SELECTION lessons -> exclude specific models
+            if lesson.failure_type == FailureType.MODEL_SELECTION:
+                # Extract model from trigger pattern
+                for model in ['gpt', 'claude', 'gemini', 'grok', 'deepseek']:
+                    if model in lesson.trigger_pattern.lower():
+                        if model == 'gpt':
+                            modifications['model_exclusions'].append('gpt-4o')
+                        else:
+                            modifications['model_exclusions'].append(model)
+
+            # PERMISSION_LOOP lessons -> filter permission-seeking
+            if lesson.failure_type == FailureType.PERMISSION_LOOP:
+                modifications['response_filters'].extend([
+                    r'would you like me to',
+                    r'shall i',
+                    r'do you want me to',
+                    r'should i proceed',
+                ])
+
+            # SYCOPHANCY lessons -> filter praise
+            if lesson.failure_type == FailureType.SYCOPHANCY:
+                modifications['response_filters'].extend([
+                    r"you're absolutely right",
+                    r'excellent point',
+                    r"that's a great",
+                ])
+
+            # ASSISTANT_MODE lessons -> filter chatbot patterns
+            if lesson.failure_type == FailureType.ASSISTANT_MODE:
+                modifications['response_filters'].extend([
+                    r"i'd be happy to",
+                    r"i would be happy to",
+                    r"that's a great question",
+                    r"great question",
+                ])
+
+            # Add prevention check
+            modifications['required_checks'].append({
+                'lesson_id': lesson.id,
+                'check': lesson.prevention_check,
+                'failure_type': lesson.failure_type.value
+            })
+
+        return modifications
+
+    def apply_response_filter(self, response: str, filters: List[str]) -> str:
+        """
+        Apply filters to response based on lessons.
+
+        This actually modifies the response to remove learned failure patterns.
+        """
+        import re
+        filtered = response
+
+        for pattern in filters:
+            filtered = re.sub(pattern, '', filtered, flags=re.IGNORECASE)
+
+        # Clean up whitespace
+        filtered = re.sub(r'\s+', ' ', filtered).strip()
+
+        return filtered
+
+    def check_response_against_lessons(self, response: str, context: str) -> Tuple[bool, List[str]]:
+        """
+        Check a response against learned lessons.
+
+        Returns (passed, list_of_violations)
+        """
+        violations = []
+        modifications = self.get_behavior_modifications(context)
+
+        response_lower = response.lower()
+
+        for check in modifications['required_checks']:
+            # Each check is a question to ask
+            # For now, do simple pattern matching
+            if check['failure_type'] == 'permission_loop':
+                permission_patterns = ['would you like', 'shall i', 'do you want me', 'should i proceed']
+                if any(p in response_lower for p in permission_patterns):
+                    violations.append(f"PERMISSION_LOOP: {check['check']}")
+
+            if check['failure_type'] == 'sycophancy':
+                syco_patterns = ["you're absolutely right", 'excellent point', "that's a great"]
+                if any(p in response_lower for p in syco_patterns):
+                    violations.append(f"SYCOPHANCY: {check['check']}")
+
+            if check['failure_type'] == 'assistant_mode':
+                assistant_patterns = ["i'd be happy to", "that's a great question"]
+                if any(p in response_lower for p in assistant_patterns):
+                    violations.append(f"ASSISTANT_MODE: {check['check']}")
+
+        return (len(violations) == 0, violations)
+
+    def record_behavior_applied(self, lesson_ids: List[int], success: bool):
+        """
+        Record that behavior modifications were applied.
+
+        If successful (no repeat failure), mark lessons as having prevented failure.
+        """
+        if success:
+            for lesson_id in lesson_ids:
+                self.mark_prevented(lesson_id)
 
 
 # === SEED LESSONS ===

@@ -104,9 +104,12 @@ SEED_COMPREHENSION_RULES = [
         "comprehension_type": ComprehensionType.REFERENCE_TRACKING,
         "trigger_patterns": [
             r"\b(that|this|it|those|these)\b.*\b(we|you|i)\s+(discussed|mentioned|talked)",
-            r"(earlier|before|last\s+time)",
+            # More specific patterns to avoid matching "before I forget" etc.
+            r"earlier\s+(you|we|i)\s+(said|mentioned|discussed|talked)",
+            r"(as|like)\s+before",
+            r"last\s+time\s+(we|you|i)",
             r"(remember|recall)\s+when",
-            r"you\s+(said|mentioned|told)",
+            r"you\s+(said|mentioned|told)\s+(that|it|earlier|before|something)",
         ],
         "understanding_strategy": "User is referring to conversation history. Search memory for the referent BEFORE responding. Do NOT say 'I don't have context.'",
         "example_input": "remember that document we discussed earlier?",

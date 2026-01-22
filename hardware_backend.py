@@ -1,44 +1,55 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
+from typing import Optional, Dict
+import os
 import subprocess
-from typing import Any, Dict, Optional, Tuple
 
-from tool_gate import verify_permit
 
-# ---------------------------------------------------------------------
-# HARDWARE BACKEND = actuator boundary.
-# Rule: no permit -> no world-affecting execution.
-# This is how we remove bypass holes.
-# ---------------------------------------------------------------------
+@dataclass(frozen=True)
+class HwResult:
+    ok: bool
+    rc: int
+    out: str
+    err: str
 
-def run_hardware_tool(tool: str, args: Dict[str, Any], permit: Optional[str]) -> Tuple[bool, str]:
+
+class HardwareBackend:
     """
-    tool: 'led_on' | 'led_off' | etc
-    args: must match tool spec (currently empty dict for led tools)
-    permit: must be a valid, recent ToolGate permit for this tool+args
+    Executor only. No interpretation.
+    Talks to Pi over SSH and runs arduino_cmd.py with a single string argument.
     """
-    ok, why = verify_permit(permit or "", tool, args or {}, max_age_sec=30.0)
-    if not ok:
-        return False, f"[DENY] Hardware execution blocked: {why}"
 
-    # Map tools -> executor commands.
-    # Keep this minimal and explicit.
-    if tool == "led_on":
-        cmd = ["python3", "hardware_executor.py", "LED_ON"]
-    elif tool == "led_off":
-        cmd = ["python3", "hardware_executor.py", "LED_OFF"]
-    else:
-        return False, f"[DENY] Unknown hardware tool: {tool}"
+    def __init__(
+        self,
+        pi_host: Optional[str] = None,
+        remote_cmd: Optional[str] = None,
+        ssh_opts: Optional[list[str]] = None,
+        timeout_s: int = 8,
+    ):
+        self.pi_host = pi_host or os.environ.get("DEMERZEL_PI_HOST", "moketchups@192.168.0.161")
+        self.remote_cmd = remote_cmd or os.environ.get("DEMERZEL_REMOTE_CMD", "/home/moketchups/arduino_cmd.py")
+        self.ssh_opts = ssh_opts or ["-o", "BatchMode=yes", "-o", "ConnectTimeout=3"]
+        self.timeout_s = timeout_s
 
-    try:
-        p = subprocess.run(cmd, capture_output=True, text=True)
-        out = (p.stdout or "").strip()
-        err = (p.stderr or "").strip()
-        if p.returncode != 0:
-            return False, f"[ERR] hardware_executor failed rc={p.returncode} stderr={err} stdout={out}"
-        if not out:
-            # still show stderr if any
-            return False, f"[ERR] hardware_executor returned empty output. stderr={err}"
-        return True, out
-    except Exception as e:
-        return False, f"[ERR] Exception running hardware_executor: {e}"
+    def _run(self, arg: str) -> HwResult:
+        cmd = ["ssh", *self.ssh_opts, self.pi_host, "python3", self.remote_cmd, arg]
+        try:
+            p = subprocess.run(cmd, capture_output=True, text=True, timeout=self.timeout_s)
+            out = (p.stdout or "").strip()
+            err = (p.stderr or "").strip()
+            return HwResult(p.returncode == 0, p.returncode, out, err)
+        except subprocess.TimeoutExpired as e:
+            return HwResult(False, 124, "", f"Timeout: {e}")
+        except Exception as e:
+            return HwResult(False, 1, "", f"Exception: {e}")
+
+    def ping(self) -> HwResult:
+        return self._run("PING")
+
+    def led_on(self) -> HwResult:
+        return self._run("LED ON")
+
+    def led_off(self) -> HwResult:
+        return self._run("LED OFF")
+

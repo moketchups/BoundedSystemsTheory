@@ -27,9 +27,7 @@ from vosk import Model, KaldiRecognizer
 from multi_model_cognitive import MultiModelCognitive
 from vision_filter import VisionFilter
 from memory_manager import MemoryManager
-from router_engine import RouterEngine
-from code_analyzer import CodeAnalyzer, RiskLevel
-from cognitive_router import process as route_input, Intent
+from cognitive_router import CognitiveRouter, Intent
 
 # New services (January 19, 2026) - import but don't break if unavailable
 try:
@@ -156,6 +154,10 @@ def listen_for_wake_word(recognizer: KaldiRecognizer, stream, wake_words: list[s
     January 19, 2026 Fixes:
     - Also check partial results for wake words (faster detection)
     - Optional vision gate: only trigger if human lips are moving
+
+    January 21, 2026 Fix:
+    - Vision gate is now OPTIONAL for wake words (was too strict)
+    - Only use vision gate if face is detected (don't block if no face)
     """
     if shutdown_requested:
         return False
@@ -169,25 +171,24 @@ def listen_for_wake_word(recognizer: KaldiRecognizer, stream, wake_words: list[s
         if text:
             for wake in wake_words:
                 if wake in text:
-                    # Vision gate: require human to be speaking (if vision available)
-                    if vision and not vision.is_human_speaking():
-                        print(f"[WAKE] Heard '{text}' but no human speaking - ignoring")
+                    # Vision gate: ONLY apply if face is detected
+                    # If no face detected, accept the wake word (user might be off-camera)
+                    if vision and vision.has_face() and not vision.is_human_speaking():
+                        print(f"[WAKE] Heard '{text}' but lips not moving - ignoring")
                         return False
                     print(f"[HEARD] Wake word (final): '{text}'")
                     return True
     else:
-        # NEW: Also check PARTIAL results for faster wake word detection
+        # Also check PARTIAL results for faster wake word detection
         partial = json.loads(recognizer.PartialResult())
         partial_text = partial.get("partial", "").lower()
         if partial_text:
             for wake in wake_words:
                 if wake in partial_text:
-                    # Vision gate
-                    if vision and not vision.is_human_speaking():
-                        # Don't print - partials are noisy
+                    # Vision gate: ONLY if face detected
+                    if vision and vision.has_face() and not vision.is_human_speaking():
                         return False
                     print(f"[HEARD] Wake word (partial): '{partial_text}'")
-                    # Reset to clear the partial before command transcription
                     recognizer.Reset()
                     return True
 
@@ -315,8 +316,7 @@ def main_voice_loop():
     memory = MemoryManager()
     print(f"[MEMORY] Initialized")
     cognitive = MultiModelCognitive(memory_manager=memory)
-    router = RouterEngine()
-    analyzer = CodeAnalyzer()
+    router = CognitiveRouter()
 
     # January 19, 2026: Updated VisionFilter parameters
     vision = VisionFilter(
@@ -331,7 +331,15 @@ def main_voice_loop():
         vision = None
         print("[VISION] Not available - proceeding without vision gate")
 
-    wake_words = ["demerzel", "damn brazil", "demoiselle", "dammers l", "d brazil", "de brazil"]
+    # Wake word variants - Vosk often mishears "Demerzel"
+    # January 21, 2026: Added more variants
+    wake_words = [
+        "demerzel", "demersel", "demersol", "demurzel",
+        "damn brazil", "demoiselle", "dammers l", "d brazil", "de brazil",
+        "de merzel", "the merzel", "de muzzle", "de muzzell",
+        "hey demerzel", "hey demersol", "ok demerzel",
+        "demers", "dimmers", "timers all", "de muscle",
+    ]
 
     print("\n" + "=" * 60)
     print("[VOICE] Listening... (Ctrl-C to exit)")
@@ -359,11 +367,7 @@ def main_voice_loop():
             memory.store_conversation("user", command)
 
             # Use unified cognitive_router - SINGLE classifier, handlers are terminal
-            # llm_handler calls LLM directly - NO re-classification
-            result = route_input(command, context={
-                "llm_handler": lambda x: cognitive.call_llm_direct(x),
-                "memory_manager": memory,
-            })
+            result = router.route(command)
 
             # Speak the response - handler already completed the request
             speak(tts, result.response[:500], stream, recognizer)
@@ -390,8 +394,7 @@ def main_chat_loop():
     memory = MemoryManager()
     print(f"[MEMORY] Initialized")
     cognitive = MultiModelCognitive(memory_manager=memory)
-    router = RouterEngine()
-    analyzer = CodeAnalyzer()
+    router = CognitiveRouter()
 
     print("\n" + "=" * 60)
     print("[CHAT] Demerzel text mode. Type 'quit' to exit.")
@@ -412,12 +415,7 @@ def main_chat_loop():
         memory.store_conversation("user", command)
 
         # Use unified cognitive_router - SINGLE classifier, handlers are terminal
-        # llm_handler calls LLM directly via cognitive.call_llm_direct()
-        # Does NOT call cognitive.process() which would re-classify
-        result = route_input(command, context={
-            "llm_handler": lambda x: cognitive.call_llm_direct(x),
-            "memory_manager": memory,
-        })
+        result = router.route(command)
 
         # Print the router response - handler already completed the request
         print(f"Demerzel: {result.response}")

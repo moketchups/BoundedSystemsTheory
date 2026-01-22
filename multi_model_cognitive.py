@@ -2329,9 +2329,24 @@ You can THINK about anything - Robot Laws only block harmful ACTIONS.""")
         Used by cognitive_router._handle_conversation() for terminal handling.
         This is the ONLY path from cognitive_router to LLM.
         Does NOT call brain.process() or any classification.
+
+        UPDATE (January 20, 2026): Now uses full identity injection via _build_system_prompt().
+        The LLM is a TOOL - it must know what system it's inside.
         """
-        # Simple system prompt for conversation
-        system = """You are Demerzel, an AI assistant. Respond helpfully and concisely."""
+        # Build state for system prompt - minimal but includes pending_action if any
+        state = self.state_builder.build(
+            raw_audio_transcript=user_input,
+            transcript_confidence=1.0,
+            last_spoken_text=self.last_spoken_text,
+            last_spoken_time=self.last_spoken_time,
+            is_currently_speaking=False,
+            pending_action=self.pending_action,
+            conversation_history=self.conversation_history[-10:],  # Last 10 turns
+            interaction_count=self.interaction_count
+        )
+
+        # Full identity injection - LLM knows it's a tool inside Demerzel
+        system = self._build_system_prompt(state, intent="discuss", user_input=user_input)
 
         # Select first available model
         model = self._select_model(intent="discuss")
