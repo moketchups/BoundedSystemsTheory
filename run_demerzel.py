@@ -15,6 +15,7 @@ CRITICAL: During SPEAKING state, transcription is BLOCKED.
 This is STRUCTURAL selftalk prevention.
 """
 
+import os
 import sys
 import time
 import json
@@ -29,7 +30,9 @@ from demerzel_core import Demerzel, DemerzelState, get_demerzel
 # =============================================================================
 
 shutdown_requested = False
-WAKE_WORDS = ["demerzel", "the merzel", "hey merzel", "ok merzel", "denver", "de merzel", "demers", "d merzel"]
+# Wake words - ordered by specificity (longer phrases first)
+# Only trigger if wake word is at START of utterance or IS the utterance
+WAKE_WORDS = ["hey demerzel", "ok demerzel", "demerzel", "hey merzel", "the merzel"]
 
 
 def signal_handler(sig, frame):
@@ -308,27 +311,33 @@ def voice_loop(demerzel: Demerzel):
 
                 if recognizer.AcceptWaveform(data):
                     result = json.loads(recognizer.Result())
-                    text = result.get("text", "").lower()
-                    for wake in WAKE_WORDS:
-                        if wake in text:
-                            # Vision gate: only block if face detected but lips not moving
-                            if vision and vision.has_face() and not vision.is_human_speaking():
-                                continue
-                            print(f"[WAKE] Detected: '{text}'")
-                            wake_detected = True
-                            break
+                    text = result.get("text", "").lower().strip()
+                    if text:
+                        # Wake word must be at START or BE the entire utterance
+                        # This prevents false triggers mid-sentence
+                        for wake in WAKE_WORDS:
+                            if text.startswith(wake) or text == wake:
+                                # Vision gate
+                                if not os.getenv("DEMERZEL_NO_VISION_GATE") and vision and vision.has_face() and not vision.is_human_speaking():
+                                    continue
+                                print(f"[WAKE] Detected: '{text}'")
+                                wake_detected = True
+                                break
                 else:
                     partial = json.loads(recognizer.PartialResult())
-                    partial_text = partial.get("partial", "").lower()
-                    for wake in WAKE_WORDS:
-                        if wake in partial_text:
-                            # Vision gate: only block if face detected but lips not moving
-                            if vision and vision.has_face() and not vision.is_human_speaking():
-                                continue
-                            print(f"[WAKE] Detected (partial): '{partial_text}'")
-                            recognizer.Reset()
-                            wake_detected = True
-                            break
+                    partial_text = partial.get("partial", "").lower().strip()
+                    if partial_text:
+                        # For partials, only trigger if wake word IS the partial (start of utterance)
+                        # Not if it appears later (mid-sentence)
+                        for wake in WAKE_WORDS:
+                            if partial_text == wake or partial_text.startswith(wake + " "):
+                                # Vision gate
+                                if not os.getenv("DEMERZEL_NO_VISION_GATE") and vision and vision.has_face() and not vision.is_human_speaking():
+                                    continue
+                                print(f"[WAKE] Detected (partial): '{partial_text}'")
+                                recognizer.Reset()
+                                wake_detected = True
+                                break
 
                 if wake_detected:
                     # Say "Yes?" and then stay in LISTENING state to hear command
@@ -343,20 +352,22 @@ def voice_loop(demerzel: Demerzel):
 
                 if recognizer.AcceptWaveform(data):
                     result = json.loads(recognizer.Result())
-                    text = result.get("text", "").lower()
-                    for wake in WAKE_WORDS:
-                        if wake in text:
-                            print(f"[WAKE] Waking from sleep: '{text}'")
-                            demerzel.wake()
-                            speak("I'm awake. How can I help?", next_state=DemerzelState.LISTENING)
-                            recognizer.Reset()
-                            break
+                    text = result.get("text", "").lower().strip()
+                    if text:
+                        # Same structural rule: wake word at START or IS the utterance
+                        for wake in WAKE_WORDS:
+                            if text.startswith(wake) or text == wake:
+                                print(f"[WAKE] Waking from sleep: '{text}'")
+                                demerzel.wake()
+                                speak("I'm awake. How can I help?", next_state=DemerzelState.LISTENING)
+                                recognizer.Reset()
+                                break
 
             # =================================================================
             # STATE: LISTENING - Transcribe command
             # =================================================================
             elif demerzel.state == DemerzelState.LISTENING:
-                command = transcribe_command(recognizer, stream, timeout=12.0, vision=vision)
+                command = transcribe_command(recognizer, stream, timeout=15.0, vision=vision)
 
                 if command:
                     # Check for echo
@@ -431,16 +442,23 @@ def voice_loop(demerzel: Demerzel):
     print("[VOICE] Session ended")
 
 
-def transcribe_command(recognizer, stream, timeout: float = 12.0, vision=None) -> str:
+def transcribe_command(recognizer, stream, timeout: float = 15.0, vision=None) -> str:
     """
     Transcribe a command after wake word.
-    Returns transcribed text or empty string on timeout.
+
+    STRUCTURAL PRINCIPLE: Wait for silence as the signal that utterance is complete.
+    Don't return on first final result - accumulate until user stops speaking.
     """
     CHUNK = 4096
     start_time = time.time()
     silence_start = None
-    SILENCE_TIMEOUT = 2.0  # Stop after 2 seconds of silence
+    SILENCE_THRESHOLD = 1.5  # Silence duration that signals end of utterance
+    MIN_SPEECH_TIME = 0.5   # Minimum time before accepting silence as end
+
+    accumulated_text = []
     last_partial = ""
+    speech_detected = False
+    speech_start = None
 
     while (time.time() - start_time) < timeout:
         if shutdown_requested:
@@ -449,30 +467,43 @@ def transcribe_command(recognizer, stream, timeout: float = 12.0, vision=None) -
         try:
             data = stream.read(CHUNK, exception_on_overflow=False)
         except:
-            return ""
+            return " ".join(accumulated_text) if accumulated_text else ""
 
         if recognizer.AcceptWaveform(data):
             result = json.loads(recognizer.Result())
             text = result.get("text", "").strip()
             if text:
-                return text
+                accumulated_text.append(text)
+                speech_detected = True
+                if speech_start is None:
+                    speech_start = time.time()
+                silence_start = time.time()  # Start silence timer after speech
+                last_partial = ""
             else:
-                # Empty final result - check for silence timeout
-                if silence_start is None:
-                    silence_start = time.time()
-                elif (time.time() - silence_start) > SILENCE_TIMEOUT:
-                    # Return last partial if we have one
-                    if last_partial:
-                        return last_partial
-                    return ""
+                # Empty final result - silence detected
+                if speech_detected and silence_start:
+                    speech_duration = time.time() - (speech_start or start_time)
+                    silence_duration = time.time() - silence_start
+                    # Only end if we've had meaningful speech AND sufficient silence
+                    if speech_duration > MIN_SPEECH_TIME and silence_duration > SILENCE_THRESHOLD:
+                        full_text = " ".join(accumulated_text)
+                        if full_text:
+                            return full_text
+                        elif last_partial:
+                            return last_partial
         else:
             partial = json.loads(recognizer.PartialResult())
             partial_text = partial.get("partial", "").strip()
             if partial_text:
                 last_partial = partial_text
-                silence_start = None  # Reset silence timer
+                speech_detected = True
+                if speech_start is None:
+                    speech_start = time.time()
+                silence_start = None  # Speaking, reset silence timer
 
-    # Timeout - return last partial if any
+    # Timeout - return accumulated or last partial
+    if accumulated_text:
+        return " ".join(accumulated_text)
     return last_partial
 
 
