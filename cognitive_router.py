@@ -23,6 +23,13 @@ from typing import Optional, Dict, List, Any, Callable
 from enum import Enum
 from pathlib import Path
 
+from context_manager import ContextManager
+from query_classifier import classify_query
+from identity_responder import IdentityResponder
+from r_derivation_tracker import RDerivationTracker
+from r_coherence_checker import RCoherenceChecker, CoherenceResult
+from r_provenance_logger import RProvenanceLogger
+
 
 # =============================================================================
 # CONVERSATION STATE - THIS IS DEMERZEL'S MEMORY
@@ -602,6 +609,13 @@ class CognitiveRouter:
         # CONVERSATION STATE - THIS IS DEMERZEL'S MEMORY
         self.state = ConversationState()
 
+        # R-DERIVATION PIPELINE
+        self.context_manager = ContextManager()
+        self.identity_responder = IdentityResponder()
+        self.r_tracker = RDerivationTracker()
+        self.r_coherence = RCoherenceChecker()
+        self.r_logger = RProvenanceLogger()
+
         # AUTONOMY METRICS
         self._stats = {
             'total_routed': 0,
@@ -1108,38 +1122,73 @@ class CognitiveRouter:
 
     def _handle_conversation(self, user_input: str, classification: ClassificationResult, context: Dict) -> RoutingResult:
         """
-        Handle conversation that needs LLM analysis.
+        Handle conversation through R-derived pipeline.
 
-        AUTONOMY PROTOCOL:
-        1. CHECK AUTONOMY LIMIT - Don't over-rely on LLM
-        2. PROVIDE STATE CONTEXT - LLM gets conversation history
-        3. STRUCTURED QUERY - Ask for specific output format
-        4. CODE FORMULATES - Take analysis and build response
+        R -> C -> I:
+        1. Classify query (R-derived)
+        2. Hardcoded path (critical identity, never touches LLM)
+        3. Build R-derived context
+        4. R-coherence check
+        5. Facts->LLM->Validate path or direct LLM path
+        6. Log full provenance
         """
 
-        # CHECK AUTONOMY LIMIT
-        if self._stats['llm_calls'] >= self._max_llm_calls_per_session:
-            return RoutingResult(
-                success=True,
-                response="I've been thinking too much. Let me act instead. What specific action should I take?",
-                intent=Intent.CONVERSATION,
-                llm_used=False
+        # Step 1: Classify query (R-derived)
+        r_classification = classify_query(user_input)
+
+        # Step 2: Hardcoded path (critical identity, never touches LLM)
+        if r_classification.value.response_method == 'hardcoded':
+            r_response = self.identity_responder.answer(user_input)
+            # Log provenance
+            self.r_logger.log_response_provenance(
+                user_query=user_input,
+                context=None,
+                classification=r_classification,
+                response=r_response,
+                coherence_result=CoherenceResult(coherent=True, violations=[], recommendation='proceed'),
+                final_output=r_response.value
             )
+            return RoutingResult(success=True, response=r_response.value, intent=Intent.CONVERSATION)
 
-        if not self.llm_pool:
-            return RoutingResult(
-                success=False,
-                response="I cannot reason about that without LLM tools available.",
-                intent=Intent.CONVERSATION
-            )
+        # Step 3: Build R-derived context
+        r_context = self.context_manager.build_context(
+            r_classification.value.context_level, self.state
+        )
 
-        self._stats['llm_calls'] += 1
+        # Step 4: R-coherence check
+        coherence = self.r_coherence.full_coherence_check(r_context, r_classification, None)
+        if not coherence.coherent:
+            print(f"[ROUTER] R-coherence violation: {coherence.violations}")
+            fallback = "I cannot answer that -- my grounding sources are inconsistent for this query."
+            return RoutingResult(success=True, response=fallback, intent=Intent.CONVERSATION)
 
-        # BUILD CONTEXT FROM STATE (NOT FROM BROKEN MEMORY CALL)
-        state_context = self.state.get_context_string()
+        # Step 5: Facts->LLM->Validate path or direct LLM path
+        if r_classification.value.response_method == 'facts_llm_format':
+            r_response = self.identity_responder.answer_with_llm(user_input, self.llm_pool, r_context)
+        else:
+            # direct_llm path: use context but let LLM generate
+            if not self.llm_pool:
+                # No LLM -- CODE-format from context
+                r_response = self.r_tracker.tag_with_r(
+                    'response',
+                    "I cannot reason about that without LLM tools available.",
+                    r_context.derivation.axiom,
+                    r_context.derivation.source_doc,
+                    r_context.derivation.derivation_path + ['no-llm']
+                )
+            elif self._stats['llm_calls'] >= self._max_llm_calls_per_session:
+                r_response = self.r_tracker.tag_with_r(
+                    'response',
+                    "I've been thinking too much. Let me act instead. What specific action should I take?",
+                    r_context.derivation.axiom,
+                    r_context.derivation.source_doc,
+                    r_context.derivation.derivation_path + ['limit-reached']
+                )
+            else:
+                self._stats['llm_calls'] += 1
+                state_context = r_context.value
 
-        # STRUCTURED QUERY - C constrains I's output to response-space
-        structured_query = f"""
+                structured_query = f"""
 CONTEXT: {state_context}
 USER SAID: {user_input}
 
@@ -1151,35 +1200,38 @@ Provide in this format:
 RESPONSE: [Your direct response to the user - speak to them naturally]
 CONFIDENCE: [high/medium/low]
 """
+                print(f"[ROUTER] LLM call #{self._stats['llm_calls']}: {user_input[:40]}...")
+                response = self.llm_pool.get_direct_response(structured_query)
 
-        print(f"[ROUTER] LLM call #{self._stats['llm_calls']}: {user_input[:40]}...")
-        response = self.llm_pool.get_direct_response(structured_query)
+                if response.success:
+                    formulated = self._formulate_from_analysis(response.analysis, user_input)
+                    r_response = self.r_tracker.tag_with_r(
+                        'response',
+                        formulated,
+                        r_context.derivation.axiom,
+                        r_context.derivation.source_doc,
+                        r_context.derivation.derivation_path + ['llm-direct']
+                    )
+                else:
+                    r_response = self.r_tracker.tag_with_r(
+                        'response',
+                        f"I couldn't reason about that: {response.error}",
+                        r_context.derivation.axiom,
+                        r_context.derivation.source_doc,
+                        r_context.derivation.derivation_path + ['llm-failed']
+                    )
 
-        if response.success:
-            # CODE FORMULATES RESPONSE FROM ANALYSIS
-            analysis = response.analysis
+        # Step 6: Log full provenance
+        self.r_logger.log_response_provenance(
+            user_query=user_input,
+            context=r_context,
+            classification=r_classification,
+            response=r_response,
+            coherence_result=coherence,
+            final_output=r_response.value
+        )
 
-            # Parse structured response if possible
-            formulated = self._formulate_from_analysis(analysis, user_input)
-
-            return RoutingResult(
-                success=True,
-                response=formulated,
-                intent=Intent.CONVERSATION,
-                llm_used=True,
-                action_data={
-                    'model': response.model.value,
-                    'latency_ms': response.latency_ms,
-                    'llm_calls_total': self._stats['llm_calls']
-                }
-            )
-        else:
-            return RoutingResult(
-                success=False,
-                response=f"I couldn't reason about that: {response.error}",
-                intent=Intent.CONVERSATION,
-                llm_used=True
-            )
+        return RoutingResult(success=True, response=r_response.value, intent=Intent.CONVERSATION)
 
     def _formulate_from_analysis(self, analysis: str, original_query: str) -> str:
         """
