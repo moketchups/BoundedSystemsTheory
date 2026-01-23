@@ -21,6 +21,9 @@ import time
 import json
 import signal
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()  # Load API keys from .env before any service init
 
 from demerzel_core import Demerzel, DemerzelState, get_demerzel
 
@@ -30,9 +33,17 @@ from demerzel_core import Demerzel, DemerzelState, get_demerzel
 # =============================================================================
 
 shutdown_requested = False
-# Wake words - ordered by specificity (longer phrases first)
-# Only trigger if wake word is at START of utterance or IS the utterance
-WAKE_WORDS = ["hey demerzel", "ok demerzel", "demerzel", "hey merzel", "the merzel"]
+# Wake words - phonetic variations Vosk might hear for "Demerzel"
+# Only trigger if at START of utterance (structural rule prevents mid-sentence false triggers)
+# These variations allow the system to learn its name through transcription variance
+WAKE_WORDS = [
+    # Exact
+    "demerzel", "hey demerzel", "ok demerzel",
+    # Common Vosk phonetic variants (close to "demerzel")
+    "the merzel", "de merzel", "d merzel", "hey merzel", "a merzel",
+    "demoiselle", "hey demoiselle", "the demoiselle", "a demoiselle",
+    "denver", "hey denver", "ok denver",
+]
 
 
 def signal_handler(sig, frame):
@@ -249,7 +260,7 @@ def voice_loop(demerzel: Demerzel):
     # Vision status (already loaded in parallel above)
 
     print("-" * 60)
-    print(f"Say '{WAKE_WORDS[0]}' to start...")
+    print(f"Say 'Demerzel' to start (Vosk may hear: denver, demoiselle, etc.)...")
 
     # Helper to speak
     def speak(text: str, next_state: DemerzelState = DemerzelState.IDLE):
@@ -282,17 +293,18 @@ def voice_loop(demerzel: Demerzel):
             print(f"[SPEAK] {text}")
             time.sleep(0.5)
 
-        # Post-speech cleanup
-        time.sleep(0.3)  # Audio buffer drain
+        # Post-speech cleanup: ensure no TTS residual audio reaches recognizer
+        time.sleep(0.5)  # Wait for audio hardware to fully stop
 
-        # Drain any audio that was captured during speech
+        # Drain residual audio in multiple passes to catch echoes
         stream.start_stream()
-        time.sleep(0.2)
-        try:
-            while stream.get_read_available() > 0:
-                stream.read(CHUNK, exception_on_overflow=False)
-        except:
-            pass
+        for _ in range(3):
+            time.sleep(0.15)
+            try:
+                while stream.get_read_available() > 0:
+                    stream.read(CHUNK, exception_on_overflow=False)
+            except:
+                pass
 
         recognizer.Reset()
         demerzel.transition(next_state, "TTS complete")
@@ -313,6 +325,7 @@ def voice_loop(demerzel: Demerzel):
                     result = json.loads(recognizer.Result())
                     text = result.get("text", "").lower().strip()
                     if text:
+                        print(f"[DEBUG] Final: '{text}'")
                         # Wake word must be at START or BE the entire utterance
                         # This prevents false triggers mid-sentence
                         for wake in WAKE_WORDS:
@@ -327,6 +340,7 @@ def voice_loop(demerzel: Demerzel):
                     partial = json.loads(recognizer.PartialResult())
                     partial_text = partial.get("partial", "").lower().strip()
                     if partial_text:
+                        print(f"[DEBUG] Partial: '{partial_text}'")
                         # For partials, only trigger if wake word IS the partial (start of utterance)
                         # Not if it appears later (mid-sentence)
                         for wake in WAKE_WORDS:
@@ -340,9 +354,9 @@ def voice_loop(demerzel: Demerzel):
                                 break
 
                 if wake_detected:
-                    # Say "Yes?" and then stay in LISTENING state to hear command
+                    # speak() handles all state transitions internally:
+                    # IDLE -> SPEAKING -> LISTENING
                     speak("Yes?", next_state=DemerzelState.LISTENING)
-                    recognizer.Reset()
 
             # =================================================================
             # STATE: SLEEPING - Wait for wake word to wake up
@@ -459,6 +473,7 @@ def transcribe_command(recognizer, stream, timeout: float = 15.0, vision=None) -
     last_partial = ""
     speech_detected = False
     speech_start = None
+    last_activity = None  # Track when we last saw NEW content
 
     while (time.time() - start_time) < timeout:
         if shutdown_requested:
@@ -477,14 +492,14 @@ def transcribe_command(recognizer, stream, timeout: float = 15.0, vision=None) -
                 speech_detected = True
                 if speech_start is None:
                     speech_start = time.time()
-                silence_start = time.time()  # Start silence timer after speech
+                last_activity = time.time()
+                silence_start = time.time()  # Start silence timer after finalized speech
                 last_partial = ""
             else:
                 # Empty final result - silence detected
                 if speech_detected and silence_start:
                     speech_duration = time.time() - (speech_start or start_time)
                     silence_duration = time.time() - silence_start
-                    # Only end if we've had meaningful speech AND sufficient silence
                     if speech_duration > MIN_SPEECH_TIME and silence_duration > SILENCE_THRESHOLD:
                         full_text = " ".join(accumulated_text)
                         if full_text:
@@ -495,11 +510,26 @@ def transcribe_command(recognizer, stream, timeout: float = 15.0, vision=None) -
             partial = json.loads(recognizer.PartialResult())
             partial_text = partial.get("partial", "").strip()
             if partial_text:
-                last_partial = partial_text
-                speech_detected = True
-                if speech_start is None:
-                    speech_start = time.time()
-                silence_start = None  # Speaking, reset silence timer
+                # Only reset silence if this is genuinely new content
+                if partial_text != last_partial:
+                    last_partial = partial_text
+                    speech_detected = True
+                    if speech_start is None:
+                        speech_start = time.time()
+                    last_activity = time.time()
+                    silence_start = None  # New speech, reset silence timer
+                # else: same partial repeated (stale buffer) — don't reset silence
+
+        # Fallback silence check: if we have speech but no new content for SILENCE_THRESHOLD
+        if speech_detected and last_activity:
+            idle_duration = time.time() - last_activity
+            speech_duration = time.time() - (speech_start or start_time)
+            if speech_duration > MIN_SPEECH_TIME and idle_duration > SILENCE_THRESHOLD:
+                full_text = " ".join(accumulated_text)
+                if full_text:
+                    return full_text
+                elif last_partial:
+                    return last_partial
 
     # Timeout - return accumulated or last partial
     if accumulated_text:

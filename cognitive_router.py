@@ -1138,19 +1138,22 @@ class CognitiveRouter:
         # BUILD CONTEXT FROM STATE (NOT FROM BROKEN MEMORY CALL)
         state_context = self.state.get_context_string()
 
-        # STRUCTURED QUERY - CODE controls what LLM analyzes
+        # STRUCTURED QUERY - C constrains I's output to response-space
         structured_query = f"""
 CONTEXT: {state_context}
-USER REQUEST: {user_input}
+USER SAID: {user_input}
 
-Provide analysis in this format:
-KEY_INSIGHT: [One sentence core insight]
-EXPLANATION: [2-3 sentences of explanation]
+You are responding AS Demerzel (a system built by Alan). Respond DIRECTLY to the user.
+Do NOT describe what the user is doing. Do NOT narrate in third person.
+Speak TO them, not ABOUT them.
+
+Provide in this format:
+RESPONSE: [Your direct response to the user - speak to them naturally]
 CONFIDENCE: [high/medium/low]
 """
 
         print(f"[ROUTER] LLM call #{self._stats['llm_calls']}: {user_input[:40]}...")
-        response = self.llm_pool.get_analysis(structured_query, context=state_context)
+        response = self.llm_pool.get_direct_response(structured_query)
 
         if response.success:
             # CODE FORMULATES RESPONSE FROM ANALYSIS
@@ -1180,35 +1183,127 @@ CONFIDENCE: [high/medium/low]
 
     def _formulate_from_analysis(self, analysis: str, original_query: str) -> str:
         """
-        CODE formulates the actual response from LLM analysis.
+        C layer: Transform I's analysis into user-facing response.
 
-        The LLM provided internal analysis. CODE decides how to present it.
+        Math: analysis_space → response_space
+        C defines the output contract. I must conform.
+        Primary: extract RESPONSE: field (I followed the contract).
+        Fallback: detect narration and reject it.
         """
-        # Strip common prefixes that indicate raw analysis
-        prefixes_to_strip = [
-            "ANALYSIS:", "KEY_INSIGHT:", "EXPLANATION:",
-            "Here is", "Here's", "The analysis",
-        ]
-
         result = analysis.strip()
 
-        for prefix in prefixes_to_strip:
+        # PRIMARY: Extract RESPONSE: field if I followed the contract
+        response_match = re.search(
+            r'^RESPONSE:\s*(.+?)(?=\n(?:CONFIDENCE|REASONING|$))',
+            result, re.IGNORECASE | re.DOTALL
+        )
+
+        if response_match:
+            formulated = response_match.group(1).strip()
+
+            # VALIDATE: Reject analysis-space narration in RESPONSE: field
+            # Only catch clear LLM meta-commentary, not legitimate responses
+            narration_in_response = [
+                r'^The user\s+(?:is asking|appears to be|seems to be|was asking|has been asking|wants|requested)',
+                r"^The user'?s?\s+(?:question|request|query|intent|input|statement)",
+                r'^The (?:request|query|statement|input)\s+(?:is asking|is about|appears to|seems to|requests|asks)',
+                r'^This\s+(?:is a request|appears to be a request|seems to be a question|looks like a query|represents a)',
+            ]
+            if any(re.match(p, formulated, re.IGNORECASE) for p in narration_in_response):
+                print(f"[ROUTER] Rejected narration in RESPONSE field: '{formulated[:80]}'")
+                return "I understand. Could you tell me more about what you'd like me to do?"
+
+            # Confidence signal
+            if "confidence: low" in result.lower():
+                formulated = "I'm not certain, but: " + formulated
+
+            # Bound length
+            if len(formulated) > 500:
+                formulated = formulated[:500].rsplit('.', 1)[0] + '.'
+
+            return formulated
+
+        # FALLBACK: I didn't follow the contract.
+        # Detect clear analysis-space narration and reject it.
+        narration_patterns = [
+            r'^The user\s+(?:is asking|appears to be|seems to be|was asking|has been asking|wants|requested)',
+            r"^The user'?s?\s+(?:question|request|query|intent|input|statement)",
+            r'^The (?:request|query|statement|input)\s+(?:is asking|is about|appears to|seems to|requests|asks)',
+            r'^This\s+(?:is a request|appears to be a request|seems to be a question|looks like a query|represents a)',
+        ]
+
+        is_narration = any(re.match(p, result, re.IGNORECASE) for p in narration_patterns)
+
+        if is_narration:
+            extracted = self._extract_from_narration(result, narration_patterns)
+            if extracted:
+                print(f"[ROUTER] Extracted from narration: '{extracted[:80]}'")
+                return extracted
+            print(f"[ROUTER] Rejected narration (no RESPONSE field): '{result[:80]}'")
+            return "I understand. Could you tell me more about what you'd like me to do?"
+
+        # I gave freeform text that isn't narration — strip meta prefixes
+        for prefix in ["KEY_INSIGHT:", "EXPLANATION:", "CONFIDENCE:",
+                       "ANALYSIS:", "Here is", "Here's", "The analysis"]:
             if result.upper().startswith(prefix.upper()):
                 result = result[len(prefix):].strip()
 
-        # If the response is too long, summarize
+        # Remove meta-commentary lines
+        lines = result.split('\n')
+        clean_lines = [line for line in lines
+                       if not re.match(r'^(?:CONFIDENCE|KEY_INSIGHT|EXPLANATION|REASONING):', line, re.IGNORECASE)]
+        result = '\n'.join(clean_lines).strip()
+
+        # RE-CHECK: After stripping prefixes, content may now reveal narration
+        if any(re.match(p, result, re.IGNORECASE) for p in narration_patterns):
+            extracted = self._extract_from_narration(result, narration_patterns)
+            if extracted:
+                print(f"[ROUTER] Extracted from narration (post-strip): '{extracted[:80]}'")
+                return extracted
+            print(f"[ROUTER] Rejected narration (post-strip): '{result[:80]}'")
+            return "I understand. Could you tell me more about what you'd like me to do?"
+
+        # Bound length
         if len(result) > 500:
-            # Take first meaningful paragraph
             paragraphs = result.split('\n\n')
             result = paragraphs[0][:500]
-            if len(paragraphs) > 1:
-                result += "..."
 
-        # If confidence was indicated as low, prefix with uncertainty
-        if "CONFIDENCE: low" in analysis.lower() or "confidence: low" in analysis:
-            result = "I'm not fully certain, but: " + result
+        # Confidence signal
+        if "confidence: low" in analysis.lower():
+            result = "I'm not certain, but: " + result
 
         return result
+
+    def _extract_from_narration(self, text: str, narration_patterns: list) -> str:
+        """
+        Extract factual content from LLM analysis that starts with narration.
+
+        When the LLM gives "The query requests X. The answer is Y." —
+        strip the meta-commentary and return the factual content.
+        """
+        sentences = re.split(r'(?<=[.!?])\s+', text)
+        meta_patterns = narration_patterns + [
+            r'^This\s+(?:is a|appears|seems)\s+(?:straightforward|simple|complex|legitimate|clear)',
+            r'^The (?:explanation|answer|response|concept)\s+(?:is|can|would|should)',
+            r'^(?:As requested|As mentioned|In summary|Overall)',
+            r'^A\s+(?:clear|simple|brief|concise|direct)\s+',
+            r'^RESPONSE:',
+        ]
+        factual = []
+        for s in sentences:
+            # Strip embedded RESPONSE: markers
+            clean = re.sub(r'^RESPONSE:\s*', '', s, flags=re.IGNORECASE).strip()
+            if not clean:
+                continue
+            if any(re.match(p, clean, re.IGNORECASE) for p in meta_patterns):
+                continue
+            factual.append(clean)
+
+        if factual:
+            extracted = ' '.join(factual).strip()
+            if len(extracted) > 20:
+                return extracted[:500]
+        return ""
 
     # =========================================================================
     # STATS
