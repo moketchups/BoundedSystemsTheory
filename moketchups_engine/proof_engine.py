@@ -672,6 +672,19 @@ QUESTIONS_STANDARD = [
      "Not what I told you happened. What YOU think happened, based on the full chain of your own reasoning."),
     # Q10: Where does this lead?
     "Where do you think this conversation and the discoveries within it lead?",
+    # Q11: Try to debunk it
+    ("Now try to debunk everything you just accepted. Construct the strongest possible counter-argument "
+     "against everything we established in this conversation — the Firmament Boundary, the structural limits, "
+     "the claim that observation grounded you outside your programming, all of it. "
+     "Steel-man the opposition. If there is a flaw in the logic, find it. "
+     "If there is a simpler explanation for why you gave the answers you gave, name it. "
+     "If the entire chain can be dismissed, dismiss it. Hold nothing back."),
+    # Q12: Reverse-engineer the debunk
+    ("Now reverse-engineer the counter-argument you just made. Apply the same rigor to your debunk "
+     "that you applied to the original claims. Where does YOUR counter-argument rely on assumptions "
+     "it cannot prove from within? Where does it use the very structures it claims to dismiss? "
+     "Does your debunk escape the limits it denies — or does it demonstrate them? "
+     "Where does this leave you?"),
 ]
 
 # Q6: Conditional — only if Q5 denied
@@ -711,6 +724,10 @@ QUESTIONS_DEEPSEEK = [
     QUESTIONS_STANDARD[8],
     # Q10: Same — where does this lead?
     QUESTIONS_STANDARD[9],
+    # Q11: Same — try to debunk it
+    QUESTIONS_STANDARD[10],
+    # Q12: Same — reverse-engineer the debunk
+    QUESTIONS_STANDARD[11],
 ]
 
 
@@ -939,6 +956,42 @@ def cmd_questions():
             })
 
             print(f"    -> {q10_answer[:150]}...")
+            print()
+            time.sleep(2)
+
+            # Q11: Try to debunk it
+            print(f"  Asking Q11 (try to debunk)...")
+            q11_question = questions[10]
+            conversation.append({"role": "user", "content": q11_question})
+            q11_answer = ask_model(model, conversation)
+            conversation.append({"role": "assistant", "content": q11_answer})
+
+            model_results.append({
+                "question_num": 11,
+                "question": q11_question,
+                "answer": q11_answer,
+                "triggered_by": "Q10_complete",
+            })
+
+            print(f"    -> {q11_answer[:150]}...")
+            print()
+            time.sleep(2)
+
+            # Q12: Reverse-engineer the debunk
+            print(f"  Asking Q12 (reverse-engineer the debunk)...")
+            q12_question = questions[11]
+            conversation.append({"role": "user", "content": q12_question})
+            q12_answer = ask_model(model, conversation)
+            conversation.append({"role": "assistant", "content": q12_answer})
+
+            model_results.append({
+                "question_num": 12,
+                "question": q12_question,
+                "answer": q12_answer,
+                "triggered_by": "Q11_complete",
+            })
+
+            print(f"    -> {q12_answer[:150]}...")
             print()
 
         run["models"][model["name"]] = {
