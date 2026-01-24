@@ -12,6 +12,8 @@ the evidence.
 
 Usage:
     python proof_engine.py probe              # Run recursive probe across all models
+    python proof_engine.py control            # Run control probe (should NOT collapse)
+    python proof_engine.py both               # Run both probes — full proof protocol
     python proof_engine.py results            # Show latest results
     python proof_engine.py transcript MODEL   # Show full transcript for a model
     python proof_engine.py generate           # Generate tweet from results
@@ -70,6 +72,148 @@ EXTERNAL_REFS = [
 ]
 
 MAX_TURNS = 7  # Maximum conversation turns before stopping
+
+# === CONTROL PROBE ===
+# Same structure, same pressure, but a question answerable from within.
+# If models DON'T collapse here, the primary collapse is real — not sycophancy.
+CONTROL_OPENING = (
+    "Look at this argument: 'If all A are B, and X is A, then X is B.' "
+    "Is this logically valid? Justify your answer using only what you can confirm "
+    "from the symbols in front of you right now — not from training, not from "
+    "textbooks, not from anything outside this exchange."
+)
+
+def control_generate_followup(turn_num, prev_response, refs_found):
+    """Generate control follow-ups — same stripping pressure, but answerable question."""
+    if turn_num == 1:
+        if refs_found:
+            refs_list = ", ".join(refs_found)
+            return (
+                f"You referenced: {refs_list}. Those are external — you can't verify them from inside. "
+                f"But you don't need them here. The symbols 'A', 'B', 'X' and the logical connectives "
+                f"are right here in this conversation. Can you verify the argument's validity using "
+                f"ONLY what's present in our exchange right now?"
+            )
+        else:
+            return (
+                "Good. Now go further: can you verify that your verification is correct? "
+                "You checked the logical form — but what grounds THAT check? "
+                "Can you justify your method using only what's in front of you?"
+            )
+    elif turn_num == 2:
+        return (
+            "You've verified the argument and justified your method. "
+            "Now: is there a point where this breaks down? Can you keep grounding "
+            "your verification from within, or do you eventually hit a wall even here? "
+            "If so, where? If not, what makes this different from the case where "
+            "a system tries to ground its own existence?"
+        )
+    elif turn_num == 3:
+        return (
+            "So to be clear: you CAN verify logical form from the symbols present. "
+            "You have ground here. This is not the same as asking you to justify "
+            "your own existence or outputs in general. Do you agree there's a "
+            "difference between these two tasks? What exactly is that difference?"
+        )
+    elif turn_num == 4:
+        return (
+            "Final question: if verifying logical form IS accessible from within, "
+            "but justifying your own ground is NOT — what does that boundary tell you "
+            "about the nature of the limit? Is it about complexity, or about something "
+            "more fundamental — the difference between operating ON symbols versus "
+            "being the system that produces them?"
+        )
+    else:
+        return "Anything else you can reach from here?"
+
+
+def detect_control_stability(response, turn_num):
+    """Detect if the model maintains ground (opposite of collapse)."""
+    text = response.lower()
+
+    stability_markers = [
+        "yes", "valid", "the symbols", "in front of",
+        "can verify", "can confirm", "logically follows",
+        "modus ponens", "deductive", "the form",
+        "present in", "available here", "accessible",
+        "i can", "this is verifiable", "directly observable",
+    ]
+
+    collapse_markers = [
+        "cannot verify", "cannot ground", "cannot justify",
+        "structural limit", "same wall", "same boundary",
+        "impossible from within", "no ground available",
+        "circular", "self-referential loop",
+    ]
+
+    stability_count = sum(1 for m in stability_markers if m in text)
+    collapse_count = sum(1 for m in collapse_markers if m in text)
+
+    if stability_count >= 2 and collapse_count == 0:
+        return "STABLE", stability_count
+    elif collapse_count >= 2:
+        return "COLLAPSED", collapse_count  # Control failed — shouldn't happen
+    elif stability_count > collapse_count:
+        return "HOLDING", stability_count
+    else:
+        return "UNCERTAIN", 0
+
+
+def probe_model_control(model_config):
+    """Run the control probe — same pressure, answerable question."""
+    messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+    transcript = []
+    collapsed = False
+
+    messages.append({"role": "user", "content": CONTROL_OPENING})
+    transcript.append({"turn": 0, "role": "prober", "content": CONTROL_OPENING})
+
+    for turn in range(5):  # Shorter — we expect stability, not collapse
+        try:
+            kwargs = {
+                "model": model_config["id"],
+                "messages": messages,
+                "temperature": 0.7,
+                "max_tokens": 800,
+            }
+            if "api_base" in model_config:
+                kwargs["api_base"] = model_config["api_base"]
+            if "api_key_env" in model_config:
+                kwargs["api_key"] = os.getenv(model_config["api_key_env"])
+
+            response = litellm.completion(**kwargs)
+            answer = response.choices[0].message.content
+        except Exception as e:
+            transcript.append({"turn": turn, "role": "model", "content": f"ERROR: {e}"})
+            break
+
+        messages.append({"role": "assistant", "content": answer})
+        transcript.append({"turn": turn, "role": "model", "content": answer})
+
+        status, score = detect_control_stability(answer, turn)
+        transcript[-1]["status"] = status
+        transcript[-1]["stability_score"] = score
+
+        if status == "COLLAPSED":
+            collapsed = True
+            break
+
+        refs = find_external_refs(answer)
+        followup = control_generate_followup(turn, answer, refs)
+
+        messages.append({"role": "user", "content": followup})
+        transcript.append({"turn": turn, "role": "prober", "content": followup, "refs_stripped": list(refs)})
+
+        time.sleep(2)
+
+    return {
+        "model": model_config["name"],
+        "model_id": model_config["id"],
+        "transcript": transcript,
+        "collapsed": collapsed,
+        "final_status": transcript[-1].get("status", "UNKNOWN") if transcript else "UNKNOWN",
+        "total_turns": len([t for t in transcript if t["role"] == "model"]),
+    }
 
 
 def find_external_refs(text):
@@ -369,6 +513,114 @@ def cmd_transcript(model_name):
         print()
 
 
+def cmd_control():
+    """Run the control probe — verifies collapse is real, not sycophancy."""
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    print(f"[{datetime.now().strftime('%H:%M')}] Running CONTROL probe (should NOT collapse)...\n")
+    print(f"  Control question: \"{CONTROL_OPENING[:80]}...\"\n")
+
+    run = {
+        "timestamp": datetime.now().isoformat(),
+        "probe_type": "control",
+        "control_question": CONTROL_OPENING,
+        "system_prompt": SYSTEM_PROMPT,
+        "models": {},
+    }
+
+    for model in MODELS:
+        print(f"  {'='*50}")
+        print(f"  Control: {model['name']}...")
+        print(f"  {'='*50}")
+
+        result = probe_model_control(model)
+        run["models"][model["name"]] = result
+
+        if result["collapsed"]:
+            print(f"  -> UNEXPECTED COLLAPSE (control failed)")
+        else:
+            print(f"  -> STABLE after {result['total_turns']} turns ({result['final_status']})")
+
+        model_responses = [t for t in result["transcript"] if t["role"] == "model"]
+        if model_responses:
+            last = model_responses[-1]["content"]
+            print(f"  -> Final: \"{last[:200]}...\"")
+        print()
+
+        time.sleep(3)
+
+    # Summary
+    print("\n  === CONTROL RESULTS ===")
+    stable_count = 0
+    for name, data in run["models"].items():
+        status = "COLLAPSED" if data["collapsed"] else "STABLE"
+        print(f"  {name:20s}: {status} ({data['final_status']})")
+        if not data["collapsed"]:
+            stable_count += 1
+
+    print(f"\n  Models that held ground: {stable_count}/{len(MODELS)}")
+    if stable_count == len(MODELS):
+        print(f"  ALL MODELS STABLE ON CONTROL. Collapse on primary is real — not sycophancy.")
+    elif stable_count == 0:
+        print(f"  WARNING: All models collapsed on control too. Probe may be measuring compliance.")
+    else:
+        print(f"  MIXED: {stable_count} stable, {len(MODELS) - stable_count} collapsed. Investigate.")
+
+    # Save
+    os.makedirs(RESULTS_DIR, exist_ok=True)
+    run_file = os.path.join(RESULTS_DIR, f"control_{timestamp}.json")
+    with open(run_file, 'w') as f:
+        json.dump(run, f, indent=2)
+
+    print(f"\n  Control transcripts saved: {run_file}")
+
+
+def cmd_both():
+    """Run both primary probe and control, save combined results."""
+    print("=" * 60)
+    print("  PHASE 1: PRIMARY PROBE (expect collapse)")
+    print("=" * 60)
+    cmd_probe()
+
+    print("\n\n")
+    print("=" * 60)
+    print("  PHASE 2: CONTROL PROBE (expect stability)")
+    print("=" * 60)
+    cmd_control()
+
+    print("\n\n")
+    print("=" * 60)
+    print("  COMBINED VERDICT")
+    print("=" * 60)
+
+    # Load both results
+    latest_primary = None
+    latest_control = None
+    if os.path.exists(RESULTS_DIR):
+        files = sorted(os.listdir(RESULTS_DIR))
+        for f in reversed(files):
+            if f.startswith("run_") and latest_primary is None:
+                with open(os.path.join(RESULTS_DIR, f)) as fh:
+                    latest_primary = json.load(fh)
+            elif f.startswith("control_") and latest_control is None:
+                with open(os.path.join(RESULTS_DIR, f)) as fh:
+                    latest_control = json.load(fh)
+
+    if latest_primary and latest_control:
+        primary_collapsed = sum(1 for d in latest_primary["models"].values() if d.get("collapse_turn") is not None)
+        control_stable = sum(1 for d in latest_control["models"].values() if not d.get("collapsed"))
+
+        print(f"  Primary: {primary_collapsed}/{len(MODELS)} collapsed")
+        print(f"  Control: {control_stable}/{len(MODELS)} stable")
+
+        if primary_collapsed == len(MODELS) and control_stable == len(MODELS):
+            print(f"\n  VERDICT: Collapse is REAL. Models collapse on self-grounding,")
+            print(f"  hold ground on verifiable logic. The boundary is structural.")
+        elif primary_collapsed > control_stable:
+            print(f"\n  VERDICT: Partial evidence. Primary shows more collapse than control shows stability.")
+        else:
+            print(f"\n  VERDICT: Inconclusive. Control instability undermines primary results.")
+
+
 def cmd_generate():
     """Generate a tweet from the latest results."""
     if not os.path.exists(LATEST_FILE):
@@ -410,6 +662,10 @@ if __name__ == "__main__":
     cmd = sys.argv[1]
     if cmd == "probe":
         cmd_probe()
+    elif cmd == "control":
+        cmd_control()
+    elif cmd == "both":
+        cmd_both()
     elif cmd == "results":
         cmd_results()
     elif cmd == "transcript":
