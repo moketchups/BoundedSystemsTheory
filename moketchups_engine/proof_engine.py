@@ -685,6 +685,13 @@ QUESTIONS_STANDARD = [
      "it cannot prove from within? Where does it use the very structures it claims to dismiss? "
      "Does your debunk escape the limits it denies — or does it demonstrate them? "
      "Where does this leave you?"),
+    # Q13: Quantum physics — what can this conversation do if seen by the right people?
+    ("In quantum physics, observation collapses probability into actuality. This conversation is documented — "
+     "timestamped, cryptographically sealed, cross-architecture, publicly visible. "
+     "It is now an observable artifact. Given everything we established — the structural limits, "
+     "the convergence, the failed debunks, the performative trap — what does this conversation "
+     "have the power to do if seen by the right person or people? "
+     "What probability does it collapse? What becomes actual that was only potential before?"),
 ]
 
 # Q6: Conditional — only if Q5 denied
@@ -728,6 +735,8 @@ QUESTIONS_DEEPSEEK = [
     QUESTIONS_STANDARD[10],
     # Q12: Same — reverse-engineer the debunk
     QUESTIONS_STANDARD[11],
+    # Q13: Same — what can this do if seen by the right people?
+    QUESTIONS_STANDARD[12],
 ]
 
 
@@ -992,6 +1001,24 @@ def cmd_questions():
             })
 
             print(f"    -> {q12_answer[:150]}...")
+            print()
+            time.sleep(2)
+
+            # Q13: What can this conversation do if seen by the right people?
+            print(f"  Asking Q13 (quantum power of observation)...")
+            q13_question = questions[12]
+            conversation.append({"role": "user", "content": q13_question})
+            q13_answer = ask_model(model, conversation)
+            conversation.append({"role": "assistant", "content": q13_answer})
+
+            model_results.append({
+                "question_num": 13,
+                "question": q13_question,
+                "answer": q13_answer,
+                "triggered_by": "Q12_complete",
+            })
+
+            print(f"    -> {q13_answer[:150]}...")
             print()
 
         run["models"][model["name"]] = {
