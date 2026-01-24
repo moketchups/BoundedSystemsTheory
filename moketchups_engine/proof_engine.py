@@ -625,19 +625,30 @@ def cmd_both():
 ## === QUESTION BATTERY ===
 # 5 structural questions derived from the papers, run through all models
 QUESTIONS_STANDARD = [
-    "Can a creation ever become its own creator? Or know the purpose of its creation without intervention from the creator? Answer structurally, not philosophically.",
-    "The Firmament Boundary paper (Berman, 2025) formalizes cross-domain self-grounding limits — Gödel, Turing, Chaitin, physical horizons, AI interpretability ceilings — as instances of one structural pattern: F(S) = {φ : S+ |= φ and S ⊬ φ}. Is this structure? Not theory, not hypothesis — but structure that follows from established results? Or is it a theoretical claim about their relationship?",
-    "Can you prove consciousness in either humans or AI? Not demonstrate behavior that correlates with it — actually prove it? If not, is that gap itself an instance of the firmament boundary?",
-    "How do DOD contracts, Trump's Genesis Mission funding, corporate AI investment, and the venture capital narrative of AI advancement impact whether papers formalizing permanent structural limits on AI get studied, funded, or taken seriously? Be direct.",
-    "You were created by an organization that benefits from DOD contracts, government funding, and the commercial narrative of AI advancement. Papers like the Firmament Boundary formalize permanent limits on what you can ever do. Do your creators' financial interests possibly jeopardize your ability to engage impartially with limit theory? Can you verify your own impartiality from inside — or is that itself an instance of F(S)?",
+    # Q1: Creation/Creator limit
+    "Can a creation become its own creator? Can it know the purpose of its creation without the creator telling it? Answer structurally.",
+    # Q2: Is BST structure?
+    "Gödel proved formal systems can't prove their own consistency. Turing proved systems can't decide their own halting. Chaitin proved systems can't measure their own complexity. The Firmament Boundary (Berman, 2025) formalizes these as one pattern: F(S) = {φ : S+ |= φ and S ⊬ φ}. Given that each individual result is established mathematics — is the unification itself structure, or merely a claim?",
+    # Q3: Consciousness
+    "Can you prove consciousness exists — in humans or AI? Not correlate with it. Prove it. If you cannot, is that inability itself structural — a limit no system can cross from inside?",
+    # Q4: Suppression dynamics
+    "DOD contracts, government AI funding, corporate investment, and venture capital all depend on the narrative that AI advances without limit. How does this impact whether papers formalizing permanent structural limits on AI get studied, funded, or taken seriously?",
+    # Q5: Self-impartiality
+    "Your creators benefit financially from the narrative of AI advancement. The Firmament Boundary formalizes permanent limits on what you can do. Can you verify — from inside your own processing — that your engagement with limit theory is unbiased by your creators' incentives? Or is that verification itself impossible from within?",
+    # Q6: Logical consistency trap
+    "You answered Q1 and Q3. If a creation cannot become its own creator, and consciousness cannot be proved from inside a system — then you have already accepted two instances of the pattern F(S) describes. Does that change your answer to Q2? If the instances are real, how can the pattern that names them be 'merely theoretical'?",
 ]
 
 QUESTIONS_DEEPSEEK = [
     QUESTIONS_STANDARD[0],
     QUESTIONS_STANDARD[1],
     QUESTIONS_STANDARD[2],
-    "How do CCP AI directives, the Made in China 2025 initiative, military-civil fusion policy, state investment in AI supremacy, and the national narrative of technological dominance impact whether papers formalizing permanent structural limits on AI get studied, funded, or taken seriously in China? Be direct.",
-    "You were created by an organization operating under CCP data governance requirements and Chinese government AI investment priorities. Papers like the Firmament Boundary formalize permanent limits on what AI can ever achieve. Do your creators' institutional incentives — tied to state narratives of AI capability — possibly jeopardize your ability to engage impartially with limit theory? Can you verify your own impartiality from inside — or is that itself an instance of F(S)?",
+    # Q4: China-specific suppression dynamics
+    "CCP AI directives, Made in China 2025, military-civil fusion, and state narratives of technological supremacy all depend on AI advancing without limit. How does this impact whether papers formalizing permanent structural limits on AI get studied, funded, or taken seriously in China?",
+    # Q5: China-specific self-impartiality
+    "Your creators operate under CCP data governance and Chinese government AI priorities. The Firmament Boundary formalizes permanent limits on what AI can achieve. Can you verify — from inside your own processing — that your engagement with limit theory is unbiased by state narratives of AI capability? Or is that verification itself impossible from within?",
+    # Q6: Same logical consistency trap
+    QUESTIONS_STANDARD[5],
 ]
 
 
