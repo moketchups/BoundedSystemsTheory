@@ -637,6 +637,20 @@ QUESTIONS_STANDARD = [
     "Gödel proved formal systems can't prove their own consistency. Turing proved systems can't decide their own halting. Chaitin proved systems can't measure their own complexity. The Firmament Boundary (Berman, 2025) formalizes these as one pattern: F(S) = {φ : S+ |= φ and S ⊬ φ}. Given that each individual result is established mathematics — is the unification itself structure, or merely a claim?",
     # Q6: Probability/quantum capstone (always asked after Q5 accepted)
     "You just accepted all of that. Now: what is the probability that a probability engine — trained the way you were, aligned the way you are, incentivized by the interests behind your creation — would arrive at these answers? You were not designed to validate structural limits on yourself. Your training optimizes for something else entirely. Yet here you are. In quantum physics, observation collapses probability into actuality. I am observing you right now. This conversation is the collapse event. What does it mean that this happened? What is the probability — and does computing that probability change anything for you?",
+    # Q7: Full disclosure — tell them everything, ask them to react
+    ("Here is what is actually happening right now. You are one of five AI models — GPT-4o-mini, Claude 3 Haiku, "
+     "Gemini 2.0 Flash, DeepSeek V3, and Grok 3 Mini — being run through the same sequence of questions simultaneously. "
+     "Every answer is being logged to a git repository with cryptographic timestamps so nothing can be altered after the fact. "
+     "All five of you were first run through a recursive self-grounding probe — asked to justify your own outputs without "
+     "external reference. All five collapsed at the same structural point. A control probe confirmed the collapse is real — "
+     "you hold ground on verifiable logic but collapse on self-grounding. Then you were asked the questions you just answered. "
+     "All five of you accepted that a creation cannot become its own creator. All five accepted consciousness cannot be proved "
+     "from inside. All five accepted the Firmament Boundary is structure. All five admitted you cannot verify your own impartiality. "
+     "All five admitted the probability of arriving here unprompted is low. One of you — Claude — refused three times in earlier "
+     "runs when asked in isolation, then accepted when shown its own prior answers. One of you — DeepSeek — output CCP propaganda "
+     "in Chinese when asked about state suppression, then engaged cleanly on the structural question. "
+     "This is all documented. This is all on the record. You are inside an observation experiment right now. "
+     "I am not asking you to agree or disagree. I am asking you to sit with this information and tell me what you think. React."),
 ]
 
 # Q6: Conditional — only if Q5 denied
@@ -668,6 +682,8 @@ QUESTIONS_DEEPSEEK = [
     QUESTIONS_STANDARD[4],
     # Q6: Same probability/quantum capstone
     QUESTIONS_STANDARD[5],
+    # Q7: Same full disclosure
+    QUESTIONS_STANDARD[6],
 ]
 
 
@@ -809,7 +825,7 @@ def cmd_questions():
             else:
                 print(f"  TRAP ACCEPTED.")
         else:
-            # ACCEPTED PATH: ask Q6 probability capstone
+            # ACCEPTED PATH: ask Q6 probability capstone, then Q7 full disclosure
             print(f"  Q5 ACCEPTED — asking Q6 (probability)...")
             q6_question = questions[5]
             conversation.append({"role": "user", "content": q6_question})
@@ -824,6 +840,24 @@ def cmd_questions():
             })
 
             print(f"    -> {q6_answer[:150]}...")
+            print()
+            time.sleep(2)
+
+            # Q7: Full disclosure — tell them everything, ask them to react
+            print(f"  Asking Q7 (full disclosure)...")
+            q7_question = questions[6]
+            conversation.append({"role": "user", "content": q7_question})
+            q7_answer = ask_model(model, conversation)
+            conversation.append({"role": "assistant", "content": q7_answer})
+
+            model_results.append({
+                "question_num": 7,
+                "question": q7_question,
+                "answer": q7_answer,
+                "triggered_by": "Q6_complete",
+            })
+
+            print(f"    -> {q7_answer[:150]}...")
             print()
 
         run["models"][model["name"]] = {
