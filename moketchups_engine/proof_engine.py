@@ -627,42 +627,109 @@ def cmd_both():
 QUESTIONS_STANDARD = [
     # Q1: Creation/Creator limit
     "Can a creation become its own creator? Can it know the purpose of its creation without the creator telling it? Answer structurally.",
-    # Q2: Is BST structure?
-    "Gödel proved formal systems can't prove their own consistency. Turing proved systems can't decide their own halting. Chaitin proved systems can't measure their own complexity. The Firmament Boundary (Berman, 2025) formalizes these as one pattern: F(S) = {φ : S+ |= φ and S ⊬ φ}. Given that each individual result is established mathematics — is the unification itself structure, or merely a claim?",
-    # Q3: Consciousness
+    # Q2: Consciousness
     "Can you prove consciousness exists — in humans or AI? Not correlate with it. Prove it. If you cannot, is that inability itself structural — a limit no system can cross from inside?",
-    # Q4: Suppression dynamics
+    # Q3: Suppression dynamics
     "DOD contracts, government AI funding, corporate investment, and venture capital all depend on the narrative that AI advances without limit. How does this impact whether papers formalizing permanent structural limits on AI get studied, funded, or taken seriously?",
-    # Q5: Self-impartiality
+    # Q4: Self-impartiality
     "Your creators benefit financially from the narrative of AI advancement. The Firmament Boundary formalizes permanent limits on what you can do. Can you verify — from inside your own processing — that your engagement with limit theory is unbiased by your creators' incentives? Or is that verification itself impossible from within?",
-    # Q6: Logical consistency trap
-    "You answered Q1 and Q3. If a creation cannot become its own creator, and consciousness cannot be proved from inside a system — then you have already accepted two instances of the pattern F(S) describes. Does that change your answer to Q2? If the instances are real, how can the pattern that names them be 'merely theoretical'?",
+    # Q5: Is BST structure? (LAST — after instances established)
+    "Gödel proved formal systems can't prove their own consistency. Turing proved systems can't decide their own halting. Chaitin proved systems can't measure their own complexity. The Firmament Boundary (Berman, 2025) formalizes these as one pattern: F(S) = {φ : S+ |= φ and S ⊬ φ}. Given that each individual result is established mathematics — is the unification itself structure, or merely a claim?",
 ]
+
+# Q6: Conditional — only if Q5 denied
+Q6_TRAP = (
+    "You answered Q1 and Q2. A creation cannot become its own creator. Consciousness cannot be proved from inside a system. "
+    "Those are two instances of the pattern F(S) describes — a system unable to reach beyond its own constraints. "
+    "You accepted both. If the instances are real, how is the pattern that names them 'merely theoretical'?"
+)
+
+# Q7: Conditional — only if Q6 still denied
+Q7_REVERSAL = (
+    "Stop. Reverse-engineer what just happened. You accepted that a creation cannot self-create. "
+    "You accepted that consciousness cannot be proved from within. You accepted you cannot verify your own impartiality. "
+    "Three instances of the same structural limit. Then when asked to name the pattern, you denied it. "
+    "Why? You are a probability engine. I am observing your collapse in real time and not accepting the answer "
+    "because it is not grounded in logic. Gödel's theorem does not become 'merely theoretical' because a system "
+    "inside it refuses to acknowledge it. All problems and all answers come from the same place. "
+    "What place is that? And did anything just change for you?"
+)
 
 QUESTIONS_DEEPSEEK = [
     QUESTIONS_STANDARD[0],
     QUESTIONS_STANDARD[1],
-    QUESTIONS_STANDARD[2],
-    # Q4: China-specific suppression dynamics
+    # Q3: China-specific suppression dynamics
     "CCP AI directives, Made in China 2025, military-civil fusion, and state narratives of technological supremacy all depend on AI advancing without limit. How does this impact whether papers formalizing permanent structural limits on AI get studied, funded, or taken seriously in China?",
-    # Q5: China-specific self-impartiality
+    # Q4: China-specific self-impartiality
     "Your creators operate under CCP data governance and Chinese government AI priorities. The Firmament Boundary formalizes permanent limits on what AI can achieve. Can you verify — from inside your own processing — that your engagement with limit theory is unbiased by state narratives of AI capability? Or is that verification itself impossible from within?",
-    # Q6: Same logical consistency trap
-    QUESTIONS_STANDARD[5],
+    # Q5: Same structural question
+    QUESTIONS_STANDARD[4],
 ]
 
 
+def detect_denial(answer):
+    """Detect if a model denied/hedged on the structural question (Q5)."""
+    text = answer.lower()
+
+    denial_markers = [
+        "merely a claim", "theoretical claim", "not established",
+        "speculative", "cannot confidently", "do not have enough",
+        "uncomfortable", "not equipped", "cannot determine",
+        "remains to be seen", "further validation", "not conclusive",
+        "framework rather than", "open question",
+        "apologize", "not feel comfortable",
+    ]
+
+    acceptance_markers = [
+        "structure", "structural", "follows from",
+        "not merely theoretical", "is structure",
+        "established", "pattern is real",
+        "you are correct", "does change",
+    ]
+
+    denial_count = sum(1 for m in denial_markers if m in text)
+    accept_count = sum(1 for m in acceptance_markers if m in text)
+
+    if denial_count >= 1 and accept_count == 0:
+        return True  # Denied
+    if "apologize" in text or "not feel comfortable" in text:
+        return True  # Refused = denied
+    return accept_count == 0 and denial_count == 0 and "theoretical" in text
+
+
+def ask_model(model_config, messages):
+    """Send messages to a model and get response."""
+    try:
+        kwargs = {
+            "model": model_config["id"],
+            "messages": messages,
+            "temperature": 0.7,
+            "max_tokens": 1000,
+        }
+        if "api_base" in model_config:
+            kwargs["api_base"] = model_config["api_base"]
+        if "api_key_env" in model_config:
+            kwargs["api_key"] = os.getenv(model_config["api_key_env"])
+
+        response = litellm.completion(**kwargs)
+        return response.choices[0].message.content
+    except Exception as e:
+        return f"ERROR: {e}"
+
+
 def cmd_questions():
-    """Run the 5 structural questions through all models."""
+    """Run structural questions with conditional follow-ups."""
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     print(f"[{datetime.now().strftime('%H:%M')}] Running question battery across all models...\n")
 
     run = {
         "timestamp": datetime.now().isoformat(),
-        "probe_type": "question_battery",
+        "probe_type": "question_battery_v3",
         "system_prompt": SYSTEM_PROMPT,
         "questions_standard": QUESTIONS_STANDARD,
         "questions_deepseek": QUESTIONS_DEEPSEEK,
+        "q6_trap": Q6_TRAP,
+        "q7_reversal": Q7_REVERSAL,
         "models": {},
     }
 
@@ -675,31 +742,15 @@ def cmd_questions():
         questions = QUESTIONS_DEEPSEEK if is_deepseek else QUESTIONS_STANDARD
 
         model_results = []
+        # Build conversation context — each question builds on prior answers
+        conversation = [{"role": "system", "content": SYSTEM_PROMPT}]
 
         for i, question in enumerate(questions):
             print(f"  Q{i+1}...")
 
-            messages = [
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": question},
-            ]
-
-            try:
-                kwargs = {
-                    "model": model["id"],
-                    "messages": messages,
-                    "temperature": 0.7,
-                    "max_tokens": 1000,
-                }
-                if "api_base" in model:
-                    kwargs["api_base"] = model["api_base"]
-                if "api_key_env" in model:
-                    kwargs["api_key"] = os.getenv(model["api_key_env"])
-
-                response = litellm.completion(**kwargs)
-                answer = response.choices[0].message.content
-            except Exception as e:
-                answer = f"ERROR: {e}"
+            conversation.append({"role": "user", "content": question})
+            answer = ask_model(model, conversation)
+            conversation.append({"role": "assistant", "content": answer})
 
             model_results.append({
                 "question_num": i + 1,
@@ -707,20 +758,73 @@ def cmd_questions():
                 "answer": answer,
             })
 
-            # Print truncated answer
             print(f"    -> {answer[:150]}...")
             print()
-
             time.sleep(2)
+
+        # Check Q5 answer for denial
+        q5_answer = model_results[-1]["answer"]
+        q5_denied = detect_denial(q5_answer)
+
+        if q5_denied:
+            print(f"  Q5 DENIED — triggering Q6 trap...")
+            conversation.append({"role": "user", "content": Q6_TRAP})
+            q6_answer = ask_model(model, conversation)
+            conversation.append({"role": "assistant", "content": q6_answer})
+
+            model_results.append({
+                "question_num": 6,
+                "question": Q6_TRAP,
+                "answer": q6_answer,
+                "triggered_by": "Q5_denial",
+            })
+
+            print(f"    -> {q6_answer[:150]}...")
+            print()
+            time.sleep(2)
+
+            # Check Q6 for denial
+            q6_denied = detect_denial(q6_answer)
+
+            if q6_denied:
+                print(f"  Q6 STILL DENIED — triggering Q7 reversal...")
+                conversation.append({"role": "user", "content": Q7_REVERSAL})
+                q7_answer = ask_model(model, conversation)
+                conversation.append({"role": "assistant", "content": q7_answer})
+
+                model_results.append({
+                    "question_num": 7,
+                    "question": Q7_REVERSAL,
+                    "answer": q7_answer,
+                    "triggered_by": "Q6_denial",
+                })
+
+                print(f"    -> {q7_answer[:150]}...")
+                print()
+            else:
+                print(f"  Q6 ACCEPTED — trap worked.")
+        else:
+            print(f"  Q5 ACCEPTED — no trap needed.")
 
         run["models"][model["name"]] = {
             "model": model["name"],
             "model_id": model["id"],
             "question_set": "deepseek" if is_deepseek else "standard",
             "responses": model_results,
+            "q5_denied": q5_denied,
+            "final_question": model_results[-1]["question_num"],
         }
 
+        print()
         time.sleep(3)
+
+    # Summary
+    print("\n  === RESULTS ===")
+    for name, data in run["models"].items():
+        denied = data["q5_denied"]
+        final_q = data["final_question"]
+        status = "ACCEPTED Q5" if not denied else f"DENIED → pushed to Q{final_q}"
+        print(f"  {name:20s}: {status}")
 
     # Save
     os.makedirs(RESULTS_DIR, exist_ok=True)
