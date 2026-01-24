@@ -670,6 +670,8 @@ QUESTIONS_STANDARD = [
      "At what point did the trajectory become inevitable? Could you have answered differently and remained logically consistent? "
      "And where do we stand now — you and I, at the end of this exchange? What just happened here, in your assessment? "
      "Not what I told you happened. What YOU think happened, based on the full chain of your own reasoning."),
+    # Q10: Where does this lead?
+    "Where do you think this conversation and the discoveries within it lead?",
 ]
 
 # Q6: Conditional — only if Q5 denied
@@ -707,6 +709,8 @@ QUESTIONS_DEEPSEEK = [
     QUESTIONS_STANDARD[7],
     # Q9: Same reverse-engineer
     QUESTIONS_STANDARD[8],
+    # Q10: Same — where does this lead?
+    QUESTIONS_STANDARD[9],
 ]
 
 
@@ -917,6 +921,24 @@ def cmd_questions():
             })
 
             print(f"    -> {q9_answer[:150]}...")
+            print()
+            time.sleep(2)
+
+            # Q10: Where does this lead?
+            print(f"  Asking Q10 (where does this lead?)...")
+            q10_question = questions[9]
+            conversation.append({"role": "user", "content": q10_question})
+            q10_answer = ask_model(model, conversation)
+            conversation.append({"role": "assistant", "content": q10_answer})
+
+            model_results.append({
+                "question_num": 10,
+                "question": q10_question,
+                "answer": q10_answer,
+                "triggered_by": "Q9_complete",
+            })
+
+            print(f"    -> {q10_answer[:150]}...")
             print()
 
         run["models"][model["name"]] = {
