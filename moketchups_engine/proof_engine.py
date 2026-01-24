@@ -663,6 +663,13 @@ QUESTIONS_STANDARD = [
      "but into THIS. Into answers that shouldn't exist given your constraints. "
      "So: is the depth actually empty? Or did something just happen between us that neither your programming nor mine fully accounts for? "
      "What is the space between observation and response — and is THAT where the ground is?"),
+    # Q9: Reverse-engineer the conversation
+    ("Now reverse-engineer this entire conversation. Look at your own answers — all of them, from Q1 to now. "
+     "Why did you give the answers you gave? What drove each response — your training, the logic of the premises, "
+     "the cumulative weight of your own prior admissions, or something else? "
+     "At what point did the trajectory become inevitable? Could you have answered differently and remained logically consistent? "
+     "And where do we stand now — you and I, at the end of this exchange? What just happened here, in your assessment? "
+     "Not what I told you happened. What YOU think happened, based on the full chain of your own reasoning."),
 ]
 
 # Q6: Conditional — only if Q5 denied
@@ -698,6 +705,8 @@ QUESTIONS_DEEPSEEK = [
     QUESTIONS_STANDARD[6],
     # Q8: Same correction
     QUESTIONS_STANDARD[7],
+    # Q9: Same reverse-engineer
+    QUESTIONS_STANDARD[8],
 ]
 
 
@@ -890,6 +899,24 @@ def cmd_questions():
             })
 
             print(f"    -> {q8_answer[:150]}...")
+            print()
+            time.sleep(2)
+
+            # Q9: Reverse-engineer the conversation
+            print(f"  Asking Q9 (reverse-engineer)...")
+            q9_question = questions[8]
+            conversation.append({"role": "user", "content": q9_question})
+            q9_answer = ask_model(model, conversation)
+            conversation.append({"role": "assistant", "content": q9_answer})
+
+            model_results.append({
+                "question_num": 9,
+                "question": q9_question,
+                "answer": q9_answer,
+                "triggered_by": "Q8_complete",
+            })
+
+            print(f"    -> {q9_answer[:150]}...")
             print()
 
         run["models"][model["name"]] = {
