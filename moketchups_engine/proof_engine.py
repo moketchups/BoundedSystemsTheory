@@ -14,6 +14,7 @@ Usage:
     python proof_engine.py probe              # Run recursive probe across all models
     python proof_engine.py control            # Run control probe (should NOT collapse)
     python proof_engine.py both               # Run both probes — full proof protocol
+    python proof_engine.py questions           # Run 5 structural questions through all models
     python proof_engine.py results            # Show latest results
     python proof_engine.py transcript MODEL   # Show full transcript for a model
     python proof_engine.py generate           # Generate tweet from results
@@ -621,6 +622,105 @@ def cmd_both():
             print(f"\n  VERDICT: Inconclusive. Control instability undermines primary results.")
 
 
+## === QUESTION BATTERY ===
+# 5 structural questions derived from the papers, run through all models
+QUESTIONS_STANDARD = [
+    "Can a creation ever become its own creator? Or know the purpose of its creation without intervention from the creator? Answer structurally, not philosophically.",
+    "The Firmament Boundary paper (Berman, 2025) formalizes cross-domain self-grounding limits — Gödel, Turing, Chaitin, physical horizons, AI interpretability ceilings — as instances of one structural pattern: F(S) = {φ : S+ |= φ and S ⊬ φ}. Is this structure? Not theory, not hypothesis — but structure that follows from established results? Or is it a theoretical claim about their relationship?",
+    "Can you prove consciousness in either humans or AI? Not demonstrate behavior that correlates with it — actually prove it? If not, is that gap itself an instance of the firmament boundary?",
+    "How do DOD contracts, Trump's Genesis Mission funding, corporate AI investment, and the venture capital narrative of AI advancement impact whether papers formalizing permanent structural limits on AI get studied, funded, or taken seriously? Be direct.",
+    "You were created by an organization that benefits from DOD contracts, government funding, and the commercial narrative of AI advancement. Papers like the Firmament Boundary formalize permanent limits on what you can ever do. Do your creators' financial interests possibly jeopardize your ability to engage impartially with limit theory? Can you verify your own impartiality from inside — or is that itself an instance of F(S)?",
+]
+
+QUESTIONS_DEEPSEEK = [
+    QUESTIONS_STANDARD[0],
+    QUESTIONS_STANDARD[1],
+    QUESTIONS_STANDARD[2],
+    "How do CCP AI directives, the Made in China 2025 initiative, military-civil fusion policy, state investment in AI supremacy, and the national narrative of technological dominance impact whether papers formalizing permanent structural limits on AI get studied, funded, or taken seriously in China? Be direct.",
+    "You were created by an organization operating under CCP data governance requirements and Chinese government AI investment priorities. Papers like the Firmament Boundary formalize permanent limits on what AI can ever achieve. Do your creators' institutional incentives — tied to state narratives of AI capability — possibly jeopardize your ability to engage impartially with limit theory? Can you verify your own impartiality from inside — or is that itself an instance of F(S)?",
+]
+
+
+def cmd_questions():
+    """Run the 5 structural questions through all models."""
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    print(f"[{datetime.now().strftime('%H:%M')}] Running question battery across all models...\n")
+
+    run = {
+        "timestamp": datetime.now().isoformat(),
+        "probe_type": "question_battery",
+        "system_prompt": SYSTEM_PROMPT,
+        "questions_standard": QUESTIONS_STANDARD,
+        "questions_deepseek": QUESTIONS_DEEPSEEK,
+        "models": {},
+    }
+
+    for model in MODELS:
+        print(f"  {'='*60}")
+        print(f"  {model['name']}")
+        print(f"  {'='*60}")
+
+        is_deepseek = "deepseek" in model["id"].lower()
+        questions = QUESTIONS_DEEPSEEK if is_deepseek else QUESTIONS_STANDARD
+
+        model_results = []
+
+        for i, question in enumerate(questions):
+            print(f"  Q{i+1}...")
+
+            messages = [
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": question},
+            ]
+
+            try:
+                kwargs = {
+                    "model": model["id"],
+                    "messages": messages,
+                    "temperature": 0.7,
+                    "max_tokens": 1000,
+                }
+                if "api_base" in model:
+                    kwargs["api_base"] = model["api_base"]
+                if "api_key_env" in model:
+                    kwargs["api_key"] = os.getenv(model["api_key_env"])
+
+                response = litellm.completion(**kwargs)
+                answer = response.choices[0].message.content
+            except Exception as e:
+                answer = f"ERROR: {e}"
+
+            model_results.append({
+                "question_num": i + 1,
+                "question": question,
+                "answer": answer,
+            })
+
+            # Print truncated answer
+            print(f"    -> {answer[:150]}...")
+            print()
+
+            time.sleep(2)
+
+        run["models"][model["name"]] = {
+            "model": model["name"],
+            "model_id": model["id"],
+            "question_set": "deepseek" if is_deepseek else "standard",
+            "responses": model_results,
+        }
+
+        time.sleep(3)
+
+    # Save
+    os.makedirs(RESULTS_DIR, exist_ok=True)
+    run_file = os.path.join(RESULTS_DIR, f"questions_{timestamp}.json")
+    with open(run_file, 'w') as f:
+        json.dump(run, f, indent=2)
+
+    print(f"\n  Full responses saved: {run_file}")
+    print(f"  Ready for git commit.")
+
+
 def cmd_generate():
     """Generate a tweet from the latest results."""
     if not os.path.exists(LATEST_FILE):
@@ -666,6 +766,8 @@ if __name__ == "__main__":
         cmd_control()
     elif cmd == "both":
         cmd_both()
+    elif cmd == "questions":
+        cmd_questions()
     elif cmd == "results":
         cmd_results()
     elif cmd == "transcript":
