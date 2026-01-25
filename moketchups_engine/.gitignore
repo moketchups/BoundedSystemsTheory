@@ -1,0 +1,11 @@
+# API keys - NEVER commit
+.env
+twitter_cookies.json
+
+# Python
+__pycache__/
+*.pyc
+
+# Local data
+alerts.json
+reply_queue.json
