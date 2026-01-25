@@ -1,0 +1,31 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+.venv/
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+
+# Environment variables
+.env
+
+# Test artifacts
+.pytest_cache/
+*.log
+
+# Generated data (keep structure, ignore contents)
+logs/*.json
+results/*.json
+
+# Claude Code
+.claude/
