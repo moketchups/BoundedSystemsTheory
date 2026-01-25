@@ -1,0 +1,2561 @@
+{
+  "metadata": {
+    "max_test_value": 10000,
+    "test_timestamp": "2026-01-24 21:37:58",
+    "axioms_enforced": [
+      "Axiom 2 (Completeness)",
+      "Axiom 3 (Symmetry)"
+    ]
+  },
+  "completeness_violations": [
+    {
+      "number": 0,
+      "has_representation": false,
+      "representations": [],
+      "violation_type": "completeness",
+      "timestamp": 1769308677.994578
+    }
+  ],
+  "symmetry_violations": [
+    {
+      "operation": "917 + 465",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1382,
+          "factors": {
+            "2": 1,
+            "691": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            131,
+            7
+          ],
+          "b_factors": [
+            3,
+            5,
+            31
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.0433202
+    },
+    {
+      "operation": "697 \u00d7 291",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "product_as_sum": {
+          "value": 202827,
+          "has_goldbach_pair": false,
+          "pair": null
+        },
+        "operands_prime": {
+          "a_is_prime": false,
+          "b_is_prime": false
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.04339
+    },
+    {
+      "operation": "940 + 859",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1799,
+          "factors": {
+            "7": 1,
+            "257": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            2,
+            5,
+            47
+          ],
+          "b_factors": [
+            859
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.043585
+    },
+    {
+      "operation": "107 \u00d7 923",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "product_as_sum": {
+          "value": 98761,
+          "has_goldbach_pair": false,
+          "pair": null
+        },
+        "operands_prime": {
+          "a_is_prime": true,
+          "b_is_prime": false
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.043618
+    },
+    {
+      "operation": "431 + 456",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 887,
+          "factors": {
+            "887": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            431
+          ],
+          "b_factors": [
+            19,
+            2,
+            3
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.043714
+    },
+    {
+      "operation": "117 \u00d7 619",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "product_as_sum": {
+          "value": 72423,
+          "has_goldbach_pair": false,
+          "pair": null
+        },
+        "operands_prime": {
+          "a_is_prime": false,
+          "b_is_prime": true
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.043763
+    },
+    {
+      "operation": "43 \u00d7 85",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "product_as_sum": {
+          "value": 3655,
+          "has_goldbach_pair": false,
+          "pair": null
+        },
+        "operands_prime": {
+          "a_is_prime": true,
+          "b_is_prime": false
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.043766
+    },
+    {
+      "operation": "757 \u00d7 777",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "product_as_sum": {
+          "value": 588189,
+          "has_goldbach_pair": false,
+          "pair": null
+        },
+        "operands_prime": {
+          "a_is_prime": true,
+          "b_is_prime": false
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.0438058
+    },
+    {
+      "operation": "25 + 264",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 289,
+          "factors": {
+            "17": 2
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            5
+          ],
+          "b_factors": [
+            11,
+            2,
+            3
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.043809
+    },
+    {
+      "operation": "673 + 12",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 685,
+          "factors": {
+            "5": 1,
+            "137": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            673
+          ],
+          "b_factors": [
+            2,
+            3
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.043818
+    },
+    {
+      "operation": "530 + 543",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1073,
+          "factors": {
+            "29": 1,
+            "37": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            2,
+            53,
+            5
+          ],
+          "b_factors": [
+            3,
+            181
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.043823
+    },
+    {
+      "operation": "159 + 736",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 895,
+          "factors": {
+            "5": 1,
+            "179": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            3,
+            53
+          ],
+          "b_factors": [
+            2,
+            23
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.043874
+    },
+    {
+      "operation": "745 + 981",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1726,
+          "factors": {
+            "2": 1,
+            "863": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            5,
+            149
+          ],
+          "b_factors": [
+            3,
+            109
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.04388
+    },
+    {
+      "operation": "127 \u00d7 303",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "product_as_sum": {
+          "value": 38481,
+          "has_goldbach_pair": false,
+          "pair": null
+        },
+        "operands_prime": {
+          "a_is_prime": true,
+          "b_is_prime": false
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.043885
+    },
+    {
+      "operation": "559 + 667",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1226,
+          "factors": {
+            "2": 1,
+            "613": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            43,
+            13
+          ],
+          "b_factors": [
+            29,
+            23
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.043888
+    },
+    {
+      "operation": "430 + 337",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 767,
+          "factors": {
+            "13": 1,
+            "59": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            2,
+            43,
+            5
+          ],
+          "b_factors": [
+            337
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.043893
+    },
+    {
+      "operation": "449 + 241",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 690,
+          "factors": {
+            "2": 1,
+            "3": 1,
+            "5": 1,
+            "23": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            449
+          ],
+          "b_factors": [
+            241
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.043925
+    },
+    {
+      "operation": "5 + 301",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 306,
+          "factors": {
+            "2": 1,
+            "3": 2,
+            "17": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            5
+          ],
+          "b_factors": [
+            43,
+            7
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.043971
+    },
+    {
+      "operation": "415 \u00d7 979",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "product_as_sum": {
+          "value": 406285,
+          "has_goldbach_pair": false,
+          "pair": null
+        },
+        "operands_prime": {
+          "a_is_prime": false,
+          "b_is_prime": false
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.043981
+    },
+    {
+      "operation": "821 + 719",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1540,
+          "factors": {
+            "2": 2,
+            "5": 1,
+            "7": 1,
+            "11": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            821
+          ],
+          "b_factors": [
+            719
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.0440068
+    },
+    {
+      "operation": "282 + 815",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1097,
+          "factors": {
+            "1097": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            2,
+            3,
+            47
+          ],
+          "b_factors": [
+            163,
+            5
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.044013
+    },
+    {
+      "operation": "930 + 631",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1561,
+          "factors": {
+            "7": 1,
+            "223": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            2,
+            3,
+            5,
+            31
+          ],
+          "b_factors": [
+            631
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.044035
+    },
+    {
+      "operation": "101 + 569",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 670,
+          "factors": {
+            "2": 1,
+            "5": 1,
+            "67": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            101
+          ],
+          "b_factors": [
+            569
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.044052
+    },
+    {
+      "operation": "667 \u00d7 541",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "product_as_sum": {
+          "value": 360847,
+          "has_goldbach_pair": false,
+          "pair": null
+        },
+        "operands_prime": {
+          "a_is_prime": false,
+          "b_is_prime": true
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.04406
+    },
+    {
+      "operation": "727 + 906",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1633,
+          "factors": {
+            "23": 1,
+            "71": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            727
+          ],
+          "b_factors": [
+            2,
+            3,
+            151
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.044064
+    },
+    {
+      "operation": "193 \u00d7 849",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "product_as_sum": {
+          "value": 163857,
+          "has_goldbach_pair": false,
+          "pair": null
+        },
+        "operands_prime": {
+          "a_is_prime": true,
+          "b_is_prime": false
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.04407
+    },
+    {
+      "operation": "89 + 421",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 510,
+          "factors": {
+            "2": 1,
+            "3": 1,
+            "5": 1,
+            "17": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            89
+          ],
+          "b_factors": [
+            421
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.0440729
+    },
+    {
+      "operation": "990 + 211",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1201,
+          "factors": {
+            "1201": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            11,
+            2,
+            3,
+            5
+          ],
+          "b_factors": [
+            211
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.044124
+    },
+    {
+      "operation": "47 + 168",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 215,
+          "factors": {
+            "5": 1,
+            "43": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            47
+          ],
+          "b_factors": [
+            2,
+            3,
+            7
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.04413
+    },
+    {
+      "operation": "137 + 678",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 815,
+          "factors": {
+            "5": 1,
+            "163": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            137
+          ],
+          "b_factors": [
+            113,
+            2,
+            3
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.044211
+    },
+    {
+      "operation": "597 + 986",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1583,
+          "factors": {
+            "1583": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            3,
+            199
+          ],
+          "b_factors": [
+            17,
+            2,
+            29
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.044245
+    },
+    {
+      "operation": "707 + 968",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1675,
+          "factors": {
+            "5": 2,
+            "67": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            101,
+            7
+          ],
+          "b_factors": [
+            2,
+            11
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.044256
+    },
+    {
+      "operation": "425 + 22",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 447,
+          "factors": {
+            "3": 1,
+            "149": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            17,
+            5
+          ],
+          "b_factors": [
+            2,
+            11
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.0443
+    },
+    {
+      "operation": "201 \u00d7 751",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "product_as_sum": {
+          "value": 150951,
+          "has_goldbach_pair": false,
+          "pair": null
+        },
+        "operands_prime": {
+          "a_is_prime": false,
+          "b_is_prime": true
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.0443048
+    },
+    {
+      "operation": "986 + 179",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1165,
+          "factors": {
+            "5": 1,
+            "233": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            17,
+            2,
+            29
+          ],
+          "b_factors": [
+            179
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.044385
+    },
+    {
+      "operation": "153 \u00d7 73",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "product_as_sum": {
+          "value": 11169,
+          "has_goldbach_pair": false,
+          "pair": null
+        },
+        "operands_prime": {
+          "a_is_prime": false,
+          "b_is_prime": true
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.044391
+    },
+    {
+      "operation": "256 + 481",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 737,
+          "factors": {
+            "11": 1,
+            "67": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            2
+          ],
+          "b_factors": [
+            37,
+            13
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.044416
+    },
+    {
+      "operation": "205 \u00d7 447",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "product_as_sum": {
+          "value": 91635,
+          "has_goldbach_pair": false,
+          "pair": null
+        },
+        "operands_prime": {
+          "a_is_prime": false,
+          "b_is_prime": false
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.04445
+    },
+    {
+      "operation": "25 \u00d7 253",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "product_as_sum": {
+          "value": 6325,
+          "has_goldbach_pair": false,
+          "pair": null
+        },
+        "operands_prime": {
+          "a_is_prime": false,
+          "b_is_prime": false
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.044487
+    },
+    {
+      "operation": "752 + 187",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 939,
+          "factors": {
+            "3": 1,
+            "313": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            2,
+            47
+          ],
+          "b_factors": [
+            17,
+            11
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.044511
+    },
+    {
+      "operation": "467 \u00d7 721",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "product_as_sum": {
+          "value": 336707,
+          "has_goldbach_pair": false,
+          "pair": null
+        },
+        "operands_prime": {
+          "a_is_prime": true,
+          "b_is_prime": false
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.0445561
+    },
+    {
+      "operation": "645 + 478",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1123,
+          "factors": {
+            "1123": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            43,
+            3,
+            5
+          ],
+          "b_factors": [
+            2,
+            239
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.04456
+    },
+    {
+      "operation": "869 + 853",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1722,
+          "factors": {
+            "2": 1,
+            "3": 1,
+            "7": 1,
+            "41": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            11,
+            79
+          ],
+          "b_factors": [
+            853
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.044566
+    },
+    {
+      "operation": "491 + 563",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1054,
+          "factors": {
+            "2": 1,
+            "17": 1,
+            "31": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            491
+          ],
+          "b_factors": [
+            563
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.044616
+    },
+    {
+      "operation": "97 + 38",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 135,
+          "factors": {
+            "3": 3,
+            "5": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            97
+          ],
+          "b_factors": [
+            2,
+            19
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.0446222
+    },
+    {
+      "operation": "541 + 407",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 948,
+          "factors": {
+            "2": 2,
+            "3": 1,
+            "79": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            541
+          ],
+          "b_factors": [
+            11,
+            37
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.044626
+    },
+    {
+      "operation": "601 + 439",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1040,
+          "factors": {
+            "2": 4,
+            "5": 1,
+            "13": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            601
+          ],
+          "b_factors": [
+            439
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.044637
+    },
+    {
+      "operation": "501 + 541",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1042,
+          "factors": {
+            "2": 1,
+            "521": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            3,
+            167
+          ],
+          "b_factors": [
+            541
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.044673
+    },
+    {
+      "operation": "361 + 810",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1171,
+          "factors": {
+            "1171": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            19
+          ],
+          "b_factors": [
+            2,
+            3,
+            5
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.044718
+    },
+    {
+      "operation": "325 + 4",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 329,
+          "factors": {
+            "7": 1,
+            "47": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            13,
+            5
+          ],
+          "b_factors": [
+            2
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.044736
+    },
+    {
+      "operation": "557 + 354",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 911,
+          "factors": {
+            "911": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            557
+          ],
+          "b_factors": [
+            59,
+            2,
+            3
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.044781
+    },
+    {
+      "operation": "319 + 191",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 510,
+          "factors": {
+            "2": 1,
+            "3": 1,
+            "5": 1,
+            "17": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            11,
+            29
+          ],
+          "b_factors": [
+            191
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.044827
+    },
+    {
+      "operation": "656 + 301",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 957,
+          "factors": {
+            "3": 1,
+            "11": 1,
+            "29": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            41,
+            2
+          ],
+          "b_factors": [
+            43,
+            7
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.044832
+    },
+    {
+      "operation": "519 + 367",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 886,
+          "factors": {
+            "2": 1,
+            "443": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            3,
+            173
+          ],
+          "b_factors": [
+            367
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.0448372
+    },
+    {
+      "operation": "991 + 813",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1804,
+          "factors": {
+            "2": 2,
+            "11": 1,
+            "41": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            991
+          ],
+          "b_factors": [
+            3,
+            271
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.044842
+    },
+    {
+      "operation": "946 + 509",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1455,
+          "factors": {
+            "3": 1,
+            "5": 1,
+            "97": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            43,
+            2,
+            11
+          ],
+          "b_factors": [
+            509
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.0448709
+    },
+    {
+      "operation": "255 \u00d7 587",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "product_as_sum": {
+          "value": 149685,
+          "has_goldbach_pair": false,
+          "pair": null
+        },
+        "operands_prime": {
+          "a_is_prime": false,
+          "b_is_prime": true
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.0448792
+    },
+    {
+      "operation": "611 \u00d7 981",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "product_as_sum": {
+          "value": 599391,
+          "has_goldbach_pair": false,
+          "pair": null
+        },
+        "operands_prime": {
+          "a_is_prime": false,
+          "b_is_prime": false
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.044999
+    },
+    {
+      "operation": "459 + 928",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1387,
+          "factors": {
+            "19": 1,
+            "73": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            17,
+            3
+          ],
+          "b_factors": [
+            2,
+            29
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.045022
+    },
+    {
+      "operation": "178 + 207",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 385,
+          "factors": {
+            "5": 1,
+            "7": 1,
+            "11": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            89,
+            2
+          ],
+          "b_factors": [
+            3,
+            23
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.0450282
+    },
+    {
+      "operation": "823 + 612",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1435,
+          "factors": {
+            "5": 1,
+            "7": 1,
+            "41": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            823
+          ],
+          "b_factors": [
+            17,
+            2,
+            3
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.045038
+    },
+    {
+      "operation": "311 + 626",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 937,
+          "factors": {
+            "937": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            311
+          ],
+          "b_factors": [
+            313,
+            2
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.0450711
+    },
+    {
+      "operation": "371 \u00d7 47",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "product_as_sum": {
+          "value": 17437,
+          "has_goldbach_pair": false,
+          "pair": null
+        },
+        "operands_prime": {
+          "a_is_prime": false,
+          "b_is_prime": true
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.045076
+    },
+    {
+      "operation": "457 + 553",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1010,
+          "factors": {
+            "2": 1,
+            "5": 1,
+            "101": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            457
+          ],
+          "b_factors": [
+            79,
+            7
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.045084
+    },
+    {
+      "operation": "643 \u00d7 895",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "product_as_sum": {
+          "value": 575485,
+          "has_goldbach_pair": false,
+          "pair": null
+        },
+        "operands_prime": {
+          "a_is_prime": true,
+          "b_is_prime": false
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.045108
+    },
+    {
+      "operation": "369 \u00d7 881",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "product_as_sum": {
+          "value": 325089,
+          "has_goldbach_pair": false,
+          "pair": null
+        },
+        "operands_prime": {
+          "a_is_prime": false,
+          "b_is_prime": true
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.0451488
+    },
+    {
+      "operation": "435 + 721",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1156,
+          "factors": {
+            "2": 2,
+            "17": 2
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            29,
+            3,
+            5
+          ],
+          "b_factors": [
+            103,
+            7
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.045232
+    },
+    {
+      "operation": "792 + 911",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1703,
+          "factors": {
+            "13": 1,
+            "131": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            11,
+            2,
+            3
+          ],
+          "b_factors": [
+            911
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.045248
+    },
+    {
+      "operation": "883 \u00d7 629",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "product_as_sum": {
+          "value": 555407,
+          "has_goldbach_pair": false,
+          "pair": null
+        },
+        "operands_prime": {
+          "a_is_prime": true,
+          "b_is_prime": false
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.045363
+    },
+    {
+      "operation": "701 + 435",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1136,
+          "factors": {
+            "2": 4,
+            "71": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            701
+          ],
+          "b_factors": [
+            29,
+            3,
+            5
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.045367
+    },
+    {
+      "operation": "668 + 125",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 793,
+          "factors": {
+            "13": 1,
+            "61": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            2,
+            167
+          ],
+          "b_factors": [
+            5
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.045405
+    },
+    {
+      "operation": "472 + 469",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 941,
+          "factors": {
+            "941": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            2,
+            59
+          ],
+          "b_factors": [
+            67,
+            7
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.0454102
+    },
+    {
+      "operation": "911 + 998",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1909,
+          "factors": {
+            "23": 1,
+            "83": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            911
+          ],
+          "b_factors": [
+            2,
+            499
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.045417
+    },
+    {
+      "operation": "971 + 623",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1594,
+          "factors": {
+            "2": 1,
+            "797": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            971
+          ],
+          "b_factors": [
+            89,
+            7
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.045707
+    },
+    {
+      "operation": "426 + 887",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1313,
+          "factors": {
+            "13": 1,
+            "101": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            2,
+            3,
+            71
+          ],
+          "b_factors": [
+            887
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.045714
+    },
+    {
+      "operation": "915 \u00d7 801",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "product_as_sum": {
+          "value": 732915,
+          "has_goldbach_pair": false,
+          "pair": null
+        },
+        "operands_prime": {
+          "a_is_prime": false,
+          "b_is_prime": false
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.04575
+    },
+    {
+      "operation": "125 + 507",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 632,
+          "factors": {
+            "2": 3,
+            "79": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            5
+          ],
+          "b_factors": [
+            3,
+            13
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.0458
+    },
+    {
+      "operation": "766 + 757",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1523,
+          "factors": {
+            "1523": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            2,
+            383
+          ],
+          "b_factors": [
+            757
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.045808
+    },
+    {
+      "operation": "117 + 995",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1112,
+          "factors": {
+            "2": 3,
+            "139": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            3,
+            13
+          ],
+          "b_factors": [
+            5,
+            199
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.045814
+    },
+    {
+      "operation": "739 + 441",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1180,
+          "factors": {
+            "2": 2,
+            "5": 1,
+            "59": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            739
+          ],
+          "b_factors": [
+            3,
+            7
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.045839
+    },
+    {
+      "operation": "749 \u00d7 301",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "product_as_sum": {
+          "value": 225449,
+          "has_goldbach_pair": false,
+          "pair": null
+        },
+        "operands_prime": {
+          "a_is_prime": false,
+          "b_is_prime": false
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.045847
+    },
+    {
+      "operation": "187 + 535",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 722,
+          "factors": {
+            "2": 1,
+            "19": 2
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            17,
+            11
+          ],
+          "b_factors": [
+            107,
+            5
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.045863
+    },
+    {
+      "operation": "618 + 979",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1597,
+          "factors": {
+            "1597": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            2,
+            3,
+            103
+          ],
+          "b_factors": [
+            89,
+            11
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.045887
+    },
+    {
+      "operation": "317 \u00d7 57",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "product_as_sum": {
+          "value": 18069,
+          "has_goldbach_pair": false,
+          "pair": null
+        },
+        "operands_prime": {
+          "a_is_prime": true,
+          "b_is_prime": false
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.0459352
+    },
+    {
+      "operation": "481 \u00d7 423",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "product_as_sum": {
+          "value": 203463,
+          "has_goldbach_pair": false,
+          "pair": null
+        },
+        "operands_prime": {
+          "a_is_prime": false,
+          "b_is_prime": false
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.045965
+    },
+    {
+      "operation": "199 + 801",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1000,
+          "factors": {
+            "2": 3,
+            "5": 3
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            199
+          ],
+          "b_factors": [
+            89,
+            3
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.045999
+    },
+    {
+      "operation": "57 \u00d7 659",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "product_as_sum": {
+          "value": 37563,
+          "has_goldbach_pair": false,
+          "pair": null
+        },
+        "operands_prime": {
+          "a_is_prime": false,
+          "b_is_prime": true
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.04601
+    },
+    {
+      "operation": "305 + 642",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 947,
+          "factors": {
+            "947": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            61,
+            5
+          ],
+          "b_factors": [
+            107,
+            2,
+            3
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.0460858
+    },
+    {
+      "operation": "83 + 812",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 895,
+          "factors": {
+            "5": 1,
+            "179": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            83
+          ],
+          "b_factors": [
+            2,
+            29,
+            7
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.046164
+    },
+    {
+      "operation": "269 + 881",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1150,
+          "factors": {
+            "2": 1,
+            "5": 2,
+            "23": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            269
+          ],
+          "b_factors": [
+            881
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.046169
+    },
+    {
+      "operation": "737 + 857",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1594,
+          "factors": {
+            "2": 1,
+            "797": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            67,
+            11
+          ],
+          "b_factors": [
+            857
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.04624
+    },
+    {
+      "operation": "437 \u00d7 793",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "product_as_sum": {
+          "value": 346541,
+          "has_goldbach_pair": false,
+          "pair": null
+        },
+        "operands_prime": {
+          "a_is_prime": false,
+          "b_is_prime": false
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.046263
+    },
+    {
+      "operation": "237 + 415",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 652,
+          "factors": {
+            "2": 2,
+            "163": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            3,
+            79
+          ],
+          "b_factors": [
+            83,
+            5
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.046308
+    },
+    {
+      "operation": "82 + 733",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 815,
+          "factors": {
+            "5": 1,
+            "163": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            41,
+            2
+          ],
+          "b_factors": [
+            733
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.046314
+    },
+    {
+      "operation": "167 + 804",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 971,
+          "factors": {
+            "971": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            167
+          ],
+          "b_factors": [
+            67,
+            2,
+            3
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.0463371
+    },
+    {
+      "operation": "487 + 503",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 990,
+          "factors": {
+            "2": 1,
+            "3": 2,
+            "5": 1,
+            "11": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            487
+          ],
+          "b_factors": [
+            503
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.046355
+    },
+    {
+      "operation": "779 + 547",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1326,
+          "factors": {
+            "2": 1,
+            "3": 1,
+            "13": 1,
+            "17": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            41,
+            19
+          ],
+          "b_factors": [
+            547
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.0465028
+    },
+    {
+      "operation": "720 + 767",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 1487,
+          "factors": {
+            "1487": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            2,
+            3,
+            5
+          ],
+          "b_factors": [
+            59,
+            13
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.046508
+    },
+    {
+      "operation": "469 \u00d7 19",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "product_as_sum": {
+          "value": 8911,
+          "has_goldbach_pair": false,
+          "pair": null
+        },
+        "operands_prime": {
+          "a_is_prime": false,
+          "b_is_prime": true
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.04652
+    },
+    {
+      "operation": "388 + 399",
+      "maintains_symmetry": false,
+      "symmetry_check": {
+        "sum_as_product": {
+          "value": 787,
+          "factors": {
+            "787": 1
+          },
+          "has_representation": true
+        },
+        "common_prime_factors": {
+          "a_factors": [
+            97,
+            2
+          ],
+          "b_factors": [
+            19,
+            3,
+            7
+          ],
+          "common": []
+        }
+      },
+      "violation_type": "symmetry",
+      "timestamp": 1769308678.0465229
+    }
+  ],
+  "operation_log": [
+    {
+      "test_type": "completeness",
+      "iteration": 0,
+      "timestamp": 1769308677.980067,
+      "violations_so_far": 0
+    },
+    {
+      "test_type": "completeness",
+      "iteration": 1000,
+      "timestamp": 1769308677.986426,
+      "violations_so_far": 0
+    },
+    {
+      "test_type": "completeness",
+      "iteration": 2000,
+      "timestamp": 1769308677.992822,
+      "violations_so_far": 0
+    },
+    {
+      "test_type": "completeness",
+      "iteration": 3000,
+      "timestamp": 1769308677.999062,
+      "violations_so_far": 1
+    },
+    {
+      "test_type": "completeness",
+      "iteration": 4000,
+      "timestamp": 1769308678.005666,
+      "violations_so_far": 1
+    },
+    {
+      "test_type": "completeness",
+      "iteration": 5000,
+      "timestamp": 1769308678.012224,
+      "violations_so_far": 1
+    },
+    {
+      "test_type": "completeness",
+      "iteration": 6000,
+      "timestamp": 1769308678.019031,
+      "violations_so_far": 1
+    },
+    {
+      "test_type": "completeness",
+      "iteration": 7000,
+      "timestamp": 1769308678.025687,
+      "violations_so_far": 1
+    },
+    {
+      "test_type": "completeness",
+      "iteration": 8000,
+      "timestamp": 1769308678.031619,
+      "violations_so_far": 1
+    },
+    {
+      "test_type": "completeness",
+      "iteration": 9000,
+      "timestamp": 1769308678.037406,
+      "violations_so_far": 1
+    },
+    {
+      "test_type": "symmetry",
+      "iteration": 0,
+      "timestamp": 1769308678.043301,
+      "violations_so_far": 0
+    },
+    {
+      "test_type": "symmetry",
+      "iteration": 1000,
+      "timestamp": 1769308678.054064,
+      "violations_so_far": 439
+    },
+    {
+      "test_type": "symmetry",
+      "iteration": 2000,
+      "timestamp": 1769308678.0649102,
+      "violations_so_far": 872
+    },
+    {
+      "test_type": "symmetry",
+      "iteration": 3000,
+      "timestamp": 1769308678.076083,
+      "violations_so_far": 1309
+    },
+    {
+      "test_type": "symmetry",
+      "iteration": 4000,
+      "timestamp": 1769308678.0871282,
+      "violations_so_far": 1724
+    },
+    {
+      "test_type": "symmetry",
+      "iteration": 5000,
+      "timestamp": 1769308678.098678,
+      "violations_so_far": 2114
+    },
+    {
+      "test_type": "symmetry",
+      "iteration": 6000,
+      "timestamp": 1769308678.110198,
+      "violations_so_far": 2536
+    },
+    {
+      "test_type": "symmetry",
+      "iteration": 7000,
+      "timestamp": 1769308678.1210082,
+      "violations_so_far": 2963
+    },
+    {
+      "test_type": "symmetry",
+      "iteration": 8000,
+      "timestamp": 1769308678.132778,
+      "violations_so_far": 3379
+    },
+    {
+      "test_type": "symmetry",
+      "iteration": 9000,
+      "timestamp": 1769308678.147917,
+      "violations_so_far": 3808
+    }
+  ],
+  "checksums": {
+    "completeness_violations_hash": "f8a8a9aa478084711e1f81bbdead16cf2c00a31930e9b073a8b9ef4887841699",
+    "symmetry_violations_hash": "f054ad22a2b61165216876c3f7e745cbb5d37d8c3a03fff19b2acc42890bb7fc"
+  }
+}

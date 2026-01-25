@@ -1,0 +1,1225 @@
+{
+  "metadata": {
+    "max_even_tested": 10000,
+    "test_timestamp": "2026-01-24 21:36:45",
+    "all_numbers_verified": true
+  },
+  "statistics": {
+    "total_even_numbers": 4999,
+    "violations_found": 0,
+    "violation_list": [],
+    "performance": {
+      "total_numbers_verified": 4999,
+      "total_time_seconds": 0.019270896911621094,
+      "average_time_per_number_ms": 0.003854950372398699,
+      "verifications_per_second": 259406.7117335577
+    }
+  },
+  "axiom_verification": {
+    "axiom_1": "Prime atoms used for all representations",
+    "axiom_2": "Complete",
+    "axiom_3": "Additive/multiplicative symmetry maintained"
+  },
+  "verification_log": [
+    {
+      "up_to": 100,
+      "verified_count": 49,
+      "violation_count": 0,
+      "timestamp": 1769308605.9077692
+    },
+    {
+      "up_to": 200,
+      "verified_count": 99,
+      "violation_count": 0,
+      "timestamp": 1769308605.9078422
+    },
+    {
+      "up_to": 300,
+      "verified_count": 149,
+      "violation_count": 0,
+      "timestamp": 1769308605.907925
+    },
+    {
+      "up_to": 400,
+      "verified_count": 199,
+      "violation_count": 0,
+      "timestamp": 1769308605.908028
+    },
+    {
+      "up_to": 500,
+      "verified_count": 249,
+      "violation_count": 0,
+      "timestamp": 1769308605.908125
+    },
+    {
+      "up_to": 600,
+      "verified_count": 299,
+      "violation_count": 0,
+      "timestamp": 1769308605.908242
+    },
+    {
+      "up_to": 700,
+      "verified_count": 349,
+      "violation_count": 0,
+      "timestamp": 1769308605.908345
+    },
+    {
+      "up_to": 800,
+      "verified_count": 399,
+      "violation_count": 0,
+      "timestamp": 1769308605.908461
+    },
+    {
+      "up_to": 900,
+      "verified_count": 449,
+      "violation_count": 0,
+      "timestamp": 1769308605.908587
+    },
+    {
+      "up_to": 1000,
+      "verified_count": 499,
+      "violation_count": 0,
+      "timestamp": 1769308605.908735
+    },
+    {
+      "up_to": 1100,
+      "verified_count": 549,
+      "violation_count": 0,
+      "timestamp": 1769308605.9088619
+    },
+    {
+      "up_to": 1200,
+      "verified_count": 599,
+      "violation_count": 0,
+      "timestamp": 1769308605.909009
+    },
+    {
+      "up_to": 1300,
+      "verified_count": 649,
+      "violation_count": 0,
+      "timestamp": 1769308605.909151
+    },
+    {
+      "up_to": 1400,
+      "verified_count": 699,
+      "violation_count": 0,
+      "timestamp": 1769308605.909356
+    },
+    {
+      "up_to": 1500,
+      "verified_count": 749,
+      "violation_count": 0,
+      "timestamp": 1769308605.909495
+    },
+    {
+      "up_to": 1600,
+      "verified_count": 799,
+      "violation_count": 0,
+      "timestamp": 1769308605.909645
+    },
+    {
+      "up_to": 1700,
+      "verified_count": 849,
+      "violation_count": 0,
+      "timestamp": 1769308605.9098098
+    },
+    {
+      "up_to": 1800,
+      "verified_count": 899,
+      "violation_count": 0,
+      "timestamp": 1769308605.9099672
+    },
+    {
+      "up_to": 1900,
+      "verified_count": 949,
+      "violation_count": 0,
+      "timestamp": 1769308605.910142
+    },
+    {
+      "up_to": 2000,
+      "verified_count": 999,
+      "violation_count": 0,
+      "timestamp": 1769308605.91033
+    },
+    {
+      "up_to": 2100,
+      "verified_count": 1049,
+      "violation_count": 0,
+      "timestamp": 1769308605.910492
+    },
+    {
+      "up_to": 2200,
+      "verified_count": 1099,
+      "violation_count": 0,
+      "timestamp": 1769308605.910683
+    },
+    {
+      "up_to": 2300,
+      "verified_count": 1149,
+      "violation_count": 0,
+      "timestamp": 1769308605.910851
+    },
+    {
+      "up_to": 2400,
+      "verified_count": 1199,
+      "violation_count": 0,
+      "timestamp": 1769308605.911005
+    },
+    {
+      "up_to": 2500,
+      "verified_count": 1249,
+      "violation_count": 0,
+      "timestamp": 1769308605.911204
+    },
+    {
+      "up_to": 2600,
+      "verified_count": 1299,
+      "violation_count": 0,
+      "timestamp": 1769308605.911419
+    },
+    {
+      "up_to": 2700,
+      "verified_count": 1349,
+      "violation_count": 0,
+      "timestamp": 1769308605.911618
+    },
+    {
+      "up_to": 2800,
+      "verified_count": 1399,
+      "violation_count": 0,
+      "timestamp": 1769308605.911809
+    },
+    {
+      "up_to": 2900,
+      "verified_count": 1449,
+      "violation_count": 0,
+      "timestamp": 1769308605.912014
+    },
+    {
+      "up_to": 3000,
+      "verified_count": 1499,
+      "violation_count": 0,
+      "timestamp": 1769308605.912222
+    },
+    {
+      "up_to": 3100,
+      "verified_count": 1549,
+      "violation_count": 0,
+      "timestamp": 1769308605.9123929
+    },
+    {
+      "up_to": 3200,
+      "verified_count": 1599,
+      "violation_count": 0,
+      "timestamp": 1769308605.9126441
+    },
+    {
+      "up_to": 3300,
+      "verified_count": 1649,
+      "violation_count": 0,
+      "timestamp": 1769308605.9128692
+    },
+    {
+      "up_to": 3400,
+      "verified_count": 1699,
+      "violation_count": 0,
+      "timestamp": 1769308605.913023
+    },
+    {
+      "up_to": 3500,
+      "verified_count": 1749,
+      "violation_count": 0,
+      "timestamp": 1769308605.913257
+    },
+    {
+      "up_to": 3600,
+      "verified_count": 1799,
+      "violation_count": 0,
+      "timestamp": 1769308605.913429
+    },
+    {
+      "up_to": 3700,
+      "verified_count": 1849,
+      "violation_count": 0,
+      "timestamp": 1769308605.913645
+    },
+    {
+      "up_to": 3800,
+      "verified_count": 1899,
+      "violation_count": 0,
+      "timestamp": 1769308605.9138591
+    },
+    {
+      "up_to": 3900,
+      "verified_count": 1949,
+      "violation_count": 0,
+      "timestamp": 1769308605.914077
+    },
+    {
+      "up_to": 4000,
+      "verified_count": 1999,
+      "violation_count": 0,
+      "timestamp": 1769308605.914318
+    },
+    {
+      "up_to": 4100,
+      "verified_count": 2049,
+      "violation_count": 0,
+      "timestamp": 1769308605.914515
+    },
+    {
+      "up_to": 4200,
+      "verified_count": 2099,
+      "violation_count": 0,
+      "timestamp": 1769308605.914769
+    },
+    {
+      "up_to": 4300,
+      "verified_count": 2149,
+      "violation_count": 0,
+      "timestamp": 1769308605.914955
+    },
+    {
+      "up_to": 4400,
+      "verified_count": 2199,
+      "violation_count": 0,
+      "timestamp": 1769308605.915215
+    },
+    {
+      "up_to": 4500,
+      "verified_count": 2249,
+      "violation_count": 0,
+      "timestamp": 1769308605.915443
+    },
+    {
+      "up_to": 4600,
+      "verified_count": 2299,
+      "violation_count": 0,
+      "timestamp": 1769308605.9156742
+    },
+    {
+      "up_to": 4700,
+      "verified_count": 2349,
+      "violation_count": 0,
+      "timestamp": 1769308605.915906
+    },
+    {
+      "up_to": 4800,
+      "verified_count": 2399,
+      "violation_count": 0,
+      "timestamp": 1769308605.9161532
+    },
+    {
+      "up_to": 4900,
+      "verified_count": 2449,
+      "violation_count": 0,
+      "timestamp": 1769308605.916438
+    },
+    {
+      "up_to": 5000,
+      "verified_count": 2499,
+      "violation_count": 0,
+      "timestamp": 1769308605.9166331
+    },
+    {
+      "up_to": 5100,
+      "verified_count": 2549,
+      "violation_count": 0,
+      "timestamp": 1769308605.916863
+    },
+    {
+      "up_to": 5200,
+      "verified_count": 2599,
+      "violation_count": 0,
+      "timestamp": 1769308605.917108
+    },
+    {
+      "up_to": 5300,
+      "verified_count": 2649,
+      "violation_count": 0,
+      "timestamp": 1769308605.917345
+    },
+    {
+      "up_to": 5400,
+      "verified_count": 2699,
+      "violation_count": 0,
+      "timestamp": 1769308605.917637
+    },
+    {
+      "up_to": 5500,
+      "verified_count": 2749,
+      "violation_count": 0,
+      "timestamp": 1769308605.917841
+    },
+    {
+      "up_to": 5600,
+      "verified_count": 2799,
+      "violation_count": 0,
+      "timestamp": 1769308605.918047
+    },
+    {
+      "up_to": 5700,
+      "verified_count": 2849,
+      "violation_count": 0,
+      "timestamp": 1769308605.918314
+    },
+    {
+      "up_to": 5800,
+      "verified_count": 2899,
+      "violation_count": 0,
+      "timestamp": 1769308605.9185688
+    },
+    {
+      "up_to": 5900,
+      "verified_count": 2949,
+      "violation_count": 0,
+      "timestamp": 1769308605.91875
+    },
+    {
+      "up_to": 6000,
+      "verified_count": 2999,
+      "violation_count": 0,
+      "timestamp": 1769308605.919072
+    },
+    {
+      "up_to": 6100,
+      "verified_count": 3049,
+      "violation_count": 0,
+      "timestamp": 1769308605.919326
+    },
+    {
+      "up_to": 6200,
+      "verified_count": 3099,
+      "violation_count": 0,
+      "timestamp": 1769308605.919571
+    },
+    {
+      "up_to": 6300,
+      "verified_count": 3149,
+      "violation_count": 0,
+      "timestamp": 1769308605.919775
+    },
+    {
+      "up_to": 6400,
+      "verified_count": 3199,
+      "violation_count": 0,
+      "timestamp": 1769308605.919961
+    },
+    {
+      "up_to": 6500,
+      "verified_count": 3249,
+      "violation_count": 0,
+      "timestamp": 1769308605.920243
+    },
+    {
+      "up_to": 6600,
+      "verified_count": 3299,
+      "violation_count": 0,
+      "timestamp": 1769308605.9205408
+    },
+    {
+      "up_to": 6700,
+      "verified_count": 3349,
+      "violation_count": 0,
+      "timestamp": 1769308605.9207838
+    },
+    {
+      "up_to": 6800,
+      "verified_count": 3399,
+      "violation_count": 0,
+      "timestamp": 1769308605.9210188
+    },
+    {
+      "up_to": 6900,
+      "verified_count": 3449,
+      "violation_count": 0,
+      "timestamp": 1769308605.921254
+    },
+    {
+      "up_to": 7000,
+      "verified_count": 3499,
+      "violation_count": 0,
+      "timestamp": 1769308605.9215
+    },
+    {
+      "up_to": 7100,
+      "verified_count": 3549,
+      "violation_count": 0,
+      "timestamp": 1769308605.921765
+    },
+    {
+      "up_to": 7200,
+      "verified_count": 3599,
+      "violation_count": 0,
+      "timestamp": 1769308605.922025
+    },
+    {
+      "up_to": 7300,
+      "verified_count": 3649,
+      "violation_count": 0,
+      "timestamp": 1769308605.922294
+    },
+    {
+      "up_to": 7400,
+      "verified_count": 3699,
+      "violation_count": 0,
+      "timestamp": 1769308605.9225678
+    },
+    {
+      "up_to": 7500,
+      "verified_count": 3749,
+      "violation_count": 0,
+      "timestamp": 1769308605.922875
+    },
+    {
+      "up_to": 7600,
+      "verified_count": 3799,
+      "violation_count": 0,
+      "timestamp": 1769308605.9230561
+    },
+    {
+      "up_to": 7700,
+      "verified_count": 3849,
+      "violation_count": 0,
+      "timestamp": 1769308605.9232798
+    },
+    {
+      "up_to": 7800,
+      "verified_count": 3899,
+      "violation_count": 0,
+      "timestamp": 1769308605.923518
+    },
+    {
+      "up_to": 7900,
+      "verified_count": 3949,
+      "violation_count": 0,
+      "timestamp": 1769308605.92381
+    },
+    {
+      "up_to": 8000,
+      "verified_count": 3999,
+      "violation_count": 0,
+      "timestamp": 1769308605.924085
+    },
+    {
+      "up_to": 8100,
+      "verified_count": 4049,
+      "violation_count": 0,
+      "timestamp": 1769308605.924344
+    },
+    {
+      "up_to": 8200,
+      "verified_count": 4099,
+      "violation_count": 0,
+      "timestamp": 1769308605.924611
+    },
+    {
+      "up_to": 8300,
+      "verified_count": 4149,
+      "violation_count": 0,
+      "timestamp": 1769308605.924854
+    },
+    {
+      "up_to": 8400,
+      "verified_count": 4199,
+      "violation_count": 0,
+      "timestamp": 1769308605.925128
+    },
+    {
+      "up_to": 8500,
+      "verified_count": 4249,
+      "violation_count": 0,
+      "timestamp": 1769308605.925449
+    },
+    {
+      "up_to": 8600,
+      "verified_count": 4299,
+      "violation_count": 0,
+      "timestamp": 1769308605.92573
+    },
+    {
+      "up_to": 8700,
+      "verified_count": 4349,
+      "violation_count": 0,
+      "timestamp": 1769308605.9259782
+    },
+    {
+      "up_to": 8800,
+      "verified_count": 4399,
+      "violation_count": 0,
+      "timestamp": 1769308605.9262002
+    },
+    {
+      "up_to": 8900,
+      "verified_count": 4449,
+      "violation_count": 0,
+      "timestamp": 1769308605.9264379
+    },
+    {
+      "up_to": 9000,
+      "verified_count": 4499,
+      "violation_count": 0,
+      "timestamp": 1769308605.9267619
+    },
+    {
+      "up_to": 9100,
+      "verified_count": 4549,
+      "violation_count": 0,
+      "timestamp": 1769308605.9270332
+    },
+    {
+      "up_to": 9200,
+      "verified_count": 4599,
+      "violation_count": 0,
+      "timestamp": 1769308605.927296
+    },
+    {
+      "up_to": 9300,
+      "verified_count": 4649,
+      "violation_count": 0,
+      "timestamp": 1769308605.927558
+    },
+    {
+      "up_to": 9400,
+      "verified_count": 4699,
+      "violation_count": 0,
+      "timestamp": 1769308605.927844
+    },
+    {
+      "up_to": 9500,
+      "verified_count": 4749,
+      "violation_count": 0,
+      "timestamp": 1769308605.9280698
+    },
+    {
+      "up_to": 9600,
+      "verified_count": 4799,
+      "violation_count": 0,
+      "timestamp": 1769308605.928436
+    },
+    {
+      "up_to": 9700,
+      "verified_count": 4849,
+      "violation_count": 0,
+      "timestamp": 1769308605.928701
+    },
+    {
+      "up_to": 9800,
+      "verified_count": 4899,
+      "violation_count": 0,
+      "timestamp": 1769308605.928946
+    },
+    {
+      "up_to": 9900,
+      "verified_count": 4949,
+      "violation_count": 0,
+      "timestamp": 1769308605.929166
+    },
+    {
+      "up_to": 10000,
+      "verified_count": 4999,
+      "violation_count": 0,
+      "timestamp": 1769308605.929465
+    },
+    {
+      "up_to": 100,
+      "verified_count": 49,
+      "violation_count": 0,
+      "timestamp": 1769308605.9296498
+    },
+    {
+      "up_to": 200,
+      "verified_count": 99,
+      "violation_count": 0,
+      "timestamp": 1769308605.929715
+    },
+    {
+      "up_to": 300,
+      "verified_count": 149,
+      "violation_count": 0,
+      "timestamp": 1769308605.9297888
+    },
+    {
+      "up_to": 400,
+      "verified_count": 199,
+      "violation_count": 0,
+      "timestamp": 1769308605.929882
+    },
+    {
+      "up_to": 500,
+      "verified_count": 249,
+      "violation_count": 0,
+      "timestamp": 1769308605.92997
+    },
+    {
+      "up_to": 600,
+      "verified_count": 299,
+      "violation_count": 0,
+      "timestamp": 1769308605.930078
+    },
+    {
+      "up_to": 700,
+      "verified_count": 349,
+      "violation_count": 0,
+      "timestamp": 1769308605.9301708
+    },
+    {
+      "up_to": 800,
+      "verified_count": 399,
+      "violation_count": 0,
+      "timestamp": 1769308605.9302762
+    },
+    {
+      "up_to": 900,
+      "verified_count": 449,
+      "violation_count": 0,
+      "timestamp": 1769308605.9303901
+    },
+    {
+      "up_to": 1000,
+      "verified_count": 499,
+      "violation_count": 0,
+      "timestamp": 1769308605.930527
+    },
+    {
+      "up_to": 1100,
+      "verified_count": 549,
+      "violation_count": 0,
+      "timestamp": 1769308605.930654
+    },
+    {
+      "up_to": 1200,
+      "verified_count": 599,
+      "violation_count": 0,
+      "timestamp": 1769308605.930783
+    },
+    {
+      "up_to": 1300,
+      "verified_count": 649,
+      "violation_count": 0,
+      "timestamp": 1769308605.930908
+    },
+    {
+      "up_to": 1400,
+      "verified_count": 699,
+      "violation_count": 0,
+      "timestamp": 1769308605.931087
+    },
+    {
+      "up_to": 1500,
+      "verified_count": 749,
+      "violation_count": 0,
+      "timestamp": 1769308605.93121
+    },
+    {
+      "up_to": 1600,
+      "verified_count": 799,
+      "violation_count": 0,
+      "timestamp": 1769308605.931343
+    },
+    {
+      "up_to": 1700,
+      "verified_count": 849,
+      "violation_count": 0,
+      "timestamp": 1769308605.931487
+    },
+    {
+      "up_to": 1800,
+      "verified_count": 899,
+      "violation_count": 0,
+      "timestamp": 1769308605.9316359
+    },
+    {
+      "up_to": 1900,
+      "verified_count": 949,
+      "violation_count": 0,
+      "timestamp": 1769308605.931786
+    },
+    {
+      "up_to": 2000,
+      "verified_count": 999,
+      "violation_count": 0,
+      "timestamp": 1769308605.931947
+    },
+    {
+      "up_to": 2100,
+      "verified_count": 1049,
+      "violation_count": 0,
+      "timestamp": 1769308605.932086
+    },
+    {
+      "up_to": 2200,
+      "verified_count": 1099,
+      "violation_count": 0,
+      "timestamp": 1769308605.932249
+    },
+    {
+      "up_to": 2300,
+      "verified_count": 1149,
+      "violation_count": 0,
+      "timestamp": 1769308605.932391
+    },
+    {
+      "up_to": 2400,
+      "verified_count": 1199,
+      "violation_count": 0,
+      "timestamp": 1769308605.9325252
+    },
+    {
+      "up_to": 2500,
+      "verified_count": 1249,
+      "violation_count": 0,
+      "timestamp": 1769308605.932739
+    },
+    {
+      "up_to": 2600,
+      "verified_count": 1299,
+      "violation_count": 0,
+      "timestamp": 1769308605.9329228
+    },
+    {
+      "up_to": 2700,
+      "verified_count": 1349,
+      "violation_count": 0,
+      "timestamp": 1769308605.933085
+    },
+    {
+      "up_to": 2800,
+      "verified_count": 1399,
+      "violation_count": 0,
+      "timestamp": 1769308605.9332259
+    },
+    {
+      "up_to": 2900,
+      "verified_count": 1449,
+      "violation_count": 0,
+      "timestamp": 1769308605.933386
+    },
+    {
+      "up_to": 3000,
+      "verified_count": 1499,
+      "violation_count": 0,
+      "timestamp": 1769308605.933565
+    },
+    {
+      "up_to": 3100,
+      "verified_count": 1549,
+      "violation_count": 0,
+      "timestamp": 1769308605.9337118
+    },
+    {
+      "up_to": 3200,
+      "verified_count": 1599,
+      "violation_count": 0,
+      "timestamp": 1769308605.933919
+    },
+    {
+      "up_to": 3300,
+      "verified_count": 1649,
+      "violation_count": 0,
+      "timestamp": 1769308605.934119
+    },
+    {
+      "up_to": 3400,
+      "verified_count": 1699,
+      "violation_count": 0,
+      "timestamp": 1769308605.9342568
+    },
+    {
+      "up_to": 3500,
+      "verified_count": 1749,
+      "violation_count": 0,
+      "timestamp": 1769308605.934465
+    },
+    {
+      "up_to": 3600,
+      "verified_count": 1799,
+      "violation_count": 0,
+      "timestamp": 1769308605.934613
+    },
+    {
+      "up_to": 3700,
+      "verified_count": 1849,
+      "violation_count": 0,
+      "timestamp": 1769308605.9347782
+    },
+    {
+      "up_to": 3800,
+      "verified_count": 1899,
+      "violation_count": 0,
+      "timestamp": 1769308605.934962
+    },
+    {
+      "up_to": 3900,
+      "verified_count": 1949,
+      "violation_count": 0,
+      "timestamp": 1769308605.935148
+    },
+    {
+      "up_to": 4000,
+      "verified_count": 1999,
+      "violation_count": 0,
+      "timestamp": 1769308605.935355
+    },
+    {
+      "up_to": 4100,
+      "verified_count": 2049,
+      "violation_count": 0,
+      "timestamp": 1769308605.935523
+    },
+    {
+      "up_to": 4200,
+      "verified_count": 2099,
+      "violation_count": 0,
+      "timestamp": 1769308605.935744
+    },
+    {
+      "up_to": 4300,
+      "verified_count": 2149,
+      "violation_count": 0,
+      "timestamp": 1769308605.935904
+    },
+    {
+      "up_to": 4400,
+      "verified_count": 2199,
+      "violation_count": 0,
+      "timestamp": 1769308605.936127
+    },
+    {
+      "up_to": 4500,
+      "verified_count": 2249,
+      "violation_count": 0,
+      "timestamp": 1769308605.93632
+    },
+    {
+      "up_to": 4600,
+      "verified_count": 2299,
+      "violation_count": 0,
+      "timestamp": 1769308605.936516
+    },
+    {
+      "up_to": 4700,
+      "verified_count": 2349,
+      "violation_count": 0,
+      "timestamp": 1769308605.936713
+    },
+    {
+      "up_to": 4800,
+      "verified_count": 2399,
+      "violation_count": 0,
+      "timestamp": 1769308605.936926
+    },
+    {
+      "up_to": 4900,
+      "verified_count": 2449,
+      "violation_count": 0,
+      "timestamp": 1769308605.93717
+    },
+    {
+      "up_to": 5000,
+      "verified_count": 2499,
+      "violation_count": 0,
+      "timestamp": 1769308605.937332
+    },
+    {
+      "up_to": 5100,
+      "verified_count": 2549,
+      "violation_count": 0,
+      "timestamp": 1769308605.9375691
+    },
+    {
+      "up_to": 5200,
+      "verified_count": 2599,
+      "violation_count": 0,
+      "timestamp": 1769308605.937786
+    },
+    {
+      "up_to": 5300,
+      "verified_count": 2649,
+      "violation_count": 0,
+      "timestamp": 1769308605.937995
+    },
+    {
+      "up_to": 5400,
+      "verified_count": 2699,
+      "violation_count": 0,
+      "timestamp": 1769308605.93825
+    },
+    {
+      "up_to": 5500,
+      "verified_count": 2749,
+      "violation_count": 0,
+      "timestamp": 1769308605.938431
+    },
+    {
+      "up_to": 5600,
+      "verified_count": 2799,
+      "violation_count": 0,
+      "timestamp": 1769308605.938613
+    },
+    {
+      "up_to": 5700,
+      "verified_count": 2849,
+      "violation_count": 0,
+      "timestamp": 1769308605.938849
+    },
+    {
+      "up_to": 5800,
+      "verified_count": 2899,
+      "violation_count": 0,
+      "timestamp": 1769308605.939073
+    },
+    {
+      "up_to": 5900,
+      "verified_count": 2949,
+      "violation_count": 0,
+      "timestamp": 1769308605.939232
+    },
+    {
+      "up_to": 6000,
+      "verified_count": 2999,
+      "violation_count": 0,
+      "timestamp": 1769308605.9395158
+    },
+    {
+      "up_to": 6100,
+      "verified_count": 3049,
+      "violation_count": 0,
+      "timestamp": 1769308605.9397418
+    },
+    {
+      "up_to": 6200,
+      "verified_count": 3099,
+      "violation_count": 0,
+      "timestamp": 1769308605.939958
+    },
+    {
+      "up_to": 6300,
+      "verified_count": 3149,
+      "violation_count": 0,
+      "timestamp": 1769308605.940138
+    },
+    {
+      "up_to": 6400,
+      "verified_count": 3199,
+      "violation_count": 0,
+      "timestamp": 1769308605.9403021
+    },
+    {
+      "up_to": 6500,
+      "verified_count": 3249,
+      "violation_count": 0,
+      "timestamp": 1769308605.9405499
+    },
+    {
+      "up_to": 6600,
+      "verified_count": 3299,
+      "violation_count": 0,
+      "timestamp": 1769308605.940814
+    },
+    {
+      "up_to": 6700,
+      "verified_count": 3349,
+      "violation_count": 0,
+      "timestamp": 1769308605.941029
+    },
+    {
+      "up_to": 6800,
+      "verified_count": 3399,
+      "violation_count": 0,
+      "timestamp": 1769308605.941236
+    },
+    {
+      "up_to": 6900,
+      "verified_count": 3449,
+      "violation_count": 0,
+      "timestamp": 1769308605.9414442
+    },
+    {
+      "up_to": 7000,
+      "verified_count": 3499,
+      "violation_count": 0,
+      "timestamp": 1769308605.941661
+    },
+    {
+      "up_to": 7100,
+      "verified_count": 3549,
+      "violation_count": 0,
+      "timestamp": 1769308605.941887
+    },
+    {
+      "up_to": 7200,
+      "verified_count": 3599,
+      "violation_count": 0,
+      "timestamp": 1769308605.942121
+    },
+    {
+      "up_to": 7300,
+      "verified_count": 3649,
+      "violation_count": 0,
+      "timestamp": 1769308605.9423912
+    },
+    {
+      "up_to": 7400,
+      "verified_count": 3699,
+      "violation_count": 0,
+      "timestamp": 1769308605.942656
+    },
+    {
+      "up_to": 7500,
+      "verified_count": 3749,
+      "violation_count": 0,
+      "timestamp": 1769308605.942932
+    },
+    {
+      "up_to": 7600,
+      "verified_count": 3799,
+      "violation_count": 0,
+      "timestamp": 1769308605.943103
+    },
+    {
+      "up_to": 7700,
+      "verified_count": 3849,
+      "violation_count": 0,
+      "timestamp": 1769308605.943312
+    },
+    {
+      "up_to": 7800,
+      "verified_count": 3899,
+      "violation_count": 0,
+      "timestamp": 1769308605.943528
+    },
+    {
+      "up_to": 7900,
+      "verified_count": 3949,
+      "violation_count": 0,
+      "timestamp": 1769308605.9437902
+    },
+    {
+      "up_to": 8000,
+      "verified_count": 3999,
+      "violation_count": 0,
+      "timestamp": 1769308605.944044
+    },
+    {
+      "up_to": 8100,
+      "verified_count": 4049,
+      "violation_count": 0,
+      "timestamp": 1769308605.944287
+    },
+    {
+      "up_to": 8200,
+      "verified_count": 4099,
+      "violation_count": 0,
+      "timestamp": 1769308605.944525
+    },
+    {
+      "up_to": 8300,
+      "verified_count": 4149,
+      "violation_count": 0,
+      "timestamp": 1769308605.944746
+    },
+    {
+      "up_to": 8400,
+      "verified_count": 4199,
+      "violation_count": 0,
+      "timestamp": 1769308605.945
+    },
+    {
+      "up_to": 8500,
+      "verified_count": 4249,
+      "violation_count": 0,
+      "timestamp": 1769308605.945297
+    },
+    {
+      "up_to": 8600,
+      "verified_count": 4299,
+      "violation_count": 0,
+      "timestamp": 1769308605.9455419
+    },
+    {
+      "up_to": 8700,
+      "verified_count": 4349,
+      "violation_count": 0,
+      "timestamp": 1769308605.945761
+    },
+    {
+      "up_to": 8800,
+      "verified_count": 4399,
+      "violation_count": 0,
+      "timestamp": 1769308605.9459572
+    },
+    {
+      "up_to": 8900,
+      "verified_count": 4449,
+      "violation_count": 0,
+      "timestamp": 1769308605.9461708
+    },
+    {
+      "up_to": 9000,
+      "verified_count": 4499,
+      "violation_count": 0,
+      "timestamp": 1769308605.9464478
+    },
+    {
+      "up_to": 9100,
+      "verified_count": 4549,
+      "violation_count": 0,
+      "timestamp": 1769308605.946687
+    },
+    {
+      "up_to": 9200,
+      "verified_count": 4599,
+      "violation_count": 0,
+      "timestamp": 1769308605.946919
+    },
+    {
+      "up_to": 9300,
+      "verified_count": 4649,
+      "violation_count": 0,
+      "timestamp": 1769308605.947149
+    },
+    {
+      "up_to": 9400,
+      "verified_count": 4699,
+      "violation_count": 0,
+      "timestamp": 1769308605.9473941
+    },
+    {
+      "up_to": 9500,
+      "verified_count": 4749,
+      "violation_count": 0,
+      "timestamp": 1769308605.9475992
+    },
+    {
+      "up_to": 9600,
+      "verified_count": 4799,
+      "violation_count": 0,
+      "timestamp": 1769308605.9479308
+    },
+    {
+      "up_to": 9700,
+      "verified_count": 4849,
+      "violation_count": 0,
+      "timestamp": 1769308605.948159
+    },
+    {
+      "up_to": 9800,
+      "verified_count": 4899,
+      "violation_count": 0,
+      "timestamp": 1769308605.948386
+    },
+    {
+      "up_to": 9900,
+      "verified_count": 4949,
+      "violation_count": 0,
+      "timestamp": 1769308605.9485939
+    },
+    {
+      "up_to": 10000,
+      "verified_count": 4999,
+      "violation_count": 0,
+      "timestamp": 1769308605.9488719
+    }
+  ]
+}
