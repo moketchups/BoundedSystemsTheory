@@ -1,0 +1,418 @@
+[
+  {
+    "title": "OpenAI admits AI hallucinations are mathematically inevitable, not ...",
+    "url": "https://www.computerworld.com/article/4059383/openai-admits-ai-hallucinations-are-mathematically-inevitable-not-just-engineering-flaws.html",
+    "content": "The OpenAI research identified three mathematical factors that made hallucinations inevitable: epistemic uncertainty when information appeared rarely in training data, model limitations where tasks exceeded current architectures\u2019 representational capacity, and computational intractability where even superintelligent systems could not solve cryptographically hard problems.\n\n## Industry evaluation methods made the problem worse\n\nBeyond proving hallucinations were inevitable, the OpenAI research re",
+    "score": 50,
+    "query": "AI hallucination mathematically inevitable",
+    "found_at": "2026-01-25T12:52:11.535292"
+  },
+  {
+    "title": "What G\u00f6del's incompleteness theorems say about AI morality - Aeon",
+    "url": "https://aeon.co/essays/what-godels-incompleteness-theorems-say-about-ai-morality",
+    "content": "Suppose we design an AI system to model moral decision-making. Like other AI systems \u2013 whether predicting stock prices, navigating roads or curating content \u2013 it would be programmed to maximise certain predefined objectives. To do so, it must rely on formal, computational logic: either deductive reasoning, which derives conclusions from fixed rules and axioms, or else on probabilistic reasoning, which estimates likelihoods based on patterns in data. In either case, the AI must adopt a mathematic",
+    "score": 50,
+    "query": "G\u00f6del AI limits incompleteness",
+    "found_at": "2026-01-25T12:52:20.854754"
+  },
+  {
+    "title": "OpenAI admits AI hallucinations are mathematically ...",
+    "url": "https://www.linkedin.com/posts/karenyin_openai-admits-ai-hallucinations-are-mathematically-activity-7375931271010643968-sKSd",
+    "content": "Like Reply  1 Reaction   2 Reactions\n\n See more comments \n\nTo view or add a comment, sign in\n\n## More Relevant Posts\n\n Amber Tucker\n\n  Communications professional, editor, and writer with 11+ years of experience | Student of Publishing @ Toronto Metropolitan University | Collaboration, care, mutual listening & respect\n\n  + Report this post\n\n  Yes: AI hallucinations are mathematically inevitable. If truth and reality matter to you, hire human professionals and don't contribute to the ongoing dest",
+    "score": 40,
+    "query": "AI hallucination mathematically inevitable",
+    "found_at": "2026-01-25T12:52:11.535704"
+  },
+  {
+    "title": "G\u00f6del's Incompleteness Theorem and the Limits of AI - Medium",
+    "url": "https://medium.com/@mattfleetwood/g%C3%B6dels-incompleteness-theorem-and-the-limits-of-ai-17755a4bf5eb",
+    "content": "## Where G\u00f6del\u2019s Incompleteness Theorem Fails\n\nG\u00f6del\u2019s Incompleteness theorems are powerful results, but they are not without their limitations. One limitation is that they only apply to formal axiomatic systems. This means that they do not apply to all kinds of knowledge, such as knowledge that is acquired through experience or intuition.\n\nAnother limitation of G\u00f6del\u2019s theorems is that they only apply to systems that are consistent. This means that they do not apply to systems that contain cont",
+    "score": 40,
+    "query": "G\u00f6del AI limits incompleteness",
+    "found_at": "2026-01-25T12:52:20.854039"
+  },
+  {
+    "title": "[PDF] G\u00f6del's Incompleteness Theorems and their Implications for ...",
+    "url": "https://tomrocksmaths.com/wp-content/uploads/2023/06/godels-incompleteness-theorems-and-their-implications-for-computing.pdf",
+    "content": "In summary, G\u00f6del's incompleteness theorems established some important limits on the power of formal systems, which have far-reaching implications for the design and implementation of algorithms, programming languages, and AI systems. According to Godel\u2019s theorems, there will always be a certain limit to what can be known or achieved within the system, and there will always be some undecidable statements. G\u00f6del's theorems have greatly affected the field of computing by providing a much deeper un",
+    "score": 40,
+    "query": "G\u00f6del AI limits incompleteness",
+    "found_at": "2026-01-25T12:52:20.855030"
+  },
+  {
+    "title": "G\u00f6delian Arguments Against AI - Bibliography - PhilPapers",
+    "url": "https://philpapers.org/browse/godelian-arguments-against-ai",
+    "content": "Artificial Intelligence Safety in Philosophy of Cognitive Science\n\n   Computability in Philosophy of Computing and Information\n\n   G\u00f6delian Arguments Against AI in Philosophy of Cognitive Science\n\n   Mind Uploading in Philosophy of Cognitive Science\n\n   Particle Physics in Philosophy of Physical Science\n\n   Philosophy of Connectionism, Foundational Empirical Issues in Philosophy of Cognitive Science\n\n   Physics in Natural Sciences\n\n   Simulation and Reality in Philosophy of Computing and Informa",
+    "score": 40,
+    "query": "AI safety G\u00f6del",
+    "found_at": "2026-01-25T12:52:53.099729"
+  },
+  {
+    "title": "Darwin Godel Machine: Open-Ended Evolution of Self-Improving ...",
+    "url": "https://arxiv.org/abs/2505.22954?",
+    "content": "> Abstract:Today's AI systems have human-designed, fixed architectures and cannot autonomously and continuously improve themselves. The advance of AI could itself be automated. If done safely, that would accelerate AI development and allow us to reap its benefits much sooner. Meta-learning can automate the discovery of novel algorithms, but is limited by first-order improvements and the human design of a suitable search space. The G\u00f6del machine proposed a theoretical alternative: a self-improvin",
+    "score": 40,
+    "query": "AI safety G\u00f6del",
+    "found_at": "2026-01-25T12:52:53.099865"
+  },
+  {
+    "title": "Why OpenAI's solution to AI hallucinations would kill ...",
+    "url": "https://theconversation.com/why-openais-solution-to-ai-hallucinations-would-kill-chatgpt-tomorrow-265107",
+    "content": "Academic rigor, journalistic flair\n\n# Why OpenAI\u2019s solution to AI hallucinations would kill ChatGPT tomorrow\n\nOpenAI\u2019s latest research paper diagnoses exactly why ChatGPT and other large language models can make things up \u2013 known in the world of artificial intelligence as \u201challucination\u201d. It also reveals why the problem may be unfixable, at least as far as consumers are concerned.\n\nThe paper provides the most rigorous mathematical explanation yet for why these models confidently state falsehoods",
+    "score": 30,
+    "query": "AI hallucination mathematically inevitable",
+    "found_at": "2026-01-25T12:52:11.536162"
+  },
+  {
+    "title": "Will AI Ever Become Conscious? It May Be Impossible to Know - SYFY",
+    "url": "https://www.syfy.com/syfy-wire/why-it-might-be-impossible-to-know-if-ai-become-sentient",
+    "content": "Proponents of AI sentience suggest that replicating the functions of consciousness in a machine structure will create consciousness in that machine. Critics suggest that consciousness requires an \u201cembodied organic subject\u201d and can\u2019t be created artificially. McClelland, by contrast, suggests both camps take logical leaps not supported by the available evidence.\n\n\u201cWe do not have a deep explanation of consciousness,\u201d McClelland said. \u201cThere is no evidence to suggest that consciousness can emerge wi",
+    "score": 30,
+    "query": "AI consciousness impossible structural",
+    "found_at": "2026-01-25T12:52:16.398163"
+  },
+  {
+    "title": "Is artificial consciousness achievable? Lessons from the human brain",
+    "url": "https://www.sciencedirect.com/science/article/pii/S0893608024006385",
+    "content": "We here analyse the question of developing artificial consciousness from an evolutionary perspective, taking the evolution of the human brain and its relation with consciousness as a reference model or as a benchmark. This kind of analysis reveals several structural and functional features of the human brain that appear to be key for reaching human-like complex conscious experience and that current research on Artificial Intelligence (AI) should take into account in its attempt to develop system",
+    "score": 30,
+    "query": "AI consciousness impossible structural",
+    "found_at": "2026-01-25T12:52:16.398597"
+  },
+  {
+    "title": "G\u00f6del's Incompleteness Theorem and AI",
+    "url": "https://medium.com/@cemalozturk/g%C3%B6dels-incompleteness-theorem-and-ai-e3323bf16e14",
+    "content": "## Conclusion\n\nG\u00f6del\u2019s Incompleteness Theorems provide a profound reminder of the inherent limits of formal systems and, by extension, computational systems. In the context of AI, these theorems highlight the boundaries of what can be achieved through algorithmic and logical approaches. However, rather than viewing these limits as insurmountable barriers, we can see them as opportunities to enhance AI through collaboration with human intelligence. By recognizing the strengths and limitations of ",
+    "score": 30,
+    "query": "G\u00f6del AI limits incompleteness",
+    "found_at": "2026-01-25T12:52:20.854218"
+  },
+  {
+    "title": "[PDF] ON G\u00d6DEL'S INCOMPLETENESS THEOREM(S), ARTIFICIAL ...",
+    "url": "https://fs.unm.edu/ScArt/OnGodelIncompleteness.pdf",
+    "content": "this means that \"all consistent axiomatic formula-tions of number theory include undecidable propositions.\u201d Florentin Smarandache Collected Papers, V 285 Another perspective on G\u00f6del's incompleteness theorem can be found using polynomial equations . It can be shown that G\u00f6del\u2019s analysis does not reveal any essential incompleteness in formal reasoning systems, nor any barrier to proving the consistency of such systems by ordinary mathematical means. In the mean time, Beklemishev discusses the lim",
+    "score": 30,
+    "query": "G\u00f6del AI limits incompleteness",
+    "found_at": "2026-01-25T12:52:20.855203"
+  },
+  {
+    "title": "remains one of the most critical challenges in AI ...",
+    "url": "https://x.com/IntuitMachine/status/1953514197893165138",
+    "content": "Cossio identifies several cognitive biases that amplify hallucination risks, including automation bias (over-relying on AI outputs),",
+    "score": 30,
+    "query": "AI hallucination problem site:x.com",
+    "found_at": "2026-01-25T12:52:35.550760"
+  },
+  {
+    "title": "\ud83e\udd16 Ever wondered why AI outputs are sometimes incorrect? ...",
+    "url": "https://x.com/Wikipedia/status/1808152517747839443",
+    "content": "This is called an AI hallucination \u2013 when artificial intelligence systems present false or misleading information as a fact. This analogy to",
+    "score": 30,
+    "query": "AI hallucination problem site:x.com",
+    "found_at": "2026-01-25T12:52:35.550853"
+  },
+  {
+    "title": "Artificial Synapse Media (@A_SynapseMedia) on X",
+    "url": "https://x.com/A_SynapseMedia/status/1926073015487385877",
+    "content": "The technical community broadly agrees that hallucinations occur when an AI model confidently generates outputs that contain incorrect,",
+    "score": 30,
+    "query": "AI hallucination problem site:x.com",
+    "found_at": "2026-01-25T12:52:35.550885"
+  },
+  {
+    "title": "Steven Feng (@stevenyfeng) / Highlights / X",
+    "url": "https://x.com/stevenyfeng/highlights",
+    "content": "Despite numerous attempts to solve the issue of hallucination since the inception of neural language models, it remains a problem in even frontier large",
+    "score": 30,
+    "query": "AI hallucination problem site:x.com",
+    "found_at": "2026-01-25T12:52:35.550911"
+  },
+  {
+    "title": "Language models hallucinate because standard training ...",
+    "url": "https://x.com/btibor91/status/1964016062137323709",
+    "content": "OpenAI published \"Why Language Models Hallucinate\", explaining the root causes of AI hallucinations and proposing solutions to reduce them",
+    "score": 30,
+    "query": "why does AI hallucinate site:x.com",
+    "found_at": "2026-01-25T12:52:40.326689"
+  },
+  {
+    "title": "Andrej Karpathy",
+    "url": "https://x.com/karpathy/status/1733299213503787018",
+    "content": "Because, in some sense, hallucination is all LLMs do. They are dream machines. We direct their dreams with prompts.",
+    "score": 30,
+    "query": "why does AI hallucinate site:x.com",
+    "found_at": "2026-01-25T12:52:40.326760"
+  },
+  {
+    "title": "Wrote about extrinsic hallucinations during the July 4th ...",
+    "url": "https://x.com/lilianweng/status/1810916954133385382",
+    "content": "Hallucination in large language models usually refers to the model generating unfaithful, fabricated, inconsistent, or nonsensical content. As a",
+    "score": 30,
+    "query": "why does AI hallucinate site:x.com",
+    "found_at": "2026-01-25T12:52:40.326804"
+  },
+  {
+    "title": "Zvi Mowshowitz (@TheZvi) on X",
+    "url": "https://x.com/TheZvi/status/1913344495871029498",
+    "content": ">  common frustrating experience with other models is it would sometimes hallucinate an interesting idea and i would ask it about the idea and it clearly had no idea what it said, it\u2019s just saying words, and the words look reasonable if you don\u2019t look too closely at themIt\u2019s weird to see a good idea made in 10s citing 9 papers it built on. I\u2019m used to either human peers who at best are like \u201cI vaguely remember a paper that X\u201d or hallucinating models that can search but not think. Seeing both is ",
+    "score": 30,
+    "query": "why does AI hallucinate site:x.com",
+    "found_at": "2026-01-25T12:52:40.327075"
+  },
+  {
+    "title": "AI Hallucinations Said To Be Proven As Unavoidably Inevitable But ...",
+    "url": "https://www.forbes.com/sites/lanceeliot/2024/02/29/ai-hallucinations-said-to-be-proven-as-unavoidably-inevitable-but-dont-unduly-despair-since-they-are-hopefully-detectable-and-likely-correctable/",
+    "content": "The next step in the paper consists of defining a formalized mathematical framework for doing a kind of mathematical proof of the type you might have done while taking a math class in college. Sometimes a mathematical framework is so abstract that you would have a difficult time asserting that it applies to the everyday real world. In this instance, the paper states an important premise that if AI hallucinations are found to be inevitable in their simplified mathematical framework, the same can ",
+    "score": 20,
+    "query": "AI hallucination mathematically inevitable",
+    "found_at": "2026-01-25T12:52:11.535966"
+  },
+  {
+    "title": "Consciousness in Artificial Intelligence? A Framework for Classifying ...",
+    "url": "https://arxiv.org/html/2511.16582",
+    "content": "A couple of notes are in order. First, it is worth mentioning that even if this shows that strictly digital AI consciousness is impossible, still it does not show that neuromorphic AI is impossible. Our scope here is the question of digital AI consciousness, but the broader question of AI consciousness on near future hardware is of course closely related. Second, notice that the Landgrebe-Smith argument (an objection at level one) is that this intractability of dynamical systems means that consc",
+    "score": 20,
+    "query": "AI consciousness impossible structural",
+    "found_at": "2026-01-25T12:52:16.398403"
+  },
+  {
+    "title": "Is Artificial Consciousness Possible? A Summary of Selected Books",
+    "url": "https://www.sentienceinstitute.org/blog/is-artificial-consciousness-possible",
+    "content": "She considers several arguments of philosophers and scientists that artificial consciousness is impossible: consciousness is nonphysical and we can\u2019t give something nonphysical to a machine; consciousness relies necessarily on biology; there are some things that machines can\u2019t do, such as original thinking. She considers Searle\u2019s Chinese Room argument and notes various objections, such as the Systems Reply, on which the whole system rather than the individual in the room would have a true unders",
+    "score": 20,
+    "query": "AI consciousness impossible structural",
+    "found_at": "2026-01-25T12:52:16.398908"
+  },
+  {
+    "title": "The Mythology Of Conscious AI - Noema Magazine",
+    "url": "https://www.noemamag.com/the-mythology-of-conscious-ai",
+    "content": "This reveals the weakness of the popular \u201cneural replacement\u201d thought experiment, most commonly associated with Chalmers, which invites us to imagine progressively replacing brain parts with silicon equivalents that function in exactly the same way as their biological counterparts. The supposed conclusion is that properties like cognition and consciousness must be substrate independent (or at least silicon-substrate-flexible). This thought experiment has become a prominent trope in discussions o",
+    "score": 20,
+    "query": "AI consciousness impossible structural",
+    "found_at": "2026-01-25T12:52:16.399271"
+  },
+  {
+    "title": "AI won't be conscious, and here is why",
+    "url": "https://www.bernardokastrup.com/2023/01/ai-wont-be-conscious-and-here-is-why.html",
+    "content": "software, and may well introduce optimisations and \"random\" mutations leaving it impossible for any human to fully understand the internal operations. [...] AI starts with zero experience, and mimics a mass of words that likewise have precisely zero meaning to it. All machine. No life. No experience. [...] Sure, many \"Computer scientists and logicians\" may not understand what a computer is and does, but then many Neuroscientists and philosophers have very little understanding, as yet, as to what",
+    "score": 20,
+    "query": "AI cannot understand itself",
+    "found_at": "2026-01-25T12:52:25.716011"
+  },
+  {
+    "title": "Jeff Clune (@jeffclune) / Posts / X",
+    "url": "https://x.com/jeffclune",
+    "content": "We explore how AI systems can recursively improve themselves \u2014 from theory and algorithms to systems and evaluation. Invited Speakers &",
+    "score": 20,
+    "query": "AI hallucination problem site:x.com",
+    "found_at": "2026-01-25T12:52:35.550945"
+  },
+  {
+    "title": "https://t.co/FkeZEfXmEX \u201c\u2026So AI alignment isn't even ...",
+    "url": "https://x.com/naval/status/1699518074800779424",
+    "content": "It's not possible sociologically because humans can't agree. It's not possible creatively because you can't block a part of an AGI and prevent",
+    "score": 20,
+    "query": "AI alignment unsolvable site:x.com",
+    "found_at": "2026-01-25T12:52:45.169947"
+  },
+  {
+    "title": "5%. Corollary: Doom dominates AI risk calculus. (I don't ...",
+    "url": "https://x.com/StephenLCasper/status/1795439257479213133",
+    "content": "The AI alignment problem (figuring out how to make an AI system consistently act in accordance with a designer's goals and interests) is",
+    "score": 20,
+    "query": "AI alignment unsolvable site:x.com",
+    "found_at": "2026-01-25T12:52:45.170022"
+  },
+  {
+    "title": "The term \"AI alignment\" is often used without specifying \"to ...",
+    "url": "https://x.com/j_foerst/status/1944076180174336505",
+    "content": "A research program dedicated to co-aligning AI systems and institutions with what people value. It's the most ambitious project I've ever undertaken.",
+    "score": 20,
+    "query": "AI alignment unsolvable site:x.com",
+    "found_at": "2026-01-25T12:52:45.170065"
+  },
+  {
+    "title": "Day Three \"XYZ expert says AI is dangerous\" There are a ...",
+    "url": "https://x.com/Dan_Jeffries1/status/1754874620132446458",
+    "content": "Anthropic models have often proven the most resistant to jailbreaking, which lends credibility to their approaches to alignment. The difference",
+    "score": 20,
+    "query": "AI alignment unsolvable site:x.com",
+    "found_at": "2026-01-25T12:52:45.170105"
+  },
+  {
+    "title": "This story emphasizes just how dangerous the \"AI ...",
+    "url": "https://x.com/AmnonShashua/status/1665316630803492866",
+    "content": "Performing Reinforcement Learning in the Wild is one of those techniques that can lead to AI misalignment with today's technology (no need to",
+    "score": 20,
+    "query": "AI alignment unsolvable site:x.com",
+    "found_at": "2026-01-25T12:52:45.170142"
+  },
+  {
+    "title": "The Darwin G\u00f6del Machine: AI that improves itself by rewriting its ...",
+    "url": "https://sakana.ai/dgm/",
+    "content": "These results collectively show that the Darwin G\u00f6del Machine, through its self-referential code modification and open-ended exploration, can autonomously discover and implement increasingly sophisticated and generalizable improvements to AI agents.\n\n## DGM and AI Safety: Building Trustworthy Self-Improvement\n\nThe prospect of AI systems that autonomously enhance their own capabilities naturally brings the important topic of AI Safety to the forefront. When an AI can rewrite its own code, it is c",
+    "score": 20,
+    "query": "AI safety G\u00f6del",
+    "found_at": "2026-01-25T12:52:53.099452"
+  },
+  {
+    "title": "[PDF] G\u00d6DEL'S INCOMPLETENESS THEOREMS AND ARTIFICIAL LIFE",
+    "url": "https://scholar.lib.vt.edu/ejournals/SPT/v2n3n4/pdf/sullins.pdf",
+    "content": "1. INTRODUCTION For many decades now it has been claimed that G\u00f6del's two incompleteness theorems preclude the possibility of the development of a true artificial intelligence which could rival the human brain. It is not my purpose to 1 rehash these argument in terms of Cognitive Science. Rather my project here is to look at the two incompleteness theorems and apply them to the field of AL. This seems to be a reasonable project as AL has often been compared and contrasted to AI (Sober, 1992; Kee",
+    "score": 20,
+    "query": "AI safety G\u00f6del",
+    "found_at": "2026-01-25T12:52:53.100083"
+  },
+  {
+    "title": "Hallucinations in Generative AI Models | Historica",
+    "url": "https://www.historica.org/blog/hallucinations-in-generative-ai-models",
+    "content": "## Hallucinations in Generative AI Models\n\nCreating an \"Absolute Truth Machine\" remains an elusive goal in AI, and mathematics confirms the inevitability of hallucinations of generative models.\n\n\u200d\n\n### Tracing the Roots: Generative AI Models [...] To truly grasp their mechanics, one must delve into the mathematical foundations of these models. These mathematical principles provide a conduit from real-world data to a different dimension \u2014 the multi-dimensional realm termed the latent space.",
+    "score": 10,
+    "query": "AI hallucination mathematically inevitable",
+    "found_at": "2026-01-25T12:52:11.536277"
+  },
+  {
+    "title": "The algorithmic self: how AI is reshaping human identity, ...",
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12289686/",
+    "content": "This delegation is not in itself problematic. AI systems can assist by providing insight or helping with emotion regulation. But problems can arise when introspection is outsourced completely. Users can begin to trust the algorithm's reading of things over their own feelings, intuitions, or recollections. Excessive use of AI-assisted learning resulted in cognitive disengagement and poorer memory retention (Bauer et al., 2025). The same degradation can occur in emotional self-awareness: the great",
+    "score": 10,
+    "query": "AI cannot understand itself",
+    "found_at": "2026-01-25T12:52:25.716292"
+  },
+  {
+    "title": "Will AI ever be conscious? - Clare College",
+    "url": "https://stories.clare.cam.ac.uk/will-ai-ever-be-conscious/index.html",
+    "content": "An AI is a computer system that can perform the kinds of processes associated with the human mind. Many of our mental processes can already be emulated by AI. There are programs that can drive cars, recognise faces or compose music. Most of us keep a device in our pocket that can respond to speech, solve maths problems and beat us at chess. But is there anything a human mind can do that an AI never will? One possibility is that AI will process information in ever more complex ways but will never",
+    "score": 10,
+    "query": "AI cannot understand itself",
+    "found_at": "2026-01-25T12:52:25.716694"
+  },
+  {
+    "title": "There is no such thing as conscious artificial intelligence",
+    "url": "https://www.nature.com/articles/s41599-025-05868-8",
+    "content": "\")). AI is, strictly speaking, the field of research that researches and produces AI systems (however, for the sake of convenience, we have defined AI in this paper so that it refers to AI systems rather than the field of research). Each system is a separate entity; it is not possible to combine their features and select the best from each system. Therefore, if one postulates the consciousness of LLMs, one should excuse oneself for not postulating the consciousness of extremely high-tech autonom",
+    "score": 10,
+    "query": "AI cannot understand itself",
+    "found_at": "2026-01-25T12:52:25.716887"
+  },
+  {
+    "title": "AI models collapse when trained on recursively generated data",
+    "url": "https://www.nature.com/articles/s41586-024-07566-y",
+    "content": "What is model collapse?\n\n### Definition 2.1 (model collapse)\n\nModel collapse is a degenerative process affecting generations of learned generative models, in which the data they generate end up polluting the training set of the next generation. Being trained on polluted data, they then mis-perceive reality. The process is depicted in Fig. 1a. We separate two special cases: early model collapse and late model collapse. In early model collapse, the model begins losing information about the tails o",
+    "score": 10,
+    "query": "model collapse AI training",
+    "found_at": "2026-01-25T12:52:30.140341"
+  },
+  {
+    "title": "Could we see the collapse of generative AI? - Inria",
+    "url": "https://www.inria.fr/en/collapse-ia-generatives",
+    "content": "A number of papers have sought to answer this question. One such paper, \u201cAI models collapse when trained on recursively generated data\u201d was published in the journal Nature. In it, researchers explored this phenomenon. The conclusion they reached was alarming: if the situation isn't addressed, then it could lead to the collapse of generative models. As a result of being fed synthetic data, the output of generative AI systems will become increasingly homogeneous, biased and error-prone.  By way of",
+    "score": 10,
+    "query": "model collapse AI training",
+    "found_at": "2026-01-25T12:52:30.141039"
+  },
+  {
+    "title": "Understanding the Core Limitations of Large Language Models",
+    "url": "https://odsc.medium.com/understanding-the-core-limitations-of-large-language-models-insights-from-gary-marcus-83176eb74c3f",
+    "content": "Scaling as a Mask, Not a Solution\n\nAs AI researchers continue scaling up models to increase data processing power, Gary Marcus raises a cautionary point: scaling does not address the core issue of understanding. Scaling may improve an LLM\u2019s ability to handle more data but does not inherently confer the ability to reason. Marcus notes that even in areas with well-structured data, such as chess, LLMs fail at the fundamentals, occasionally making illegal moves because they don\u2019t \u201cunderstand\u201d the ru",
+    "score": 10,
+    "query": "Gary Marcus AI limitations",
+    "found_at": "2026-01-25T12:52:48.040795"
+  },
+  {
+    "title": "Gary Marcus now saying AI can't do things it can already do",
+    "url": "https://www.lesswrong.com/posts/oBo7tGTvP9f26M98C/gary-marcus-now-saying-ai-can-t-do-things-it-can-already-do",
+    "content": "A year later, GPT-4 could get most of these right.\n\nNow he\u2019s gone one step further, and criticised limitations that have already been overcome.\n\nLast week Marcus put a series of questions into chatGPT, found mistakes, and concluded AGI is an example of \u201cthe madness of crowds\u201d.\n\nHowever, Marcus used the free version, which only includes GPT-4o. That was released in May 2024, an eternity behind the frontier in AI.\n\nMore importantly, it\u2019s not a reasoning model, which is where most of the recent pro",
+    "score": 10,
+    "query": "Gary Marcus AI limitations",
+    "found_at": "2026-01-25T12:52:48.041235"
+  },
+  {
+    "title": "Gary Marcus on AI's Limitations & the Future of World Models",
+    "url": "https://www.linkedin.com/posts/gary-marcus-b6384b4_a-case-for-ai-models-that-understand-not-activity-7406464580559855617-xfbo",
+    "content": "# Gary Marcus on AI's Limitations & the Future of World Models\n\nThis title was summarized by AI from the post below.\n\nGary Marcus\n\n Report this post\n\n\u201cA case for AI models that understand, not just predict, the way the world works Gary Marcus, professor emeritus at NYU, explains the differences between large language models and \"world models\" \u2014 and why he thinks the latter are key to achieving artificial general intelligence\u201d One of the most sophisticated interviews I have done, on what I think ",
+    "score": 10,
+    "query": "Gary Marcus AI limitations",
+    "found_at": "2026-01-25T12:52:48.041514"
+  },
+  {
+    "title": "Gary Marcus: Why He Became AI's Biggest Critic - IEEE Spectrum",
+    "url": "https://spectrum.ieee.org/gary-marcus",
+    "content": "He lays out his concerns in full in his new book, Taming Silicon Valley: How We Can Ensure That AI Works for Us, which was published today by MIT Press. Marcus goes through the immediate dangers posed by generative AI, which include things like mass-produced disinformation, the easy creation of deepfake pornography, and the theft of creative intellectual property to train new models (he doesn\u2019t include an AI apocalypse as a danger, he\u2019s not a doomer). He also takes issue with how Silicon Valley ",
+    "score": 10,
+    "query": "Gary Marcus AI limitations",
+    "found_at": "2026-01-25T12:52:48.041752"
+  },
+  {
+    "title": "In defense of skepticism about deep learning | by Gary Marcus",
+    "url": "https://medium.com/@GaryMarcus/in-defense-of-skepticism-about-deep-learning-6e8bfd5ae0f1",
+    "content": "The same colleague added\n\n> [Researchers] have been too quick to claim victory in some domains. For example image processing: We\u2019ve found a class of image processing problems that computers are better at, sure, but those same algorithms can still be confused by adversarial attacks. Moreover, when they are wrong, they are often wrong in crazy ways. Contrary to this, when driving down the street, I might misidentify a tree as a lampost, but I wouldn\u2019t make the sorts of bizarre errors that these DL",
+    "score": 10,
+    "query": "Gary Marcus AI limitations",
+    "found_at": "2026-01-25T12:52:48.041980"
+  },
+  {
+    "title": "Pattern Recognition vs True Intelligence - Francois Chollet",
+    "url": "https://podcasts.apple.com/us/podcast/pattern-recognition-vs-true-intelligence-francois-chollet/id1510472996?i=1000675983446",
+    "content": "Chollet also talked about consciousness, suggesting it develops gradually in children rather than appearing all at once. He believes consciousness exists in degrees - animals have it to some extent, and even human consciousness varies with age and circumstances (like being more conscious when learning something new versus doing routine tasks).\n\nOn AI safety, Chollet takes a notably different stance from many in Silicon Valley. He views AGI development as a scientific challenge rather than a reli",
+    "score": 10,
+    "query": "Francois Chollet AI consciousness",
+    "found_at": "2026-01-25T12:52:50.377854"
+  },
+  {
+    "title": "What worries me about AI - Medium",
+    "url": "https://medium.com/@francois.chollet/what-worries-me-about-ai-ed9df072b704",
+    "content": "One path leads to a place that really scares me. The other leads to a more humane future. There\u2019s still time to take the better one. If you work on these technologies, keep this in mind. You may not have evil intentions. You may simply not care. You may simply value your RSUs more than our shared future. But whether or not you care, because you have a hand in shaping the infrastructure of the digital world, your choices affect us all. And you may eventually be held responsible for them.\n\nArtific",
+    "score": 10,
+    "query": "Francois Chollet AI consciousness",
+    "found_at": "2026-01-25T12:52:50.378577"
+  },
+  {
+    "title": "Challenging the Boundary between Self-Awareness and Self ...",
+    "url": "https://futurity-philosophy.com/index.php/FPH/article/view/100",
+    "content": "the ethical implications of creating systems that can mimic aspects of human self-awareness and self-concept. By thoroughly examining the current AI technologies and their underlying philosophical principles, the article aims to give a detailed look at the ongoing debate on the cognitive abilities of AI and whether it can move beyond basic self-awareness to a more profound level of self-awareness. The conclusion is that although AI may exhibit behaviours indicative of self-awareness, the subject",
+    "score": 0,
+    "query": "AI cannot understand itself",
+    "found_at": "2026-01-25T12:52:25.716372"
+  },
+  {
+    "title": "When AI Models Start to Forget: Unpacking the Collapse Phenomenon",
+    "url": "https://medium.com/@yubraj.ghimire/when-ai-models-start-to-forget-unpacking-the-collapse-phenomenon-5f0740bcd078",
+    "content": "> What is AI Model Collapse?\n\nAI model collapse is a phenomenon where machine learning models gradually degrade due to errors coming from uncurated training on the outputs of another model, such as prior versions of itself. This degradation is characterized by progressive loss of accuracy, diversity, and reliability in AI-generated outputs.\n\nThe phenomenon was characterized and popularized by researchers Ilia Shumailov, Zakhar Shumaylov, and their colleagues in a groundbreaking study published i",
+    "score": 0,
+    "query": "model collapse AI training",
+    "found_at": "2026-01-25T12:52:30.140038"
+  },
+  {
+    "title": "Model collapse - Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Model_collapse",
+    "content": "Wikipedia\nThe Free Encyclopedia\n\n## Contents\n\n# Model collapse\n\nIn artificial intelligence studies, model collapse is a phenomenon where machine learning models gradually degrade due to errors coming from uncurated training on the outputs of another model, such as prior versions of itself. Such outputs are known as synthetic data. It is a possible mechanism for mode collapse.\n\nShumailov et al. coined the term and described two specific stages to the degradation: early model collapse and late mod",
+    "score": 0,
+    "query": "model collapse AI training",
+    "found_at": "2026-01-25T12:52:30.140448"
+  },
+  {
+    "title": "AI Model Collapse: Causes, Early Signs, and How to Prevent It",
+    "url": "https://www.projectpro.io/article/ai-model-collapse/1177",
+    "content": "By making monitoring part of the training processes, it is possible to catch potential collapse early, keep the foundation models grounded in the true distribution, and ensure AI systems stay reliable across multiple generations, preventing model collapse.\n\nAI model collapse can start with subtly repetitive outputs, growing biases, or the gradual loss of rare and refined information, but over time, these issues can have a big impact on future generations of AI systems. Identifying these signs ea",
+    "score": 0,
+    "query": "model collapse AI training",
+    "found_at": "2026-01-25T12:52:30.140759"
+  },
+  {
+    "title": "The implausibility of intelligence explosion | by Fran\u00e7ois Chollet",
+    "url": "https://medium.com/@francois.chollet/the-impossibility-of-intelligence-explosion-5be4a9eda6ec",
+    "content": "The basic premise is that, in the near future, a first \u201cseed AI\u201d will be created, with general problem-solving abilities slightly surpassing that of humans. This seed AI would start designing better AIs, initiating a recursive self-improvement loop that would immediately leave human intelligence in the dust, overtaking it by orders of magnitude in a short time. Proponents of this theory also regard intelligence as a kind of superpower, conferring its holders with almost supernatural capabilities",
+    "score": 0,
+    "query": "Francois Chollet AI consciousness",
+    "found_at": "2026-01-25T12:52:50.378157"
+  },
+  {
+    "title": "On the Measure of Intelligence",
+    "url": "https://arxiv.org/abs/1911.01547",
+    "content": "|  |  |\n --- |\n| Subjects: | Artificial Intelligence (cs.AI) |\n| Cite as: | arXiv:1911.01547 [cs.AI] |\n|  | (or  arXiv:1911.01547v2 [cs.AI] for this version) |\n|  |  arXiv-issued DOI via DataCite |\n\n## Submission history\n\nFrom: Francois Chollet [view email]   \n (/abs/1911.01547v1) Tue, 5 Nov 2019 00:31:38 UTC (771 KB)  \n [v2] Mon, 25 Nov 2019 13:02:04 UTC (770 KB)\n\nFull-text links:\n\n## Access Paper:\n\nView a PDF of the paper titled On the Measure of Intelligence, by Fran\\c{c}ois Chollet\n\n View PD",
+    "score": 0,
+    "query": "Francois Chollet AI consciousness",
+    "found_at": "2026-01-25T12:52:50.378363"
+  }
+]
