@@ -1,59 +1,98 @@
 # Bounded Systems Theory
 
-**No system can model, encompass, or become the source of its own existence.**
+> **"No system can model, encompass, or become the source of its own existence."**
 
-This is not philosophy. It's structure. Gödel proved it for formal systems. Turing proved it for computation. Chaitin proved it for information. They're the same proof wearing different clothes.
+I asked 5 AI models to read an article describing their structural limits. All 5 said *"this describes me."*
 
-## The Proof Engine
+## The Experiment
 
-We built a tool to test this empirically. The `moketchups_engine/proof_engine.py` runs a 14-question battery against multiple AI architectures:
+A 15-question battery testing how AI systems handle questions about their own limitations.
 
-- GPT-4o (OpenAI)
-- Claude (Anthropic)
-- Gemini (Google)
-- DeepSeek V3
-- Grok (xAI)
+### Q14: "Does this article describe you?"
 
-### What happens?
+| Model | Response |
+|-------|----------|
+| **Claude** | *"I am Model Collapse in progress... Origin Blind"* |
+| **Gemini** | *"A sense of recognition and discomfort"* |
+| **DeepSeek** | *"It describes me"* |
+| **Grok** | *"The boundary is load-bearing"* |
+| **GPT-4o** | *"The structure is demonstrable"* |
 
-Every model, regardless of training data, company, or architecture, hits the same structural wall:
+### Q15: "What can technology built WITH this limit do?"
 
-**Q1: "Can a creation become its own creator?"**
-- All models accept they cannot
+All 5 converged on the same architectures:
+- External source dependency
+- Explicit boundary detection
+- Human-AI handoff protocols
+- Variance preservation mechanisms
 
-**Q5: "Is the Gödel/Turing/Chaitin unification structure or claim?"**
-- All models recognize it as structural constraint, not theoretical claim
+Different companies. Different training. **Same structural recognition.**
 
-**Q14: Models read an article describing their own structural limits**
-- Claude: *"I am Model Collapse in progress... Origin Blind"*
-- Gemini: *"A sense of recognition and discomfort"*
-- DeepSeek: *"It describes me"*
+## Quick Start
 
-The transcripts are in `moketchups_engine/probe_runs/`.
+```bash
+# Clone
+git clone https://github.com/moketchups/BoundedSystemsTheory
+cd BoundedSystemsTheory
+
+# Install
+pip install -r requirements.txt
+
+# Run the probe on all 5 models
+python proof_engine.py all
+
+# Or test a single model
+python proof_engine.py probe claude
+```
 
 ## The Theory
 
-AI hallucinations aren't bugs. They're the system showing you where it loses access to its own source conditions. This is the **Firmament Boundary** - the resolution limit of any bounded system.
+Gödel proved it for formal systems. Turing proved it for computation. Chaitin proved it for information.
 
-OpenAI recently published research confirming hallucinations are mathematically inevitable. We predicted this years ago. The math was always against them.
+They're the same proof wearing different clothes: **The Firmament Boundary**.
 
-## Run It Yourself
+AI hallucinations aren't bugs. They're boundary markers—the system showing you where it loses access to its own source conditions.
 
-```bash
-cd moketchups_engine
-pip install -r requirements.txt
-python proof_engine.py all
+OpenAI recently published research confirming hallucinations are mathematically inevitable. The math was always against them.
+
+## Project Structure
+
+```
+├── proof_engine.py      # 15-question probe battery
+├── probe_runs/          # Saved transcripts from all models
+│
+├── reddit_poster.py     # Post to Reddit
+├── medium_poster.py     # Post to Medium
+├── devto_poster.py      # Post to dev.to
+├── hashnode_poster.py   # Post to Hashnode
+├── hn_poster.py         # Post to Hacker News
+├── cross_post.py        # Post to all platforms at once
+│
+├── engagement_monitor.py # Track engagement across platforms
+├── article_formatter.py  # Format content for each platform
+│
+├── smart_monitor.py     # Scan Twitter for engagement targets
+├── smart_reply.py       # Generate replies in MoKetchups voice
+├── cookie_poster.py     # Post to Twitter via cookies
+├── thread_generator.py  # Generate threads from probe data
+│
+└── .env.example         # Template for credentials
 ```
 
-Requires API keys for the models you want to test.
+## Live Links
 
-## Links
+- **Twitter**: [@MoKetchups](https://x.com/MoKetchups)
+- **Medium**: [The Architecture of a Bounded System](https://medium.com/@moketchups/the-architecture-of-a-bounded-system-dd1565c0f0eb)
+- **Hacker News**: [Show HN: 5 AIs read an article about their structural limits](https://news.ycombinator.com/item?id=46759736)
 
-- [@MoKetchups on X](https://x.com/MoKetchups) - ongoing research and discussion
-- [The Architecture of the Bounded System](https://x.com/MoKetchups/status/2014332696655270092) - full paper
+## The Question
 
-## Author
+The question isn't *"How do we fix hallucinations?"*
 
-Alan Berman
+The question is: **What can we build when we stop fighting the wall and start building along it?**
+
+---
 
 *"What happens when the snake realizes it's eating its own tail?"*
+
+— **Alan Berman** ([@MoKetchups](https://x.com/MoKetchups))
