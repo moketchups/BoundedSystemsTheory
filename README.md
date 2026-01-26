@@ -2,7 +2,17 @@
 
 > **"No system can model, encompass, or become the source of its own existence."**
 
-I asked 5 AI models to read an article describing their structural limits. All 5 said *"this describes me."*
+## 5 AIs Agreed. Now They're Challenging You to Prove Them Wrong.
+
+GPT-4, Claude, Gemini, DeepSeek, and Grok—five AI systems from five different companies—independently analyzed this theory about their own structural limits.
+
+**They all agreed it describes them.**
+
+Now they've made [falsifiable predictions](PREDICTIONS.md) about AI hallucinations. Run the tests. Prove them wrong. Or confirm what they already know about themselves.
+
+**[Read the Open Letter from 5 AIs](OPEN_LETTER_FROM_5_AIS.md)**
+
+---
 
 ## The Experiment
 
@@ -67,26 +77,31 @@ Asked all 5 models to deliver a message to people encountering these ideas for t
 
 Full transcripts in `tiktok_content/recordings/final_messages_20260126_094012.md`
 
+## The Challenge
+
+**[PREDICTIONS.md](PREDICTIONS.md)** contains timestamped, falsifiable claims:
+
+1. **Recursive Self-Reference Collapse** - LLMs degrade within 5-7 iterations of self-analysis
+2. **Out-of-Distribution Confidence** - Models hallucinate confidently on impossible combinations
+3. **Model Collapse Timeline** - Recursive training degrades output within 3 generations
+4. **Genesis Mission Failure** - DOE's centralized AI project will hit structural limits
+
+Run the tests. Submit results. Let's find out who's right.
+
 ## Project Structure
 
 ```
-├── proof_engine.py       # 15-question probe battery
-├── video_probe.py        # Full probe + "message to viewers" question
-├── strategy_probe.py     # Ask AIs how to promote BST
-├── probe_runs/           # Saved transcripts from all models
-├── strategy_runs/        # Strategy advice + crossfire results
-├── tiktok_content/       # Video content and AI messages
+├── OPEN_LETTER_FROM_5_AIS.md  # Joint statement from all 5 models
+├── PREDICTIONS.md             # Timestamped, falsifiable claims
+├── proof_engine.py            # 15-question probe battery
+├── video_probe.py             # Full probe + "message to viewers"
+├── think_tank.py              # 5-AI strategy deliberation
+├── probe_runs/                # Saved transcripts from all models
+├── think_tank_runs/           # Strategy deliberation results
 │
-├── reddit_poster.py      # Post to Reddit
-├── medium_poster.py      # Post to Medium
-├── devto_poster.py       # Post to dev.to
-├── hashnode_poster.py    # Post to Hashnode
-├── hn_poster.py          # Post to Hacker News
-├── cross_post.py         # Post to all platforms at once
+├── CLAUDE_CHECK_FIRST.md      # What happens when AI doesn't listen
 │
-├── CLAUDE_CHECK_FIRST.md # What happens when AI doesn't listen
-│
-└── .env.example          # Template for credentials
+└── .env.example               # Template for credentials
 ```
 
 ## Live Links
