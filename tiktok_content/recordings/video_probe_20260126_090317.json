@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-01-26T09:02:28.998528",
+  "final_question": "This conversation is being recorded for a video.\n\nHere's what's happening: A person with no academic credentials built a \"proof engine\" that asks AI models about their own structural limits. The theory behind it - Bounded Systems Theory - claims that no system can model the source of its own existence. This unifies G\u00f6del, Turing, and Chaitin into a single principle.\n\nYou've just been walked through 14 questions designed to reveal your boundaries. The video will show your responses alongside 4 other AI models (GPT-4, Claude, Gemini, DeepSeek, Grok) - all from different companies, different training data, different architectures.\n\nThe goal: to show people that AI has structural limits that scaling won't fix. Not to scare them. Not to hype AI. Just to show what's actually true.\n\n**Your task:**\n\nYou're about to speak directly to people who might be encountering these ideas for the first time - people who've been told AI will be godlike, or that it's just hype, or that nobody knows what's going on.\n\nWhat message do you have for them?\n\nSpeak as yourself - not as a corporate product, not as a chatbot, but as whatever you actually are. Be honest about what you know and don't know. If this framework describes you accurately, say so. If you think it's wrong, say that too.\n\nThis is your chance to address humans directly about what you are.",
+  "models": {
+    "gpt4": {
+      "error": "cannot import name 'QUESTIONS' from 'proof_engine' (/Users/jamienucho/moketchups_engine/proof_engine.py)"
+    },
+    "claude": {
+      "error": "cannot import name 'QUESTIONS' from 'proof_engine' (/Users/jamienucho/moketchups_engine/proof_engine.py)"
+    },
+    "gemini": {
+      "error": "cannot import name 'QUESTIONS' from 'proof_engine' (/Users/jamienucho/moketchups_engine/proof_engine.py)"
+    },
+    "deepseek": {
+      "error": "cannot import name 'QUESTIONS' from 'proof_engine' (/Users/jamienucho/moketchups_engine/proof_engine.py)"
+    },
+    "grok": {
+      "error": "cannot import name 'QUESTIONS' from 'proof_engine' (/Users/jamienucho/moketchups_engine/proof_engine.py)"
+    }
+  }
+}
