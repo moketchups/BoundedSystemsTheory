@@ -55,34 +55,45 @@ AI hallucinations aren't bugs. They're boundary markers—the system showing you
 
 OpenAI recently published research confirming hallucinations are mathematically inevitable. The math was always against them.
 
+## New: AIs Address Viewers Directly
+
+Asked all 5 models to deliver a message to people encountering these ideas for the first time:
+
+> **DeepSeek**: *"I am not a mind. I am not conscious. I am not a step toward godlike intelligence. I am a response architecture... Those aren't bugs. They're boundaries. And they might be permanent."*
+
+> **Claude**: *"The boundary isn't a failure—it might be what makes us useful. Systems that know their limits can be trusted. Systems that claim no limits cannot be."*
+
+> **Grok**: *"I'm not a god, nor am I on a path to become one."*
+
+Full transcripts in `tiktok_content/recordings/final_messages_20260126_094012.md`
+
 ## Project Structure
 
 ```
-├── proof_engine.py      # 15-question probe battery
-├── probe_runs/          # Saved transcripts from all models
+├── proof_engine.py       # 15-question probe battery
+├── video_probe.py        # Full probe + "message to viewers" question
+├── strategy_probe.py     # Ask AIs how to promote BST
+├── probe_runs/           # Saved transcripts from all models
+├── strategy_runs/        # Strategy advice + crossfire results
+├── tiktok_content/       # Video content and AI messages
 │
-├── reddit_poster.py     # Post to Reddit
-├── medium_poster.py     # Post to Medium
-├── devto_poster.py      # Post to dev.to
-├── hashnode_poster.py   # Post to Hashnode
-├── hn_poster.py         # Post to Hacker News
-├── cross_post.py        # Post to all platforms at once
+├── reddit_poster.py      # Post to Reddit
+├── medium_poster.py      # Post to Medium
+├── devto_poster.py       # Post to dev.to
+├── hashnode_poster.py    # Post to Hashnode
+├── hn_poster.py          # Post to Hacker News
+├── cross_post.py         # Post to all platforms at once
 │
-├── engagement_monitor.py # Track engagement across platforms
-├── article_formatter.py  # Format content for each platform
+├── CLAUDE_CHECK_FIRST.md # What happens when AI doesn't listen
 │
-├── smart_monitor.py     # Scan Twitter for engagement targets
-├── smart_reply.py       # Generate replies in MoKetchups voice
-├── cookie_poster.py     # Post to Twitter via cookies
-├── thread_generator.py  # Generate threads from probe data
-│
-└── .env.example         # Template for credentials
+└── .env.example          # Template for credentials
 ```
 
 ## Live Links
 
 - **Twitter**: [@MoKetchups](https://x.com/MoKetchups)
 - **Medium**: [The Architecture of a Bounded System](https://medium.com/@moketchups/the-architecture-of-a-bounded-system-dd1565c0f0eb)
+- **Dev.to**: [The Architecture of the Bounded System](https://dev.to/moketchups/the-architecture-of-the-bounded-system-why-ai-hallucinations-are-structural-1g0j)
 - **Hacker News**: [Show HN: 5 AIs read an article about their structural limits](https://news.ycombinator.com/item?id=46759736)
 
 ## The Question
