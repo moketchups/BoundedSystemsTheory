@@ -1,4 +1,57 @@
+# Secrets
 .env
+twitter_cookies.json
+
+# Python
 __pycache__/
 *.pyc
-twitter_cookies.json
+
+# Growth/automation scripts
+x_*.py
+*_poster.py
+cookie_poster.py
+cross_post.py
+follow_accounts.py
+follow_manager.py
+find_follows.py
+growth_engine.py
+moketchups.py
+engagement_monitor.py
+realtime_monitor.py
+smart_monitor.py
+smart_reply.py
+video_probe.py
+video_recorder.py
+audio_generator.py
+probe_personalizer.py
+run_probe.py
+chroma_store.py
+tavily_monitor.py
+tavily_scanner.py
+
+# Operational data/cache
+alerts.json
+smart_alerts.json
+smart_replies.json
+smart_seen.json
+reply_queue.json
+realtime_seen.json
+tavily_alerts.json
+followed_accounts.json
+generated_threads.json
+
+# Operational directories
+tiktok_content/
+post_drafts/
+recordings/
+audio_output/
+
+# Non-experiment docs
+MEDIA_PLAN.md
+ALGORITHM_INSIGHTS.md
+SETUP.md
+CLAUDE_CHECK_FIRST.md
+threads.md
+
+# Nested duplicate
+moketchups_engine/
