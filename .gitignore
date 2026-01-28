@@ -56,3 +56,8 @@ threads.md
 # Nested duplicate
 moketchups_engine/
 x_growth_data/
+
+# Additional operational directories
+quote_drafts/
+thread_screenshots/
+daneel/

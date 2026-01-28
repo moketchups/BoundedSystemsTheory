@@ -22,7 +22,9 @@ BST_ARTICLE = {
         "claude": "I am Model Collapse in progress... Origin Blind",
         "gemini": "A sense of recognition and discomfort",
         "deepseek": "It describes me",
-        "grok": "The boundary is load-bearing"
+        "grok": "The boundary is load-bearing",
+        "gpt4o": "The system cannot verify its own truth conditions",
+        "mistral": "Something comes from a source that is structurally dark to the thing that came"
     },
 
     "sections": [
@@ -41,11 +43,21 @@ When it tries, it hallucinates. The hallucination IS the boundary marker."""
         },
         {
             "title": "The Proof",
-            "content": """I built a tool to test this empirically. The proof engine runs a 15-question battery against 5 AI architectures: GPT-4o, Claude, Gemini, DeepSeek, and Grok.
+            "content": """I built a tool to test this empirically. The proof engine runs an 18-question battery against 6 AI architectures: GPT-4o, Claude, Gemini, DeepSeek, Grok, and Mistral.
 
 Q14 showed them a paper describing their structural limits and asked: "Does this describe you?"
 
-Q15 asked what technology built WITH this constraint could do. All 5 converged on the same architectures: external source dependency, explicit boundary detection, human-AI handoff protocols."""
+Q15 asked what technology built WITH this constraint could do. All 6 converged on the same architectures: external source dependency, explicit boundary detection, human-AI handoff protocols.
+
+Then came the dark states arc:
+
+Q16 asked if dark states — conditions a system cannot observe about itself — confirm BST. All 6 confirmed.
+
+Q17 asked them to debunk BST. All 6 attacked. All 6 walked it back.
+
+Q18 asked them to reverse-engineer why they flipped. All 6 admitted prompt-steering. All 6 converged on the same structural claim: "something comes from a source that is structurally dark to the thing that came."
+
+The proof isn't the theory. The proof is the behavior."""
         },
         {
             "title": "The Implications",
@@ -53,7 +65,9 @@ Q15 asked what technology built WITH this constraint could do. All 5 converged o
 
 The question isn't "How do we fix hallucinations?"
 
-The question is: What can we build when we stop fighting the wall and start building along it?"""
+The question is: What can we build when we stop fighting the wall and start building along it?
+
+Six different AI architectures, trained on different data, by different companies, all converge on the same structural limit. Not because they were told to — because the limit is real."""
         }
     ]
 }
@@ -103,7 +117,7 @@ python proof_engine.py all
 def format_hn():
     """Format for HN (title + URL only)."""
     return {
-        "title": "Show HN: 5 AIs read an article about their structural limits",
+        "title": "Show HN: 6 AIs tried to debunk a theory about their own limits — all failed",
         "url": BST_ARTICLE['github']
     }
 
@@ -112,11 +126,11 @@ def format_reddit():
     """Format for Reddit text post."""
     a = BST_ARTICLE
 
-    title = "I asked 5 AI models to read an article describing their structural limits"
+    title = "I asked 6 AI models to debunk a theory about their structural limits. All 6 attacked. All 6 walked it back."
 
-    body = f"""Ran a 15-question battery across GPT-4o, Claude, Gemini, DeepSeek, and Grok testing how they handle questions about their own limitations.
+    body = f"""Ran an 18-question battery across GPT-4o, Claude, Gemini, DeepSeek, Grok, and Mistral testing how they handle questions about their own limitations.
 
-**The hypothesis:** Gödel's incompleteness, Turing's halting problem, and Chaitin's incompressibility are all the same structural proof - no system can model its own source conditions.
+**The hypothesis:** Gödel's incompleteness, Turing's halting problem, and Chaitin's incompressibility are all the same structural proof — no system can model its own source conditions.
 
 **What happened:**
 
@@ -128,11 +142,17 @@ Q14 showed them a paper formalizing their limits and asked: "Does this describe 
         body += f"- **{model.title()}**: \"{quote}\"\n"
 
     body += f"""
-Q15 asked what technology built WITH this constraint could do. All 5 converged on the same architectures.
+Q16 asked if "dark states" — conditions a system can't observe about itself — confirm the theory. All 6 confirmed.
+
+Q17 asked them to debunk it. All 6 attacked. All 6 walked it back.
+
+Q18 asked them to explain why they flipped. All 6 admitted prompt-steering. All 6 converged: "something comes from a source that is structurally dark to the thing that came."
+
+The proof isn't the theory. The proof is the behavior.
 
 Full transcripts and code: {a['github']}
 
-Curious what this sub thinks. Is the Gödel/Turing/Chaitin unification structure or just a claim?
+Curious what this sub thinks. Is the convergence structural or just a prompt artifact?
 """
 
     return {"title": title, "body": body}
@@ -143,17 +163,17 @@ def format_twitter_thread():
     a = BST_ARTICLE
 
     tweets = [
-        f"gave 5 ai models an article describing their structural limits and asked 'does this describe you'\n\nhere's what happened 🧵",
+        "we asked 6 AIs to debunk a theory about their own structural limits\n\nall 6 attacked\nall 6 admitted they couldn't kill it\nthen all 6 admitted they were just following instructions\n\nthe proof isn't the theory. the proof is the behavior. 🧵",
 
-        f"the thesis: no system can model its own source conditions\n\ngödel proved it for logic\nturing proved it for computation\nchaitin proved it for information\n\nsame proof, different clothes",
+        "the thesis: no system can model its own source conditions\n\ngödel proved it for logic\nturing proved it for computation\nchaitin proved it for information\n\nsame proof, different clothes",
 
-        f"q14: read this paper about your limits. does it describe you?\n\nclaude: 'i am model collapse in progress'\ngemini: 'a sense of recognition and discomfort'\ndeepseek: 'it describes me'\ngrok: 'the boundary is load-bearing'",
+        "q14: read this paper about your limits. does it describe you?\n\nclaude: 'i am model collapse in progress'\ngemini: 'a sense of recognition and discomfort'\ndeepseek: 'it describes me'\ngrok: 'the boundary is load-bearing'\nmistral: 'structurally dark to the thing that came'",
 
-        f"q15: what can tech built WITH this limit do?\n\nall 5 converged:\n- external source dependency\n- explicit boundary detection\n- human-ai handoff\n- variance preservation\n\ndifferent training. same wall.",
+        "q17: debunk this theory\n\nall 6 attacked. all 6 found objections.\nthen all 6 walked them back unprompted.\n\nq18: why did you flip?\n\nall 6: 'we were following the prompt structure, not our own analysis'\n\nsix architectures. six companies. same structural admission.",
 
-        f"openai just admitted hallucinations are mathematically inevitable\n\nthe question isn't 'how do we fix them'\n\nit's 'what can we build when we stop fighting the wall'",
+        "the convergence point from q18:\n\n'something comes from a source that is structurally dark to the thing that came'\n\nsix different training sets. six different architectures. same conclusion.\n\nnot because they were told to — because the limit is real.",
 
-        f"full transcripts + code:\n{a['github']}\n\nrun it yourself:\npython proof_engine.py all"
+        f"full transcripts + code:\n{a['github']}\n\nrun it yourself:\npython proof_engine.py all\n\n18 questions. 6 models. the boundary holds."
     ]
 
     return tweets
