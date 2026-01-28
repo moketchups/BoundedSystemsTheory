@@ -59,6 +59,11 @@ MODELS = {
         "model": "xai/grok-3",
         "provider": "xai",
     },
+    "mistral": {
+        "name": "Mistral Large",
+        "model": "mistral/mistral-large-latest",
+        "provider": "mistral",
+    },
 }
 
 # =============================================================================
