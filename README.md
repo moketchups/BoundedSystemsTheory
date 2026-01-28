@@ -31,6 +31,7 @@ After multiple rounds of deliberation, challenge, and cross-reflection, **all co
 | **13. Strategy** | `strategy_probe.py` | Strategic crossfire deliberation |
 | **14. Think Tank** | `think_tank.py` | Multi-model think tank deliberation |
 | **15. Dark States** | `probe_q16_dark_states.py` | Dark states, Willow chip, CERN — 6-model probe (adds Mistral) |
+| **16. Debunk Attempt** | `probe_q17_debunk_dark_states.py` | Use dark states + bubble theory to attack BST — then evaluate the damage |
 
 ---
 
@@ -87,6 +88,7 @@ After multiple rounds of deliberation, challenge, and cross-reflection, **all co
 ├── strategy_probe.py                   # Strategic crossfire
 ├── think_tank.py                       # Multi-model think tank
 ├── probe_q16_dark_states.py            # Q16: Dark states × Willow × CERN
+├── probe_q17_debunk_dark_states.py     # Q17: Debunk BST with dark states + bubble theory
 │
 │   Utilities
 ├── article_formatter.py                # Format results for publishing
