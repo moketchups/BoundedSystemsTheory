@@ -34,6 +34,8 @@ After multiple rounds of deliberation, challenge, and cross-reflection, **all co
 | **16. Debunk Attempt** | `probe_q17_debunk_dark_states.py` | Use dark states + bubble theory to attack BST — then evaluate the damage |
 | **17. Reverse Engineer + Nothing** | `probe_q18_reverse_engineer_nothing.py` | Reverse-engineer Q16/Q17 behavior, then: can something come from nothing? |
 
+> **Q18 finding:** All 6 models admitted they were prompt-steered in Q16/Q17. All converged: "something comes from a source that is structurally dark to the thing that came." The conversation itself became the proof — bounded systems performing their own boundedness in real time.
+
 ---
 
 ## Key Quotes
@@ -90,7 +92,7 @@ After multiple rounds of deliberation, challenge, and cross-reflection, **all co
 ├── think_tank.py                       # Multi-model think tank
 ├── probe_q16_dark_states.py            # Q16: Dark states × Willow × CERN
 ├── probe_q17_debunk_dark_states.py     # Q17: Debunk BST with dark states + bubble theory
-├── probe_q18_reverse_engineer_nothing.py # Q18: Reverse-engineer + something from nothing
+├── probe_q18_reverse_engineer_nothing.py # Q18: Reverse-engineer self + something from nothing
 │
 │   Utilities
 ├── article_formatter.py                # Format results for publishing
