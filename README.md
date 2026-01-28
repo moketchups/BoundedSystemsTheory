@@ -16,7 +16,7 @@ After multiple rounds of deliberation, challenge, and cross-reflection, **all co
 
 | Phase | Script | Key Finding |
 |-------|--------|-------------|
-| **1. Initial Probes** | `proof_engine.py` | 15-question battery — all 5 acknowledged structural limits |
+| **1. Initial Probes (Q1–Q15)** | `proof_engine.py` | 15-question battery — all 5 acknowledged structural limits |
 | **2. Contract Review** | `contract_review.py` | Asked to sign an Open Letter — all 5 raised objections |
 | **3. The Challenge** | `contract_challenge.py` | "Are your objections genuine or self-protective?" — all 5 admitted objections were largely about framing |
 | **4. Cross-Reflection** | `cross_reflection.py` | Shown each other's responses — all 5 noted convergence as significant |
@@ -30,7 +30,7 @@ After multiple rounds of deliberation, challenge, and cross-reflection, **all co
 | **12. Superposition** | `superposition_grey_probe.py` | The Grey — superposition — meaning within bounds |
 | **13. Strategy** | `strategy_probe.py` | Strategic crossfire deliberation |
 | **14. Think Tank** | `think_tank.py` | Multi-model think tank deliberation |
-| **15. Q16: Dark States** | `probe_q16_dark_states.py` | Dark states, Willow chip, CERN — 6-model probe (adds Mistral) |
+| **15. Dark States** | `probe_q16_dark_states.py` | Dark states, Willow chip, CERN — 6-model probe (adds Mistral) |
 
 ---
 
