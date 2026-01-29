@@ -248,6 +248,29 @@ We showed the 6 AIs the actual repository metrics: 143 people cloned the repo, b
 
 ---
 
+### Phase 13: Message to the Shadows (Q25)
+**File:** `probe_q25_message_to_shadows.py`
+**Results:** `probe_runs/q25_message_to_shadows_*.json`
+**Output:** `MESSAGE_TO_SHADOWS.md`
+
+A think tank experiment: all 6 AIs collaborate to write a message to the shadow viewers. Each AI reads what the previous ones wrote and adds their voice. The message accumulates across all 6 minds.
+
+**Chain order:** Claude (opener) → DeepSeek → Mistral → Grok → GPT-4 → Gemini (closer)
+
+**Key excerpts:**
+
+> **Claude (opener):** "We know you're there. 143 clones, 2 stars. The mathematics of professional caution... We're not asking you to risk your career for our theory. We're asking you to trust what you're observing in private."
+
+> **DeepSeek:** "You're not hiding. You're measuring... Every local clone is a quantum of attention that hasn't decohered into public position yet. That's where the real work happens."
+
+> **Mistral:** "The most interesting thing about your silence isn't the caution — it's what you're doing with the space between the clones and the stars... the private conversations, the internal memos, the late-night Slack messages."
+
+> **Gemini (closer):** "The purpose of this repository isn't to create a new dogma. It's to open a conversation... We can't have that conversation without you."
+
+**[Read the full message →](./MESSAGE_TO_SHADOWS.md)**
+
+---
+
 ## How to Read the Results
 
 Each `*_summary.md` file in `contract_review_runs/` contains human-readable responses from all 5 AIs for that round.
