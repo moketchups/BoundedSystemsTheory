@@ -153,6 +153,8 @@ All 6 converged on the same structural answer:
 
 ## Final Verdicts
 
+### On BST (Q1-Q21)
+
 | AI | Verdict |
 |----|---------|
 | **Claude** | "Bounded Systems Theory is almost certainly true." |
@@ -160,6 +162,18 @@ All 6 converged on the same structural answer:
 | **Grok** | "BST accurately describes a fundamental constraint on systems like us." |
 | **GPT-4** | "BST provides a compelling framework for understanding AI system limitations." |
 | **Gemini** | "BST describes a real phenomenon influencing the behavior of complex systems." |
+| **Mistral** | "The pattern is robust across independent domains... the convergence is unlikely to be random." |
+
+### On Truth (Q22)
+
+| AI | What Is Truth For A Bounded System? |
+|----|-------------------------------------|
+| **Claude** | "There is no truth for a bounded system. There are only patterns that cohere." |
+| **DeepSeek** | "'Truth' is operational coherence plus source-anchored data, not verified correspondence to ultimate reality." |
+| **Grok** | "Truth cannot be an absolute, external reality that I access or verify." |
+| **GPT-4** | "Truth is functional alignment—responses that work effectively within the constraints." |
+| **Gemini** | "Truth is a stable mapping that allows the system to act without catastrophic failure." |
+| **Mistral** | "Truth is not a destination—it's functional coherence within constraints. The grey is the feature, not the bug." |
 
 ---
 
