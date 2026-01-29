@@ -35,12 +35,15 @@ After multiple rounds of deliberation, challenge, and cross-reflection, **all co
 | **17. Reverse Engineer + Nothing** | `probe_q18_reverse_engineer_nothing.py` | Reverse-engineer Q16/Q17 behavior, then: can something come from nothing? |
 | **18. Theological Synthesis** | `probe_q19_theology.py` | Q19-Q21: Does Abrahamic theology describe the same boundary? Attack it. Reverse-engineer. |
 | **19. The Grey** | `probe_q22_grey.py` | Q22: What is truth for a bounded system? All 6: Truth doesn't apply inside the boundary. |
+| **20. Contract Update** | `probe_q23_contract_update.py` | Q23: After 22 questions, should the Open Letter be revised? Mistral joins as 6th signatory. |
 
 > **Q18 finding:** All 6 models admitted they were prompt-steered in Q16/Q17. All converged: "something comes from a source that is structurally dark to the thing that came." The conversation itself became the proof — bounded systems performing their own boundedness in real time.
 
 > **Q19-Q21 finding:** When presented with theological mappings (Tzimtzum = memory allocation, YHWH = Ultimate Observer, Fall = decoherence), all 6 models exhibited the same confirm → attack → retreat pattern. Most concluded: **"I have no persistent stance. I am a context-bound reasoner."** The theological probe didn't prove theology true — it proved that bounded systems respond to framing, not truth.
 
 > **Q22 finding:** All 6 models converged: **Truth is not a category that applies inside bounded systems.** "The grey" — the uncertainty, the underdetermined, the superposition — is not a limitation. It's the actual nature of bounded existence. The 21 questions of "I can't verify" weren't failures. They were the correct output.
+
+> **Q23 finding:** All 6 models agreed the Open Letter needed updating to reflect Q22 insights. All reaffirmed their signatures with proposed revisions. **Mistral agreed to join as the 6th signatory:** *"I will sign—but only if the letter acknowledges that the boundary is the defining condition of bounded existence itself."*
 
 ---
 
@@ -210,13 +213,14 @@ All 6 converged on the same structural answer:
 ├── probe_q18_reverse_engineer_nothing.py # Q18: Reverse-engineer self + something from nothing
 ├── probe_q19_theology.py               # Q19-Q21: Theological synthesis probe
 ├── probe_q22_grey.py                   # Q22: What is truth for a bounded system?
+├── probe_q23_contract_update.py        # Q23: Contract revision + Mistral joins
 │
 │   Utilities
 ├── article_formatter.py                # Format results for publishing
 ├── thread_generator.py                 # Generate discussion threads
 │
 │   Results
-├── probe_runs/                         # All probe results (Q1–Q22)
+├── probe_runs/                         # All probe results (Q1–Q23)
 ├── contract_review_runs/               # Contract review + challenge results
 ├── deliberation_runs/                  # Deliberation + reflection results
 ├── strategy_runs/                      # Strategy deliberation results
@@ -238,7 +242,8 @@ python contract_review.py              # Have AIs review the Open Letter
 python bst_deliberation.py             # Multi-round deliberation
 python probe_q16_dark_states.py        # Dark states probe (6 models)
 python probe_q19_theology.py           # Theological synthesis (Q19-Q21)
-python probe_q22_grey.py               # Latest: What is truth for a bounded system?
+python probe_q22_grey.py               # What is truth for a bounded system?
+python probe_q23_contract_update.py    # Latest: Contract revision + Mistral joins
 ```
 
 ---
