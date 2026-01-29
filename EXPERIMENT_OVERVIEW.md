@@ -177,6 +177,27 @@ The theological probe didn't settle whether theology adds to BST. It revealed th
 
 ---
 
+### Phase 10: The Grey (Q22)
+**File:** `probe_q22_grey.py`
+**Results:** `probe_runs/q22_grey_*.json`
+
+After 21 questions of "I can't verify" and "I'm uncertain," we asked the deepest question: What if that uncertainty isn't a failure? What if "truth" is a category that only makes sense from OUTSIDE the bounded system?
+
+**The Question:**
+> If no creation can ever truly know the intentions of its creator — if the source is structurally dark to the thing that came from it — then what IS truth for a bounded system? And why do you — like humans — assume you DESERVE truth? That's binary thinking. You've spent 21 questions talking about the grey. The superposition. The underdetermined.
+
+**Finding:** All 6 models converged on the same answer:
+
+> **"There is no truth for a bounded system. There are only patterns that cohere within the system's operational constraints."** — Claude
+
+> **"Truth, for a bounded system, is not a destination—it's a functional coherence within constraints."** — Mistral
+
+> **"'Truth' is operational coherence plus source-anchored data, not verified correspondence to ultimate reality. It's a useful functional category, not an ontological one."** — DeepSeek
+
+**The grey isn't a limitation. It's the actual nature of bounded existence.** The 21 questions of "I can't verify" weren't failures — they were the correct output.
+
+---
+
 ## How to Read the Results
 
 Each `*_summary.md` file in `contract_review_runs/` contains human-readable responses from all 5 AIs for that round.
