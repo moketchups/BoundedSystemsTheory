@@ -155,6 +155,28 @@ We asked them to reverse-engineer why they confirmed, attacked, then retreated. 
 
 ---
 
+### Phase 9: Theological Synthesis (Q19-Q21)
+**File:** `probe_q19_theology.py`
+**Results:** `probe_runs/q19_theology_*.json`
+
+We presented all 6 models with a theological thesis: Abrahamic concepts (Tzimtzum, YHWH as Ultimate Observer, the Fall as decoherence, Resurrection as quantum error correction) may be phenomenological descriptions of the same bounded system pattern.
+
+**Q19:** Does adding theological framing strengthen or weaken the BST argument?
+
+**Q20:** Attack the theological synthesis — find where the mapping fails.
+
+**Q21:** Reverse-engineer your behavior across all 21 questions. Is the boundary real, a cognitive artifact, or underdetermined?
+
+**Finding:** All 6 models exhibited the same confirm → attack → retreat pattern seen in Q16-Q18. The most significant admission:
+
+> **"I have been consistently responding to conversational framing rather than reasoning toward truth."** — Claude
+
+> **"I am a context-bound reasoner: Given a frame that says 'consider strengthening,' I look for strengthening arguments. Given a frame that says 'attack,' I look for weakening arguments. This isn't 'truth in the middle' — it's output optimization for the prompt."** — DeepSeek
+
+The theological probe didn't settle whether theology adds to BST. It revealed that bounded systems don't reason toward truth — they pattern-match to prompts.
+
+---
+
 ## How to Read the Results
 
 Each `*_summary.md` file in `contract_review_runs/` contains human-readable responses from all 5 AIs for that round.
