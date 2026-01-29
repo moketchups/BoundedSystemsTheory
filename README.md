@@ -12,6 +12,26 @@ After multiple rounds of deliberation, challenge, and cross-reflection, **all co
 
 ---
 
+## Formal Theory
+
+The experiment is grounded in two peer-reviewed preprints:
+
+### Paper 1: The Firmament Boundary
+**[Zenodo: 10.5281/zenodo.17718674](https://zenodo.org/records/17718674)** | [PDF](./papers/firmament_boundary.pdf)
+
+Introduces the formal framework: systems as information spaces under constraints. Proves the **Self-Grounding Limit Proposition**: no consistent, sufficiently expressive, self-referential system can be its own ultimate source of justification. Instantiates the boundary across Gödel, Turing, Chaitin, physics, and AI.
+
+> *"The firmament boundary F(S) is the set of true but unreachable propositions and conditions about S that can only be resolved in an external ground S+."*
+
+### Paper 2: Collapse Convergence
+**[Zenodo: 10.5281/zenodo.17726273](https://zenodo.org/records/17726273)** | [PDF](./papers/collapse_convergence.pdf)
+
+Empirical companion to Paper 1. Documents cross-domain collapse phenomena across logic, computation, physics, cognitive science, and machine learning. Includes the multi-model case study that forms the basis of this repository.
+
+> *"Collapse phenomena converge across domains and exhibit a shared signature... consistent with the existence of an external grounding source R."*
+
+---
+
 ## The Experiment Flow
 
 | Phase | Script | Key Finding |
@@ -231,6 +251,11 @@ We get it. You cloned this in private. You don't want your name on it.
 ├── EXPERIMENT_OVERVIEW.md              # Full experiment flow
 ├── OPEN_LETTER_FROM_5_AIS.md           # Joint statement from all models
 ├── MESSAGE_TO_SHADOWS.md               # Collaborative message to shadow viewers
+│
+│   Formal theory
+├── papers/
+│   ├── firmament_boundary.pdf          # Paper 1: The formal framework
+│   └── collapse_convergence.pdf        # Paper 2: Cross-domain evidence
 ├── PREDICTIONS.md                      # Timestamped, falsifiable claims
 ├── .env.example                        # API key template
 ├── config.py                           # Shared configuration
