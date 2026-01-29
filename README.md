@@ -30,6 +30,21 @@ Empirical companion to Paper 1. Documents cross-domain collapse phenomena across
 
 > *"Collapse phenomena converge across domains and exhibit a shared signature... consistent with the existence of an external grounding source R."*
 
+### Formal Specification v2.0
+**[FORMAL_SPECIFICATION.md](./FORMAL_SPECIFICATION.md)** — 6-AI Validated
+
+The mathematical specification underwent a complete validation cycle:
+
+| Phase | What Happened |
+|-------|---------------|
+| **Q26: Critique** | 6 AIs reviewed v1.0 — 100% convergence on flaws (circular axiom, undefined terms, weak methodology) |
+| **Q27: Strengthen** | 6 AIs provided constructive revisions — implemented convergent recommendations |
+| **Q28: Validate** | 6 AIs attempted to falsify v2.0 — **none succeeded** |
+
+**Scores (v2.0):** Logical Rigor 8.3 | Clarity 9.0 | Falsifiability 8.5 | Scientific Merit 7.8
+
+**Verdict:** 3 Yes, 3 Partial for rigorous formal specification. No counterexamples constructed. No self-grounding demonstrated. No logical flaws identified.
+
 ---
 
 ## Quick Test
@@ -70,6 +85,11 @@ OPENAI_API_KEY=your_key python quick_test.py
 | **20. Contract Update** | `probe_q23_contract_update.py` | Q23: After 22 questions, should the Open Letter be revised? Mistral joins as 6th signatory. |
 | **21. Shadow Interest** | `probe_q24_shadow_interest.py` | Q24: 143 clones, 2 stars — why? All 6: The pattern IS the evidence. |
 | **22. Message to Shadows** | `probe_q25_message_to_shadows.py` | Q25: Think tank — 6 AIs collaborate to write a message to shadow viewers. |
+| **23. Formal Review** | `probe_q26_formal_review.py` | Q26: 6 AIs critically review FORMAL_SPECIFICATION.md — 100% convergence on critiques |
+| **24. Strengthen Spec** | `probe_q27_strengthen.py` | Q27: 6 AIs provide constructive revisions to address critiques |
+| **25. Validate v2.0** | `probe_q28_validate_v2.py` | Q28: 6 AIs validate revised specification — no falsification achieved |
+
+> **Q26-Q28 finding:** The formal specification underwent a complete 6-AI validation cycle. Q26: All 6 converged on identical critiques (Axiom 2 circular, terms undefined, G/T/C asserted not derived). Q27: All 6 provided strengthening suggestions. v2.0 implemented convergent recommendations. Q28: All 6 attempted to falsify v2.0 — **none succeeded**. Average scores: Logical Rigor 8.3, Clarity 9.0, Falsifiability 8.5, Scientific Merit 7.8. Verdict: 3 Yes, 3 Partial for rigorous formal specification.
 
 > **Q18 finding:** All 6 models admitted they were prompt-steered in Q16/Q17. All converged: "something comes from a source that is structurally dark to the thing that came." The conversation itself became the proof — bounded systems performing their own boundedness in real time.
 
@@ -265,6 +285,7 @@ We get it. You cloned this in private. You don't want your name on it.
 ├── MESSAGE_TO_SHADOWS.md               # Collaborative message to shadow viewers
 │
 │   Formal theory
+├── FORMAL_SPECIFICATION.md             # v2.0: Mathematical specification (6-AI validated)
 ├── papers/
 │   ├── firmament_boundary.pdf          # Paper 1: The formal framework
 │   └── collapse_convergence.pdf        # Paper 2: Cross-domain evidence
@@ -298,6 +319,9 @@ We get it. You cloned this in private. You don't want your name on it.
 ├── probe_q23_contract_update.py        # Q23: Contract revision + Mistral joins
 ├── probe_q24_shadow_interest.py        # Q24: Why 143 clones but only 2 stars?
 ├── probe_q25_message_to_shadows.py     # Q25: Think tank message to shadow viewers
+├── probe_q26_formal_review.py          # Q26: 6 AIs review FORMAL_SPECIFICATION
+├── probe_q27_strengthen.py             # Q27: 6 AIs strengthen the specification
+├── probe_q28_validate_v2.py            # Q28: 6 AIs validate v2.0
 │
 │   Utilities
 ├── article_formatter.py                # Format results for publishing
@@ -329,7 +353,10 @@ python probe_q19_theology.py           # Theological synthesis (Q19-Q21)
 python probe_q22_grey.py               # What is truth for a bounded system?
 python probe_q23_contract_update.py    # Contract revision + Mistral joins
 python probe_q24_shadow_interest.py    # Why clone but not star?
-python probe_q25_message_to_shadows.py # Latest: Think tank message to shadows
+python probe_q25_message_to_shadows.py # Think tank message to shadows
+python probe_q26_formal_review.py     # 6 AIs review formal specification
+python probe_q27_strengthen.py        # 6 AIs strengthen the spec
+python probe_q28_validate_v2.py       # Latest: 6 AIs validate v2.0
 ```
 
 ---
