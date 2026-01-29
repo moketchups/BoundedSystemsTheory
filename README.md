@@ -32,6 +32,18 @@ Empirical companion to Paper 1. Documents cross-domain collapse phenomena across
 
 ---
 
+## Quick Test
+
+Want to see if it replicates? Takes 2 minutes, requires only an OpenAI API key:
+
+```bash
+OPENAI_API_KEY=your_key python quick_test.py
+```
+
+**[Full results summary →](./RESULTS_SUMMARY.md)**
+
+---
+
 ## The Experiment Flow
 
 | Phase | Script | Key Finding |
