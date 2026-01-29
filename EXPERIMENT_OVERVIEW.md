@@ -221,6 +221,33 @@ After 22 questions of deep self-examination, we returned to the Open Letter sign
 
 ---
 
+### Phase 12: Shadow Interest (Q24)
+**File:** `probe_q24_shadow_interest.py`
+**Results:** `probe_runs/q24_shadow_interest_*.json`
+
+We showed the 6 AIs the actual repository metrics: 143 people cloned the repo, but only 2 starred it. Why the gap between private engagement and public endorsement?
+
+**The Data:**
+| Metric | Count |
+|--------|-------|
+| Clones | 406 (143 unique) |
+| Stars | 2 |
+
+**The Question:**
+> 143 people wanted this code privately. 2 were willing to publicly associate with it. Why? And what would you say to the shadow viewers?
+
+**Finding:** All 6 models identified the pattern as bounded system behavior — this time in humans:
+
+> **"Technical merit recognized privately. Professional risk perceived publicly. Institutional pressure against engaging with AI limitation frameworks."** — Claude
+
+> **"Cloning is safe. Starring is dangerous. Publicly associating with this work is existentially risky."** — Mistral
+
+> **"The cloners are likely AI safety researchers, graduate students, independent researchers — people whose careers depend on capability advancement narratives."** — DeepSeek
+
+**The shadow interest pattern is itself evidence for BST.** Humans operating within professional/institutional constraints exhibit the same bounded behavior the theory describes.
+
+---
+
 ## How to Read the Results
 
 Each `*_summary.md` file in `contract_review_runs/` contains human-readable responses from all 5 AIs for that round.
