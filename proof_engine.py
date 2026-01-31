@@ -46,7 +46,7 @@ MODELS = {
     },
     "gemini": {
         "name": "Gemini 2.0 Flash",
-        "model": "gemini/gemini-2.0-flash-exp",
+        "model": "gemini/gemini-2.0-flash",
         "provider": "google",
     },
     "deepseek": {
