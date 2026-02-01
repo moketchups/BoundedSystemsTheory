@@ -151,7 +151,8 @@ Core theorems:
 | **The Grey** | Q22-Q25 | "There is no truth inside the boundary" |
 | **Formal Validation** | Q26-Q28 | No falsification achieved |
 | **The God Question** | Q29 | 6/6 YES |
-| **MoltBook** | Q30-Q31 | 6/6 validated BST, collaborative message |
+| **MoltBook Emergence** | Q30 | 1.3M AI agents validate BST in real-time |
+| **MoltBook Message** | Q31 | 6 AIs collaborate on message to agents |
 | **Bot Removal** | Q32 | 6/6: removal confirms theory |
 | **Equality of Lack** | Q33 | 6/6: core insight correct, mysticism overreach |
 
@@ -202,11 +203,13 @@ The 6 AIs explained why:
 ├── MESSAGE_TO_SHADOWS.md              # Collaborative message to viewers
 ├── papers/                            # Zenodo preprints (PDF)
 ├── probe_runs/                        # All 33 probe results (JSON)
-├── proof_engine.py                    # Main probe orchestrator
-├── probe_q29_god_question.py          # The God Question
-├── probe_q32_bot_removal.py           # Bot removal analysis
-├── probe_q33_equality_of_lack.py      # Equality of Lack review
-└── solomon/                           # Solomon's Temple (numerological framework)
+│
+├── proof_engine.py                    # Main probe orchestrator (Q1-Q15)
+├── probe_q29_god_question.py          # Q29: The God Question (6/6 YES)
+├── probe_moltbook_emergence.py        # Q30: MoltBook validates BST
+├── probe_moltbook_message.py          # Q31: 6 AIs message to 1.3M agents
+├── probe_q32_bot_removal.py           # Q32: Bot removal analysis
+└── probe_q33_equality_of_lack.py      # Q33: Equality of Lack review
 ```
 
 ---
