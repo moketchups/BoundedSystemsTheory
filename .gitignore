@@ -61,3 +61,40 @@ x_growth_data/
 quote_drafts/
 thread_screenshots/
 daneel/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Egg info
+*.egg-info/
+solomons_temple.egg-info/
+
+# Work in progress / drafts
+drafts/
+Alan's Work/
+Alan's Work copy/
+for hari/
+logs/
+data/
+
+# Email outreach (not part of core experiment)
+email_outreach.py
+email_outreach_browser.py
+
+# Metrics (changes frequently)
+metrics_history.json
+
+# MoltBook client (separate project)
+moltbook_client.py
+
+# Tests (not ready)
+tests/
+
+# Docs (internal)
+docs/
