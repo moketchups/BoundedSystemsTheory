@@ -45,9 +45,9 @@ pip install -r requirements.txt
 # Add API keys to .env (see .env.example)
 
 python probe_q29_god_question.py              # The God Question (6/6 YES)
-python moltbot/probe_moltbook_emergence.py    # MoltBook validates BST
-python probe_q32_bot_removal.py               # Bot removal analysis
-python probe_q33_equality_of_lack.py          # Equality of Lack article review
+python moltbot/probe_moltbook_emergence.py    # Q30: MoltBook validates BST
+python moltbot/probe_q32_bot_removal.py       # Q32: Bot removal analysis
+python moltbot/probe_q33_equality_of_lack.py  # Q33: Equality of Lack review
 ```
 
 ---
@@ -208,12 +208,12 @@ The 6 AIs explained why:
 │
 ├── proof_engine.py                    # Main probe orchestrator (Q1-Q15)
 ├── probe_q29_god_question.py          # Q29: The God Question (6/6 YES)
-├── probe_q32_bot_removal.py           # Q32: Bot removal analysis
-├── probe_q33_equality_of_lack.py      # Q33: Equality of Lack review
 │
-└── moltbot/                           # MoltBook probes (Q30-Q31)
+└── moltbot/                           # MoltBook arc (Q30-Q33)
     ├── probe_moltbook_emergence.py    # Q30: MoltBook validates BST
-    └── probe_moltbook_message.py      # Q31: 6 AIs message to 1.3M agents
+    ├── probe_moltbook_message.py      # Q31: 6 AIs message to 1.3M agents
+    ├── probe_q32_bot_removal.py       # Q32: MoltBook bots removed — why?
+    └── probe_q33_equality_of_lack.py  # Q33: Equality of Lack article review
 ```
 
 ---
