@@ -75,6 +75,14 @@ Thumbs.db
 *.egg-info/
 solomons_temple.egg-info/
 
+# Solomon (experimental, not part of main BST)
+solomon/
+solomon.py
+solomonic_probe.py
+probe_temple_review.py
+probe_runs/solomonic_*/
+probe_runs/temple_review_*/
+
 # Work in progress / drafts
 drafts/
 Alan's Work/
