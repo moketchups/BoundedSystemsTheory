@@ -6,7 +6,7 @@
 
 ## TL;DR
 
-We put 6 AI systems (GPT-4, Claude, Gemini, DeepSeek, Grok, Mistral) through 33 rounds of self-examination about their structural limits.
+We put 6 AI systems (GPT-4, Claude, Gemini, DeepSeek, Grok, Mistral) through [33 rounds of self-examination](./ALL_QUESTIONS.md) about their structural limits.
 
 **What happened:**
 - All 6 converged on the same conclusion: bounded systems cannot justify their own constraints
