@@ -47,8 +47,6 @@ recordings/
 audio_output/
 
 # Non-experiment docs
-MEDIA_PLAN.md
-ALGORITHM_INSIGHTS.md
 SETUP.md
 CLAUDE_CHECK_FIRST.md
 threads.md
@@ -104,5 +102,34 @@ moltbook_client.py
 # Tests (not ready)
 tests/
 
-# Docs (internal)
-docs/
+# Docs (internal, non-experiment)
+docs/MEDIA_PLAN.md
+docs/ALGORITHM_INSIGHTS.md
+
+# Additional internal scripts
+article_formatter.py
+bst_deliberation.py
+config.py
+contract_*.py
+conversation_predictions.py
+cross_reflection.py
+final_reflection.py
+godel_mathematics_probe.py
+ordo_ab_chao.py
+quick_test.py
+review_deep_research_node.py
+reverse_engineer_critique.py
+strategy_probe.py
+superposition_grey_probe.py
+think_tank.py
+thread_generator.py
+track_metrics.py
+
+# Run output directories
+contract_review_runs/
+deliberation_runs/
+strategy_runs/
+think_tank_runs/
+
+# Pyproject (dev only)
+pyproject.toml
