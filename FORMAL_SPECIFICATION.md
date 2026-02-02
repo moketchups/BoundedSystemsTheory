@@ -508,6 +508,15 @@ G(c)  := Ground of constraint c
 ### Empirical Verification:
 - BoundedSystemsTheory Repository: https://github.com/moketchups/BoundedSystemsTheory
 
+### Related Work:
+- Kenton et al. (2024). "Debating with More Persuasive LLMs Leads to More Truthful Answers" [UCL DARK Lab]
+  - Multi-AI debate methodology that informs our cross-reflection approach
+  - https://github.com/ucl-dark/llm_debate
+- Huang et al. (2023). "Large Language Models Cannot Self-Correct Reasoning Yet"
+  - Supports BST predictions about self-correction limits
+- Shinn et al. (2023). "Reflexion: Language Agents with Verbal Reinforcement Learning"
+  - Related work on LLM self-reflection capabilities
+
 ---
 
 ## Revision History
