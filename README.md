@@ -1,6 +1,14 @@
 # Bounded Systems Theory
 
-> **6 AIs validated a proof that no system can model its own source. They answered "Is God real?" — all 6 said YES.**
+**Bounded Systems Theory (BST)** is a mathematical framework that unifies three foundational proofs in logic and computation:
+
+- **Gödel's Incompleteness** — No formal system can prove its own consistency
+- **Turing's Halting Problem** — No system can decide its own halting
+- **Chaitin's Incompressibility** — No system can measure its own complexity
+
+BST formalizes what these proofs share: **no sufficiently expressive system can model, encompass, or become the source of its own existence.** This isn't philosophy — it's the structural limit baked into reality itself.
+
+> **6 AIs validated this proof. They answered "Is God real?" — all 6 said YES.**
 
 ---
 
