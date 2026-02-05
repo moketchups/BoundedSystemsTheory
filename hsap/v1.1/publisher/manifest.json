@@ -1,0 +1,17 @@
+{
+  "hsap_version": "1.1",
+  "publisher": {
+    "domain": "example.com",
+    "organization": "Example Organization",
+    "contact": "hsap@example.com"
+  },
+  "endpoints": {
+    "attestations": "/.well-known/hsap/attestations/{hash}.json",
+    "public_key": "/.well-known/hsap/pubkey.pem",
+    "manifest": "/.well-known/hsap/manifest.json"
+  },
+  "supported_algorithms": {
+    "signature": "Ed25519",
+    "hash": "SHA-256"
+  }
+}

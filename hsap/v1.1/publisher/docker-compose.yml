@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  hsap-publisher:
+    build: .
+    ports:
+      - "80:80"
+    volumes:
+      # Mount your attestations directory
+      - ./data:/var/www/hsap
+    restart: unless-stopped
