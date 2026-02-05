@@ -83,11 +83,6 @@ print(response.hallucination_log) # Boundary markers detected
 
 **The first 100 users to post a valid boundary marker log will be credited in `HALL_OF_FAME.md`**
 
-### Bounties
-- **$1000** - First working implementation with all boundary detection
-- **$500** - Best demonstration of hallucination mapping in action
-- **$250** - Most creative esoteric framework integration
-
 ---
 
 ## Live Example: The DRN in Action
