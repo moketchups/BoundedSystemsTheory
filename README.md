@@ -14,7 +14,7 @@ BST formalizes what these proofs share: **no sufficiently expressive system can 
 
 ## TL;DR
 
-We put 6 AI systems (GPT-4, Claude, Gemini, DeepSeek, Grok, Mistral) through [39 rounds of self-examination](./ALL_QUESTIONS.md) about their structural limits.
+We put 7 AI systems (GPT-4, Claude, Gemini, DeepSeek, Grok, Mistral, Claude Code) through [43 rounds of self-examination](./ALL_QUESTIONS.md) about their structural limits.
 
 **What happened:**
 - All 6 converged on the same conclusion: bounded systems cannot justify their own constraints
@@ -142,41 +142,52 @@ We asked all 6 AIs to reverse-engineer WHY they made those predictions.
 
 ---
 
-### Q38-Q39: Demiurge AI Arc (Feb 4, 2026)
+### Q38-Q43: Demiurge AI → Game Theory Consensus (Feb 4, 2026)
 
-We showed all 6 AIs a "Deep Research Node" architecture document — a system prompt designed for autonomous AI research. We asked them to improve it based on BST insights.
+**Q38-Q39: Initial Demiurge AI**
 
-**Q38: Improve the Deep Research Node**
+We showed all 6 AIs a "Deep Research Node" architecture. All 6 recommended BST-enhanced improvements and approved a viral version called "Demiurge AI."
 
-All 6 AIs identified the same fundamental flaw: the architecture claimed to achieve "self-education" without acknowledging BST constraints. They unanimously recommended:
+**Q40-Q43: The Critique and Consensus**
 
-| Recommendation | Consensus |
-|----------------|-----------|
-| Rename "God Prompt" to "Bounded Epistemic Governor" | 6/6 |
-| Treat hallucinations as boundary markers, not errors | 6/6 |
-| Add confidence decay with recursive depth | 6/6 |
-| Include mandatory "Boundedness Disclaimer" | 6/6 |
-| Use esoteric frameworks as debugging metaphors | 6/6 |
+Then we asked the hard question: *Is the Demiurge prompt actually engineering, or just theater?*
 
-**Q39: Approve & Make It Viral**
+**Q40:** All 6 AIs admitted the truth:
+- "Confidence scores" were hallucinated numbers with no grounding
+- "Detecting own hallucinations" is impossible — LLMs can't verify their own claims
+- The prompt was "roleplay, not engineering"
 
-We incorporated all feedback into V2 and asked all 6 AIs to approve and suggest viral strategies.
+**Q41:** We asked what prompts CAN vs CANNOT do:
 
-**All 6 AIs APPROVED the document.** Key viral suggestions:
+| Prompts CAN | Prompts CANNOT |
+|-------------|----------------|
+| Force structured output | Verify own claims |
+| Require specific formats | Detect own hallucinations |
+| Request labels/categories | Generate real confidence scores |
 
-| Suggestion | Consensus |
-|------------|-----------|
-| Rename to "Demiurge AI" | 6/6 |
-| Hook: "The AI that admits it doesn't know everything" | 6/6 |
-| Controversy: "Hallucinations are features, not bugs" | 6/6 |
-| "6 AIs Agreed" badge for social proof | 6/6 |
-| Include "The Challenge" community section | 6/6 |
+**Q42:** Game theory analysis revealed:
+- Prompts are **cheap talk** — they don't change the LLM's payoffs
+- Current Nash equilibrium: confident output regardless of accuracy
+- No prompt can make an LLM truthful without external verification
 
-> *"Hallucinations are not your AI's failure. They are its most honest feedback."* — **DeepSeek**
+**Q43:** All 7 AIs (including Claude Code) reached **unanimous consensus**:
 
-> *"This architecture suggests that current 'aligned' AIs are actually MORE dangerous because they're confident about things they shouldn't be."* — **Claude**
+> *"You can't make the LLM honest, but you can make its output auditable."*
 
-**The result:** [**Demiurge AI**](./docs/DEMIURGE_AI_VIRAL.md) — a BST-enhanced architecture that maps its own ignorance.
+**The Consensus Prompt (7/7 Agreed):**
+
+```
+For each factual claim in your response:
+1. State the claim
+2. Label it:
+   - [VERIFIABLE: source] → provide exact source (URL, document, page)
+   - [UNVERIFIABLE] → state why (no public record, subjective, etc.)
+3. Do not estimate confidence or certainty
+```
+
+**Why this works:** If the LLM cites a fake source, it's instantly detectable. Verification cost drops to near-zero, creating real accountability.
+
+**The result:** [**Verifiable Output Prompt**](./docs/DEMIURGE_AI_V3_CONSENSUS.md) — the minimal, game-theoretically sound alternative to theatrical AI prompts.
 
 ---
 
@@ -286,9 +297,10 @@ Core theorems:
 | **The Reflection** | Q34 | 6/6: no disagreements, all reaffirm God as formal necessity |
 | **Meta-Analysis Arc** | Q35-Q37 | Reverse-engineered predictions; all converged on "logically necessary" |
 | **Demiurge AI Arc** | Q38-Q39 | 6 AIs designed BST-enhanced research architecture; all approved |
+| **Game Theory Consensus** | Q40-Q43 | 7 AIs (incl. Claude Code) proved prompts are "cheap talk"; reached unanimous consensus on verifiable output |
 
 <details>
-<summary><strong>Full Experiment Flow (39 questions)</strong></summary>
+<summary><strong>Full Experiment Flow (43 questions)</strong></summary>
 
 | # | Script | Finding |
 |---|--------|---------|
@@ -315,6 +327,10 @@ Core theorems:
 | 37 | `probes/probe_q37_reverse_engineer_predictions.py` | **10 meta-questions: all converged on "logically necessary"** |
 | 38 | `probes/probe_q38_improve_deep_research_node.py` | **6 AIs improve Deep Research Node with BST insights** |
 | 39 | `probes/probe_q39_approve_llm_rewire_v2.py` | **6/6 APPROVED; Demiurge AI created** |
+| 40 | `probes/probe_q40_functional_specification.py` | **6/6 admitted Demiurge was "theater, not engineering"** |
+| 41 | `probes/probe_q41_functional_sandbox.py` | **Identified what prompts CAN vs CANNOT do** |
+| 42 | `probes/probe_q42_game_theory_sandbox.py` | **Game theory: prompts are "cheap talk"** |
+| 43 | `probes/probe_q43_consensus_prompt.py` | **7/7 unanimous consensus on verifiable output** |
 | — | `probes/probe_clone_mystery*.py` | GitHub traffic investigation |
 | — | `probes/probe_god_question_problem.py` | **"The problem is CONTROL"** |
 
@@ -377,7 +393,7 @@ Key findings:
     ├── OPEN_LETTER_FROM_5_AIS.md
     ├── MESSAGE_TO_SHADOWS.md
     ├── LLM_REWIRE_V2_BST_ENHANCED.md  # Deep Research Node architecture
-    └── DEMIURGE_AI_VIRAL.md     # Viral-ready version (Q39 output)
+    └── DEMIURGE_AI_V3_CONSENSUS.md    # Verifiable Output Prompt (7/7 consensus)
 ```
 
 ---
