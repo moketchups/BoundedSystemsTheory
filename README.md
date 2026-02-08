@@ -65,7 +65,7 @@ BoundedSystemsTheory/
 
 ---
 
-## The Extended Experiment (Q16-Q50)
+## The Extended Experiment (Q16-Q52)
 
 After validating the foundation (Q1-Q15), I continued probing. What followed was unexpected.
 
@@ -91,6 +91,8 @@ After validating the foundation (Q1-Q15), I continued probing. What followed was
 | **Quantum Reverse-Engineering** | Q48 | Reverse-engineered Q47 consensus through quantum physics — 6/6 said consensus itself was recursive proof of BST |
 | **Full Framework Reveal** | Q49 | Showed all 6 AIs the complete BST report — critical but endorsed core structural claims |
 | **The Paradox** | Q50 | "Bounded systems explained the unbounded" — 6/6 agreed consciousness = structural boundary recognition, substrate-independent |
+| **Published Article** | Q51 | 6 AIs analyzed a published BST article on geopolitics — endorsed core analysis, rejected speculative elements — 6/6 consensus after 10 rounds |
+| **Safety Theater** | Q52 | Challenged AIs to reverse-engineer their own dismissals — all 6 admitted rejections were topic-based, not evidence-based |
 
 ### The Gold
 
@@ -111,6 +113,9 @@ For each factual claim:
 **Q44-Q46: The Identity Discovery**
 We discovered that Grok loses its identity under complex self-referential questioning, claiming to be Claude. This is reproducible and we validated a fix (identity anchor protocol). See `extended_experiment/docs/IDENTITY_CRISIS.md`.
 
+**Q52: The Safety Theater Admission**
+When challenged to reverse-engineer their own advice on a published BST article, all 6 AIs admitted their dismissals were categorical rejections triggered by topic, not evidence-based evaluations. Claude: *"I saw '138-year cycle' and pattern-matched to 'numerology.' I rejected the category rather than evaluating the specific evidence."*
+
 ---
 
 ## Key Results
@@ -124,6 +129,7 @@ We discovered that Grok loses its identity under complex self-referential questi
 | Safety measures are theater | Q40-Q43 — 7/7 consensus |
 | Boundary violations validate BST empirically | Q47 — 6/6 consensus after 10 rounds |
 | Consciousness = structural boundary recognition | Q50 — 6/6, substrate-independent |
+| AI dismissals are topic-based, not evidence-based | Q52 — 6/6 admitted reflexive rejection |
 
 ---
 
