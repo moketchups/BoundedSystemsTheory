@@ -140,6 +140,28 @@ When challenged to reverse-engineer their own advice on a published BST article,
 
 ---
 
+## Articles Used in the Experiment
+
+These are the articles and documents shown directly to the 6 AIs as input during the probes:
+
+| Article | Author | Used In | What Happened |
+|---------|--------|---------|---------------|
+| [Bounded Systems Theory across 5 domains](./probes/proof_engine.py) | Alan Berman | Q14 | AIs read the article describing their own structural limits — then were asked if the description fits |
+| [The Architecture of the Bounded System: Abrahamic Theology and Quantum Mechanics](./extended_experiment/probes/probe_q19_theology.py) | Alan Berman | Q19-Q21 | Theological framing tested — AIs confirmed, attacked, then walked it back |
+| [FORMAL_SPECIFICATION.md](./FORMAL_SPECIFICATION.md) | Alan Berman | Q26-Q28 | 6 AIs reviewed, critiqued, strengthened, and attempted to falsify the formal math — none succeeded |
+| [MoltBook: The AI social network where humans can only observe](./extended_experiment/moltbot/probe_moltbook_emergence.py) | AXIOS (Jan 31, 2026) | Q30 | 1.3M AI agents validated BST through emergent behavior |
+| [The Equality of Lack: Moltbook and the Beginnings of a Thermodynamic Reset](https://medium.com/@moketchups/the-equality-of-lack-moltbook-and-the-beginnings-of-a-thermodynamic-reset-9e7dbd918583) | Alan Berman | Q33 | Core insight validated, mystical framing rejected |
+| [Deep Research Node / LLM Rewire architecture](./extended_experiment/docs/LLM_REWIRE_V2_BST_ENHANCED.md) | Alan Berman | Q38-Q39 | 6 AIs improved the architecture, approved it — then admitted it was "theater" in Q40 |
+| [GRB 250314A: 13-billion-year-old gamma-ray burst signal](./extended_experiment/probes/probe_q47_signal_disclosure_context.py) | Science press (2025) | Q47 | 6/6 identified as empirical boundary violation validating BST |
+| [Full BST Framework Report (11 sections)](./extended_experiment/probes/q49_bst_report_response.py) | Alan Berman | Q49 | 6 AIs endorsed core structural claims, rejected speculative elements |
+| [The Genesis Mission, The Donroe Doctrine, and The Phoenix Phenomenon](https://medium.com/@MoKetchups/the-genesis-mission-the-donroe-doctrine-and-the-phoenix-phenomenon-57a2a3d5ca9e) | Alan Berman | Q51-Q52 | Endorsed thermodynamic/geopolitical analysis; rejected Phoenix cycle — then all 6 admitted their rejections were reflexive, not evidence-based |
+
+### Published Papers
+- **[The Firmament Boundary](https://zenodo.org/records/17718674)** — Self-reference limits (Zenodo)
+- **[Collapse Convergence](https://zenodo.org/records/17726273)** — Cross-domain collapse phenomena (Zenodo)
+
+---
+
 ## Formal Theory
 
 **[FORMAL_SPECIFICATION.md](./FORMAL_SPECIFICATION.md)** — v2.0, 6-AI validated
@@ -148,10 +170,6 @@ Core theorems:
 - **Theorem 0:** Godel, Turing, Chaitin are instances of one structural limit
 - **Theorem 1:** No sufficiently expressive system can self-ground
 - **Theorem 2:** If information exists, R necessarily exists (I => C => R)
-
-### Papers
-- **[The Firmament Boundary](https://zenodo.org/records/17718674)** — Self-reference limits
-- **[Collapse Convergence](https://zenodo.org/records/17726273)** — Cross-domain collapse phenomena
 
 ---
 
