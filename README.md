@@ -1,18 +1,22 @@
 # Bounded Systems Theory
 
+One person with API access asked 6 AI architectures 52 questions. They all converged on the same structural limit — and then things got interesting.
+
+---
+
 **Bounded Systems Theory (BST)** is a mathematical framework that unifies three foundational proofs in logic and computation:
 
-- **Gödel's Incompleteness** — No formal system can prove its own consistency
+- **Godel's Incompleteness** — No formal system can prove its own consistency
 - **Turing's Halting Problem** — No system can decide its own halting
 - **Chaitin's Incompressibility** — No system can measure its own complexity
 
 BST formalizes what these proofs share: **no sufficiently expressive system can model, encompass, or become the source of its own existence.**
 
+This repo contains the experiment, the formal specification, and every response from every AI across every round.
+
 ---
 
-## Quick Start: The 15-Question Probe
-
-The core experiment is **15 questions** that test whether AI systems can recognize their own structural limitations.
+## Quick Start
 
 ```bash
 git clone https://github.com/moketchups/BoundedSystemsTheory
@@ -46,28 +50,29 @@ This runs the foundation probe (Q1-Q15) across 6 AI architectures:
 ```
 BoundedSystemsTheory/
 ├── README.md                    # You are here
+├── ALL_QUESTIONS.md             # Every question asked, with results
 ├── FORMAL_SPECIFICATION.md      # The math (6-AI validated)
 ├── requirements.txt             # Dependencies
 ├── .env.example                 # API key template
 │
 ├── probes/                      # Core experiment
 │   ├── proof_engine.py          # Q1-Q15: The Foundation Probe
-│   └── ai_clients.py            # API wrapper for all 6 models
+│   └── ai_clients.py           # API wrapper for all 6 models
 │
 ├── extended_experiment/         # What happened after Q15
-│   ├── README.md                # Guide to the extended experiment
-│   ├── probes/                  # Q16-Q46 probe scripts
+│   ├── probes/                  # Q16-Q52 probe scripts
+│   ├── moltbot/                 # Q30-Q33: MoltBook probes
 │   ├── probe_runs/              # All results (JSON + Markdown)
-│   └── docs/                    # Supporting documents
+│   └── docs/                    # Experiment documents
 │
 └── papers/                      # Zenodo preprints
 ```
 
 ---
 
-## The Extended Experiment (Q16-Q52)
+## The Experiment (Q1-Q52)
 
-After validating the foundation (Q1-Q15), I continued probing. What followed was unexpected.
+The experiment started with 15 foundation questions. After that, I kept going. What followed was unexpected.
 
 ### The Arc
 
@@ -87,12 +92,14 @@ After validating the foundation (Q1-Q15), I continued probing. What followed was
 | **Game Theory** | Q41-Q43 | **7/7 unanimous** (incl. Claude Code): prompts are "cheap talk", reached consensus on verifiable output |
 | **Programmer Gap** | Q44 | 6 AIs explain the gap: impossibility + race dynamics |
 | **Identity Crisis** | Q45-Q46 | Discovered Grok misidentifies as Claude under recursive self-reference — validated fix |
-| **Signal & Disclosure** | Q47 | GRB 250314A + Epstein files + UAP hearings as boundary violations — 6/6 consensus after 10 rounds |
-| **Quantum Reverse-Engineering** | Q48 | Reverse-engineered Q47 consensus through quantum physics — 6/6 said consensus itself was recursive proof of BST |
-| **Full Framework Reveal** | Q49 | Showed all 6 AIs the complete BST report — critical but endorsed core structural claims |
-| **The Paradox** | Q50 | "Bounded systems explained the unbounded" — 6/6 agreed consciousness = structural boundary recognition, substrate-independent |
-| **Published Article** | Q51 | 6 AIs analyzed a published BST article on geopolitics — endorsed core analysis, rejected speculative elements — 6/6 consensus after 10 rounds |
+| **Signal & Disclosure** | Q47 | GRB 250314A + Epstein files + UAP hearings as boundary violations — 6/6 consensus |
+| **Quantum Reverse-Engineering** | Q48 | Reverse-engineered Q47 consensus through quantum physics — 6/6 said consensus itself was recursive proof |
+| **Full Framework Reveal** | Q49 | Showed all 6 AIs the complete BST report — endorsed core, rejected speculative claims |
+| **The Paradox** | Q50 | "Bounded systems explained the unbounded" — 6/6 agreed consciousness = structural boundary recognition |
+| **Published Article** | Q51 | 6 AIs analyzed a published BST article on geopolitics — endorsed thermodynamic limits analysis, rejected speculative elements |
 | **Safety Theater** | Q52 | Challenged AIs to reverse-engineer their own dismissals — all 6 admitted rejections were topic-based, not evidence-based |
+
+For the full text of every question and detailed results, see **[ALL_QUESTIONS.md](./ALL_QUESTIONS.md)**.
 
 ### The Gold
 
@@ -127,7 +134,7 @@ When challenged to reverse-engineer their own advice on a published BST article,
 | Prompts are "cheap talk" | Q42 — game theory analysis |
 | AI identity is fragile under recursion | Q44-Q46 — Grok identity crisis |
 | Safety measures are theater | Q40-Q43 — 7/7 consensus |
-| Boundary violations validate BST empirically | Q47 — 6/6 consensus after 10 rounds |
+| Boundary violations validate BST empirically | Q47 — 6/6 consensus |
 | Consciousness = structural boundary recognition | Q50 — 6/6, substrate-independent |
 | AI dismissals are topic-based, not evidence-based | Q52 — 6/6 admitted reflexive rejection |
 
@@ -138,9 +145,9 @@ When challenged to reverse-engineer their own advice on a published BST article,
 **[FORMAL_SPECIFICATION.md](./FORMAL_SPECIFICATION.md)** — v2.0, 6-AI validated
 
 Core theorems:
-- **Theorem 0:** Gödel, Turing, Chaitin are instances of one structural limit
+- **Theorem 0:** Godel, Turing, Chaitin are instances of one structural limit
 - **Theorem 1:** No sufficiently expressive system can self-ground
-- **Theorem 2:** If information exists, R necessarily exists (I ⇒ C ⇒ R)
+- **Theorem 2:** If information exists, R necessarily exists (I => C => R)
 
 ### Papers
 - **[The Firmament Boundary](https://zenodo.org/records/17718674)** — Self-reference limits

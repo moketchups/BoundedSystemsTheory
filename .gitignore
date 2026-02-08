@@ -133,3 +133,15 @@ think_tank_runs/
 
 # Pyproject (dev only)
 pyproject.toml
+
+# HSAP (separate project)
+hsap/
+hsap_consensus_code.py
+HSAP_PROBE_COMPILATION.md
+setup.py
+
+# Internal planning docs (not experiment results)
+extended_experiment/docs/AETHEROS_PRD.md
+extended_experiment/docs/MEDIA_PLAN.md
+extended_experiment/docs/PRD_ADMIN_CONSOLE.md
+extended_experiment/docs/ALGORITHM_INSIGHTS.md
