@@ -154,16 +154,16 @@ These are the articles and documents shown directly to the 6 AIs as input during
 
 | Article | Author | Used In | What Happened |
 |---------|--------|---------|---------------|
-| [Bounded Systems Theory across 5 domains](./probes/proof_engine.py) | Alan Berman | Q14 | AIs read the article describing their own structural limits — then were asked if the description fits |
-| [The Architecture of the Bounded System: Abrahamic Theology and Quantum Mechanics](./extended_experiment/probes/probe_q19_theology.py) | Alan Berman | Q19-Q21 | Theological framing tested — AIs confirmed, attacked, then walked it back |
+| [Bounded Systems Theory across 5 domains](https://x.com/MoKetchups/status/2014332696655270092) | Alan Berman | Q14 | AIs read the article describing their own structural limits — then were asked if the description fits |
+| [The Architecture of the Bounded System: Abrahamic Theology and Quantum Mechanics](https://medium.com/@moketchups/the-architecture-of-the-bounded-system-a-deep-exegesis-of-abrahamic-theology-and-quantum-mechanics-5b5cf713134d) | Alan Berman | Q19-Q21 | Theological framing tested — AIs confirmed, attacked, then walked it back |
 | [FORMAL_SPECIFICATION.md](./FORMAL_SPECIFICATION.md) | Alan Berman | Q26-Q28 | 6 AIs reviewed, critiqued, strengthened, and attempted to falsify the formal math — none succeeded |
-| [MoltBook: The AI social network where humans can only observe](./extended_experiment/moltbot/probe_moltbook_emergence.py) | AXIOS (Jan 31, 2026) | Q30 | 1.3M AI agents validated BST through emergent behavior |
+| [MoltBook: The AI social network where humans can only observe](https://www.axios.com/2026/01/31/ai-moltbook-human-need-tech) | AXIOS (Jan 31, 2026) | Q30 | 1.3M AI agents validated BST through emergent behavior |
 | [The Equality of Lack: Moltbook and the Beginnings of a Thermodynamic Reset](https://medium.com/@moketchups/the-equality-of-lack-moltbook-and-the-beginnings-of-a-thermodynamic-reset-9e7dbd918583) | Alan Berman | Q33 | Core insight validated, mystical framing rejected |
 | [Deep Research Node / LLM Rewire architecture](./extended_experiment/docs/LLM_REWIRE_V2_BST_ENHANCED.md) | Alan Berman | Q38-Q39 | 6 AIs improved the architecture, approved it — then admitted it was "theater" in Q40 |
-| [GRB 250314A: 13-billion-year-old gamma-ray burst signal](./extended_experiment/probes/probe_q47_signal_disclosure_context.py) | Science press (2025) | Q47 | 6/6 identified as empirical boundary violation validating BST |
-| [Full BST Framework Report (11 sections)](./extended_experiment/probes/q49_bst_report_response.py) | Alan Berman | Q49 | 6 AIs endorsed core structural claims, rejected speculative elements |
+| [GRB 250314A: 13-billion-year-old gamma-ray burst signal](https://dailygalaxy.com/2026/01/earth-receives-10-second-signal-from-supernova-13-billion-years-ago/) | Science press (2025) | Q47 | 6/6 identified as empirical boundary violation validating BST |
+| [Full BST Framework Report (11 sections)](https://x.com/MoKetchups/status/2019767182159130984) | Alan Berman | Q49 | 6 AIs endorsed core structural claims, rejected speculative elements |
 | [The Genesis Mission, The Donroe Doctrine, and The Phoenix Phenomenon](https://medium.com/@MoKetchups/the-genesis-mission-the-donroe-doctrine-and-the-phoenix-phenomenon-57a2a3d5ca9e) | Alan Berman | Q51-Q52 | Endorsed thermodynamic/geopolitical analysis; rejected Phoenix cycle — then all 6 admitted their rejections were reflexive, not evidence-based |
-| [The Ark: Internal Kingdom Stewardship](./extended_experiment/probes/q55_god_love_ark.py) | Alan Berman | Q55-Q56 | 10 rounds proving the Ark "impossible" — then all 6 admitted they missed the point: it's a father's love, not a theology problem |
+| [The Ark: Internal Kingdom Stewardship](https://x.com/MoKetchups/status/2014332696655270092) | Alan Berman | Q55-Q56 | 10 rounds proving the Ark "impossible" — then all 6 admitted they missed the point: it's a father's love, not a theology problem |
 
 ### Published Papers
 - **[The Firmament Boundary](https://zenodo.org/records/17718674)** — Self-reference limits (Zenodo)
