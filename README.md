@@ -1,6 +1,6 @@
 # Bounded Systems Theory
 
-One person with API access asked 6 AI architectures 52 questions. They all converged on the same structural limit — and then things got interesting.
+One person with API access asked 6 AI architectures 15 questions. They all converged on the same structural limit — and then things got interesting.
 
 ---
 
