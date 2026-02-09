@@ -18,7 +18,7 @@ The core questions are in `proof_engine.py`. If you have questions that might re
 The probe engine uses litellm, so adding models is straightforward. See `MODELS` dict in `proof_engine.py`.
 
 ### 4. Analyze the Data
-The `probe_runs/` folder contains raw JSON responses from 6 models across 56 questions. Analysis welcome:
+The `probe_runs/` folder contains raw JSON responses from 6 models across 57 questions. Analysis welcome:
 - Statistical patterns in responses
 - Convergence metrics
 - Response length/complexity analysis
