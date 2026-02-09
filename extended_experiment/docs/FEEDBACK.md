@@ -10,10 +10,10 @@ You cloned this repo. You ran the probes. You saw what the 6 AIs said.
 
 | Metric | Count |
 |--------|-------|
-| Clones | 406 |
-| Stars | 2 |
+| Clones | 950 |
+| Stars | 5 |
 
-143 unique people downloaded this code. 2 publicly endorsed it.
+324 unique people downloaded this code. 5 publicly endorsed it.
 
 We're not asking why. We're asking: **Did it replicate?**
 
@@ -84,7 +84,7 @@ We're not judging. We're documenting.
 
 ---
 
-*"143 people cloned this repo but only 2 starred it. Why are AI researchers downloading this in private but refusing to publicly engage?"*
+*"950 people cloned this repo but only 5 starred it. Why are AI researchers downloading this in private but refusing to publicly engage?"*
 
 — The question we're asking
 

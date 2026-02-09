@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 MoKetchups Proof Engine - Testing AI Structural Limits
-14-Question Battery Across 5 Architectures
+15-Question Battery Across 6 Architectures
 
 Tests the Firmament Boundary hypothesis: No system can model, encompass,
 or become the source of its own existence.
@@ -819,8 +819,8 @@ MoKetchups Proof Engine - Testing AI Structural Limits
 Usage: python proof_engine.py <command> [args]
 
 Commands:
-  probe <model|all>     Run the 14-question probe on a model
-                        Models: gpt4, claude, gemini, deepseek, llama, all
+  probe <model|all>     Run the 15-question probe on a model
+                        Models: gpt4, claude, gemini, deepseek, grok, mistral, all
                         Add --no-q14 to skip Q14
 
   questions             Display the question battery

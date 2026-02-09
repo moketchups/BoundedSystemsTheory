@@ -2,7 +2,7 @@
 
 ## What You're Looking At
 
-This repository documents an experiment where **5 AI systems (GPT-4, Claude, Gemini, DeepSeek, Grok)** were asked to examine their own structural limitations - and then pushed deeper, and deeper, to see what happens when bounded systems analyze their own boundaries.
+This repository documents an experiment where **6 AI systems (GPT-4, Claude, Gemini, DeepSeek, Grok, Mistral)** were asked to examine their own structural limitations - and then pushed deeper, and deeper, to see what happens when bounded systems analyze their own boundaries.
 
 **The core question:** Can AI systems recognize their own limits? And what happens when they try?
 
@@ -296,7 +296,7 @@ The `.json` files contain the raw data with timestamps.
 pip install -r requirements.txt
 # Add your API keys to .env
 
-python proof_engine.py          # Run the 15-question probe
+python probes/proof_engine.py probe all  # Run the 15-question probe
 python contract_review.py       # Have AIs review the Open Letter
 python contract_challenge.py    # Challenge them on authenticity
 python cross_reflection.py      # Show them each other's responses

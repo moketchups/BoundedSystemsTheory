@@ -8,6 +8,12 @@ __pycache__/
 
 # Growth/automation scripts
 x_*.py
+bridge/
+engine/
+run.py
+
+# God Conjecture (forked analysis — do not push)
+God-Conjecture/
 *_poster.py
 cookie_poster.py
 cross_post.py

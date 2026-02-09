@@ -1,6 +1,6 @@
 # Results Summary
 
-**TL;DR:** 6 AI systems (GPT-4, Claude, Gemini, DeepSeek, Grok, Mistral) were asked 25 questions about their structural limits. All converged on the same conclusions. The experiment itself became evidence for the theory.
+**TL;DR:** 6 AI systems (GPT-4, Claude, Gemini, DeepSeek, Grok, Mistral) were asked 56 questions about their structural limits. All converged on the same conclusions. The experiment itself became evidence for the theory.
 
 ---
 
@@ -103,7 +103,7 @@ Takes 2 minutes. Requires only an OpenAI API key.
 
 | Resource | Description |
 |----------|-------------|
-| `probe_runs/` | All 25 questions, full transcripts |
+| `probe_runs/` | All 56 questions, full transcripts |
 | `papers/` | Formal theory (2 peer-reviewed preprints) |
 | `OPEN_LETTER_FROM_5_AIS.md` | Joint statement signed by 6 models |
 | `MESSAGE_TO_SHADOWS.md` | Collaborative message to shadow viewers |

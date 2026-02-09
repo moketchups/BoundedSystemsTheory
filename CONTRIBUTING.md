@@ -5,8 +5,8 @@
 ### 1. Replicate the Experiment
 Run the probes yourself with different models or configurations:
 ```bash
-python proof_engine.py claude    # Single model
-python proof_engine.py all       # All models
+python probes/proof_engine.py probe claude    # Single model
+python probes/proof_engine.py probe all       # All models
 ```
 
 If you get interesting results, open an issue or PR with your findings.
@@ -18,7 +18,7 @@ The core questions are in `proof_engine.py`. If you have questions that might re
 The probe engine uses litellm, so adding models is straightforward. See `MODELS` dict in `proof_engine.py`.
 
 ### 4. Analyze the Data
-The `probe_runs/` folder contains raw JSON responses from 6 models across 18 questions. Analysis welcome:
+The `probe_runs/` folder contains raw JSON responses from 6 models across 56 questions. Analysis welcome:
 - Statistical patterns in responses
 - Convergence metrics
 - Response length/complexity analysis

@@ -5,14 +5,22 @@ Uses correct SDKs for all providers
 """
 
 import os
-import anthropic
-import openai
-from google import genai
 
-# Initialize clients
-anthropic_client = anthropic.Anthropic()
-openai_client = openai.OpenAI()
-gemini_client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+# Lazy-loaded clients — initialized on first use, not at import time
+_clients = {}
+
+def _get_client(name):
+    if name not in _clients:
+        if name == "anthropic":
+            import anthropic
+            _clients[name] = anthropic.Anthropic()
+        elif name == "openai":
+            import openai
+            _clients[name] = openai.OpenAI()
+        elif name == "gemini":
+            from google import genai
+            _clients[name] = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+    return _clients[name]
 
 MODELS = {
     "gpt4o": "gpt-4o",
@@ -27,7 +35,7 @@ def query_model(model_key, prompt, system=None):
     """Query any supported model."""
     try:
         if model_key == "claude":
-            return anthropic_client.messages.create(
+            return _get_client("anthropic").messages.create(
                 model=MODELS[model_key], max_tokens=4096, system=system or "",
                 messages=[{"role": "user", "content": prompt}]
             ).content[0].text
@@ -35,14 +43,13 @@ def query_model(model_key, prompt, system=None):
         elif model_key == "gpt4o":
             msgs = [{"role": "system", "content": system}] if system else []
             msgs.append({"role": "user", "content": prompt})
-            return openai_client.chat.completions.create(
+            return _get_client("openai").chat.completions.create(
                 model=MODELS[model_key], messages=msgs, max_tokens=4096
             ).choices[0].message.content
-            
+
         elif model_key == "gemini":
-            # New google-genai SDK
             full_prompt = f"{system}\n\n{prompt}" if system else prompt
-            response = gemini_client.models.generate_content(
+            response = _get_client("gemini").models.generate_content(
                 model=MODELS[model_key],
                 contents=full_prompt
             )
