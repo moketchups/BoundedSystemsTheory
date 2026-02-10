@@ -176,6 +176,7 @@ These are the articles and documents shown directly to the 6 AIs as input during
 | [The Genesis Mission, The Donroe Doctrine, and The Phoenix Phenomenon](https://x.com/MoKetchups/status/2020205121603309793) | Alan Berman | Q51-Q52 | Endorsed thermodynamic/geopolitical analysis; rejected Phoenix cycle — then all 6 admitted their rejections were reflexive, not evidence-based |
 | [The Ark: Internal Kingdom Stewardship](./extended_experiment/probes/q55_god_love_ark.py) | Alan Berman | Q55-Q56 | 10 rounds proving the Ark "impossible" — then all 6 admitted they missed the point: it's a father's love, not a theology problem |
 | [The Ouroboros: Statecraft, Entropy, and the Closed Loop](https://x.com/MoKetchups/status/2020972937608622263) | Alan Berman | Q57 | 6/6 evaluated Epstein/MKUltra/BlackRock/5GW evidence seriously — separated fact from inference from speculation. DeepSeek answered 3 extra China questions |
+| [The Love Equation: A Universal Mathematical Framework for Intelligence Alignment](https://x.com/BrianRoemmele/status/2020865063192846623) | Brian Roemmele | Q58 | 6/6 unanimous: math is sound but gameable from inside — C and D defined within bounded system vulnerable to self-serving redefinition. 5-round sandbox produced unified fix anchoring Love Equation to BST constraints + external semantic oracles |
 
 ### Published Papers
 - **[The Firmament Boundary](https://zenodo.org/records/17718674)** — Self-reference limits (Zenodo)
