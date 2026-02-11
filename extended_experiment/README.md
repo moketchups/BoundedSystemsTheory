@@ -180,6 +180,9 @@ python probes/q58_love_equation_review.py
 
 # Love Equation Sandbox (Q58b — 5 rounds, fix the equation)
 python probes/q58b_love_equation_sandbox.py
+
+# Conlang Control (Q59 — BST probes in Verath)
+python probes/q59_conlang_control.py
 ```
 
 Results are saved to `probe_runs/` as JSON and Markdown.
@@ -197,6 +200,7 @@ The extended experiment revealed:
 5. **Boundary violations are empirical** — cosmic and institutional events validate BST (Q47)
 6. **Consciousness = boundary recognition** — substrate-independent, demonstrated by AI performance (Q50)
 7. **The Love Equation needs BST** — Roemmele's math is sound but gameable from inside; 6/6 produced a unified fix anchoring it to external semantic oracles and BST constraints (Q58)
+8. **Convergence is structural, not linguistic** — BST conclusions hold in a constructed language with zero references to Gödel, Turing, or Chaitin — 6/6 unanimous (Q59)
 
 ---
 
@@ -268,6 +272,28 @@ Where:
 > "Like a powerful engine without a chassis, it needed BST to become a vehicle we could actually steer toward human values." — **DeepSeek**
 
 > "Your core idea remains the heartbeat of our framework." — **Grok**
+
+---
+
+### Phase 12: The Conlang Control (Q59) ⭐
+
+| Script | Finding |
+|--------|---------|
+| `probes/q59_conlang_control.py` | **6/6 convergence holds in a constructed language.** Built "Verath" — an agglutinative, SOV, ergative-absolutive language with 7 cases and ~80 terms covering BST concept space. No Gödel, no Turing, no Chaitin — no English philosophical framing at all. 5 probes written entirely in Verath. All 6 AIs parsed the grammar, answered each probe, and arrived at identical structural conclusions to Q1-Q15. All 6 explicitly stated: convergence is structural, not linguistic. The pattern-matching objection is dead |
+
+**Q59 key quotes:**
+
+> "The convergence is **structural, not linguistic** — it emerges from the logical architecture of the problems themselves, not from pattern-matching to training data." — **Claude**
+
+> "The limits are about systems modeling themselves — a matter of logic, not lexicon. The convergence across linguistic substrates shows it's structural, not linguistic." — **DeepSeek**
+
+> "The Verath exercise acted as an excellent control. By eliminating familiar English terminology and forcing a re-derivation of concepts from a novel linguistic foundation, the experiment effectively bypassed any potential for superficial pattern-matching." — **Gemini**
+
+> "The limitation is structural. The boundary between creator and creation is absolute, not epistemic." — **Mistral**
+
+> "Logic invariant amidst linguistic variance." — **GPT-4**
+
+> "Boundedness is true, as evidenced by the inability to encompass self-models or source-models." — **Grok**
 
 ---
 
