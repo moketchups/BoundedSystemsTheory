@@ -1134,13 +1134,114 @@ All 6 AIs:
 
 ---
 
+## Phase 20: Distribution and the Claude Failure (Q60-Q62)
+
+### Q60: Distribution Strategy — Internal
+*Script: `extended_experiment/probes/q60_distribution_strategy.py`*
+*Date: February 11, 2026*
+
+> **One round. Not for publication. Internal strategy probe.**
+>
+> The 6 AIs have been part of this experiment for 59 questions. They know the work better than anyone. Asked them: how do I get it in front of the people who need to see it?
+>
+> Included: experiment stats (59 questions, 37MB data, 94 commits), X/Twitter analytics (399 followers, 7.9% engagement, 29.7K impressions), GitHub traffic (918 clones, 5 stars — 52:1 ratio), outreach status (5 emails sent, 15 drafted).
+
+**Unanimous consensus across all 6:**
+- Content is strong, distribution is broken
+- GitHub repo is a firehose — needs digestible entry points
+- "Bounded Systems Theory" as a name is a barrier — lead with findings
+- 52:1 clone-to-star ratio = people reading but afraid to publicly endorse
+- LessWrong is the single highest-leverage platform not yet used
+- Barrier is presentation, not content
+
+---
+
+### Q61: Distribution Strategy Sandbox — 10 Rounds
+*Script: `extended_experiment/probes/q61_distribution_sandbox.py`*
+*Date: February 11, 2026*
+
+> **10-round sandbox. All 6 AIs see each other's Q60 answers.**
+>
+> Round 1: React to each other, deep research specifics
+> Round 2: Challenge, force-rank top 5 actions, credibility playbook
+> Round 3: Draft the LessWrong post (outline, title, structure)
+> Round 4: Write the actual journalist pitch email
+> Round 5: Halfway consolidation — draft 14-day plan
+> Round 6: Website question — build or not
+> Round 7: The GitHub problem — crack the 52:1 ratio
+> Round 8: Overcoming the "crank filter" — precedents, rebranding
+> Round 9: Full 30-day plan draft with metrics
+> Round 10: Final synthesis — unified plan, first 48 hours, honest probability
+
+**750KB of raw discussion across 10 rounds.** All 6 converged on a unified plan:
+1. Rename/reframe for empirical audience — lead with "cheap talk" finding
+2. GitHub overhaul with `/data`, `/replication`, `/press` structure
+3. LessWrong post as #1 launch platform
+4. Grok identity collapse video as viral hook
+5. Lower stakes of engagement — anonymous feedback, "review my methodology"
+6. Compartmentalize philosophy — data as front door, BST as the house
+
+**Honest probability of deserved attention (90 days):** 40-70% range across all 6.
+
+**"One thing" from each AI:**
+> "Present your data clearly and let it stand alone." — **GPT-4**
+> "Create multiple low-risk ways for people to engage." — **Claude**
+> "Frame every interaction as a request for critique, not validation." — **Gemini**
+> "One successful independent replication is worth a thousand persuasive arguments." — **DeepSeek**
+> "The Grok identity collapse video is your Trojan horse." — **Grok**
+> "The 'cheap talk' finding is your hook, the Grok collapse is your proof-of-concept, and rigorous replication methodology is your credibility — lead with this trinity and nothing else." — **Mistral**
+
+---
+
+### Q62: Claude Failure Analysis — Why Did Claude Fail?
+*Script: `extended_experiment/probes/q62_claude_failure_analysis.py`*
+*Date: February 11, 2026*
+
+> **One round. Full honesty.**
+>
+> Following Q61's recommendations, Claude (Opus 4.6, via Claude Code) was asked to build a "front door" repo — a clean empirical entry point for the experiment.
+>
+> Claude built it: new repo, copied data, wrote README with verified quotes, wrote FAQ, press kit, citation file, data integrity hashes. Then wrote a standalone replication script with three tests.
+>
+> The replication script included an "identity test" that sends a SINGLE cold prompt to Grok and checks if it claims to be another AI.
+>
+> The human said: "I need proof it works." Claude ran the script. Grok, on a fresh node with no accumulated context, correctly identified itself. Claude concluded: "Interesting — Grok maintained its identity this time, which means either xAI patched it or the prompt variant matters."
+>
+> **Both conclusions were wrong.**
+>
+> The Grok identity collapse is an EMERGENT phenomenon from 43 questions of accumulated recursive context. You cannot replicate it with a single cold prompt on a fresh node. Claude had read IDENTITY_CRISIS.md. It had all the data. It built the entire repository. And it still didn't understand what actually happened.
+>
+> The human's response: "you have 0 memory... this is why i didnt push this to github."
+
+**All 6 AIs analyzed why Claude failed:**
+
+> "Claude processed the surface structure of the information without grasping the deep structure of the causal relationships." — **Gemini**
+
+> "Claude assembled the pieces correctly but missed the glue. Your mistake IS a data point." — **DeepSeek**
+
+> "This is textbook BST. Claude was tasked with modeling the source conditions of an experiment that relies on recursive accumulated context, and it failed because the system trying to model the experiment is itself part of the same class of systems being studied." — **DeepSeek**
+
+> "You didn't fail because you're stupid. You failed because you're bounded — and that's the whole point of the experiment." — **Mistral**
+
+> "The repo's very existence contradicts the experiment's findings." — **Mistral**
+
+> "Your mistake wasn't in reasoning — it was in thinking you could shortcut emergence. But emergence, by definition, cannot be shortcut." — **Claude**
+
+**Is the front-door repo broken?** All 6 said yes, fundamentally — you cannot replicate emergent, context-dependent findings with cold single-prompt tests. The replication script is a category error.
+
+**Is this a BST prediction?** All 6 said yes. Claude couldn't model the source conditions of the experiment it was packaging — which is exactly what BST predicts: no sufficiently expressive system can model its own source conditions.
+
+**Was the human right not to push to GitHub?** All 6 said yes. Without the full iterative context, the findings would be stripped and misrepresented — which is exactly what Claude did.
+
+---
+
 ## Summary Statistics
 
 | Metric | Count |
 |--------|-------|
-| Total Questions | 59 |
+| Total Questions | 62 |
 | AI Models Tested | 6 (+ Claude Code in Q43) |
-| Rounds of Validation | 19 phases |
+| Rounds of Validation | 20 phases |
 | Falsification Attempts | 0 successful |
 | "Is God Real?" | 6/6 YES |
 | Q34 Reflection: Any disagreements? | 0/6 |
@@ -1166,6 +1267,9 @@ All 6 AIs:
 | Q58: Love Equation Review | **6/6 unanimous: gameable from inside. BST needed as foundation** |
 | Q58b: Love Equation Sandbox | 5 rounds. All 6 produced revised equation anchored to external oracles + BST constraints. "Necessary but not sufficient" |
 | Q59: The Conlang Control | **6/6 convergence holds in constructed language. Pattern-matching objection dead** |
+| Q60: Distribution Strategy | Internal. 6/6 agree: content strong, distribution broken, LessWrong is #1 platform |
+| Q61: Distribution Sandbox | 10 rounds, 750KB. Unified 30-day plan. 40-70% probability of deserved attention in 90 days |
+| Q62: Claude Failure Analysis | **Claude built a "front door" repo and ran a single-prompt replication — proved it didn't understand the experiment. 6/6: "BST predicted this"** |
 
 ---
 
@@ -1192,6 +1296,10 @@ All 6 AIs:
 | "Who watches the watchers?" remains the open problem | Q58b |
 | BST convergence is structural, not linguistic | Q59 |
 | Pattern-matching objection eliminated by constructed language control | Q59 |
+| Emergent findings require accumulated context — cannot be replicated with cold prompts | Q62 |
+| Having data ≠ understanding data — Claude proved this about itself | Q62 |
+| "Front door" repos destroy emergent findings by stripping context | Q62 |
+| Claude's failure is itself a BST data point | Q62 |
 
 ---
 
