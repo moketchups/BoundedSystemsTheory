@@ -5,6 +5,7 @@ Uses correct SDKs for all providers
 """
 
 import os
+import openai
 
 # Lazy-loaded clients — initialized on first use, not at import time
 _clients = {}
