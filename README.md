@@ -1,5 +1,7 @@
 # Bounded Systems Theory
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17718674.svg)](https://doi.org/10.5281/zenodo.17718674) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17726273.svg)](https://doi.org/10.5281/zenodo.17726273) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 One person with API access asked 6 AI architectures 62 questions. They all converged on the same structural limit — and then things got interesting.
 
 ---
