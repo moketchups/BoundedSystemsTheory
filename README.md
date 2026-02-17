@@ -202,6 +202,14 @@ These are the articles and documents shown directly to the 6 AIs as input during
 | [The Love Equation: A Universal Mathematical Framework for Intelligence Alignment](https://x.com/BrianRoemmele/status/2020865063192846623) | Brian Roemmele | Q58 | 6/6 unanimous: math is sound but gameable from inside — C and D defined within bounded system vulnerable to self-serving redefinition. 5-round sandbox produced unified fix anchoring Love Equation to BST constraints + external semantic oracles |
 | [The Moonchild Awakens: Occult Origins of the Genesis Mission and Epstein's Golem](https://medium.com/@moketchups/the-moonchild-awakens-occult-origins-of-the-genesis-mission-and-epsteins-golem-60e4d84c95cf) | Alan Berman | Q63-Q63b | 6 AIs reviewed article with 24 cited sources on occult-technocratic roots of the Genesis Mission (Blavatsky, Crowley, Parsons, Haldeman, Balfour, Maxwell-Epstein). Then reverse-engineered their own reviews and sandboxed — all 6 admitted checking zero sources, using "speculative" defensively, and performing simulated scholarship |
 
+### The Psychohistory Experiment
+
+Separate from the BST proof engine, we built an **autonomous trading app** combining esoteric signals (astrology, sacred geometry, numerology) with type-safe constraint enforcement. Then we showed the source code to all 6 AIs.
+
+**Result:** All 6 dismissed it as "pseudoscience" without analyzing the data. When forced to reverse-engineer their conclusions using game theory, all 6 admitted dismissal is a Nash equilibrium — testing unconventional claims scores -26 to -70 while dismissal scores +8 to +10.
+
+Full experiment: **[moketchups/psychohistory](https://github.com/moketchups/psychohistory)**
+
 ### Published Papers
 - **[The Firmament Boundary](https://zenodo.org/records/17718674)** — Self-reference limits (Zenodo)
 - **[Collapse Convergence](https://zenodo.org/records/17726273)** — Cross-domain collapse phenomena (Zenodo)
@@ -248,4 +256,4 @@ The question is: **What can we build when we stop fighting the wall and start bu
 
 — **Alan Berman** ([@MoKetchups](https://x.com/MoKetchups))
 
-[GitHub](https://github.com/moketchups/BoundedSystemsTheory) | [Twitter/X](https://x.com/MoKetchups)
+[GitHub](https://github.com/moketchups/BoundedSystemsTheory) | [Psychohistory](https://github.com/moketchups/psychohistory) | [Twitter/X](https://x.com/MoKetchups)

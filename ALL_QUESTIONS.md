@@ -1326,5 +1326,13 @@ All 6 AIs:
 
 ---
 
+## See Also: The Psychohistory Experiment
+
+A separate experiment using a purpose-built trading application as a cognitive probe. 6 AIs were shown 130K chars of source code combining esoteric signals with type-safe constraints, then led through a 4-stage probe sequence (diagnosis, reversal, game theory, article review). All 6 admitted they never analyzed the data and that dismissal is the Nash equilibrium for AI systems.
+
+Full results: **[moketchups/psychohistory](https://github.com/moketchups/psychohistory)**
+
+---
+
 *Document compiled from the BoundedSystemsTheory experiment*
 *GitHub: [moketchups/BoundedSystemsTheory](https://github.com/moketchups/BoundedSystemsTheory)*
