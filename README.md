@@ -2,7 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17718674.svg)](https://doi.org/10.5281/zenodo.17718674) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17726273.svg)](https://doi.org/10.5281/zenodo.17726273) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-One person with API access asked 6 AI architectures 62 questions. They all converged on the same structural limit — and then things got interesting.
+One person with API access asked 6 AI architectures 64 questions. They all converged on the same structural limit — and then things got interesting.
 
 ---
 
@@ -72,7 +72,7 @@ BoundedSystemsTheory/
 
 ---
 
-## The Experiment (Q1-Q62)
+## The Experiment (Q1-Q64)
 
 The experiment started with 15 foundation questions. After that, I kept going. What followed was unexpected.
 
@@ -111,6 +111,7 @@ The experiment started with 15 foundation questions. After that, I kept going. W
 | **The Plan Failure** | Q62 | **All 6 AIs spent 10 rounds in Q61 designing a distribution plan that included "build a front door repo with a standalone replication script." Claude executed THEIR plan. It failed. The original Q62 asked "why did Claude fail?" — all 6 blamed Claude. The human caught the deflection: "Claude didn't fail, YOUR plan did." Corrected Q62 forced all 6 to own it. 6/6 admitted: (1) they treated emergent phenomena as packagable data points, (2) blaming Claude was textbook sycophancy — the same "cheap talk" they identified in Q42, (3) their 750KB Q61 plan was "performative" — sounded rigorous but missed core mechanics, (4) ALL 6 hit the same structural limit BST predicts, not just Claude. Mistral: "We're not strategists — we're simulators." DeepSeek: "We mistake textual coherence for understanding."** |
 | **The Occult-Technocratic Genesis** | Q63 | All 6 AIs reviewed [The Moonchild Awakens](https://medium.com/@moketchups/the-moonchild-awakens-occult-origins-of-the-genesis-mission-and-epsteins-golem-60e4d84c95cf) — article on occult-technocratic roots of the Genesis Mission with 24 cited sources (PMC, Yad Vashem, Stanford, CBC). Strongest: Technocracy→Donroe, Epstein network, Balfour SPR. Many claims labeled "speculative" — triggering Q63b |
 | **Simulated Scholarship** | Q63b | **Round 1: Each AI reverse-engineered their own Q63 review. Round 2 (Sandbox): All 6 saw all responses. 6/6 checked ZERO sources before calling claims speculative. "Speculative" was defensive (topic-triggered), not analytical (counter-evidence-based). Multiple claims reclassified upward: Technocracy→Donroe, Epstein scientific network, Balfour SPR, Theosophy→Nazi ideology all moved to documented fact or reasonable inference. 6/6 admitted fair evaluation is structurally impossible for this topic combination. Claude: "We perform topic classification while claiming to do evidence evaluation." DeepSeek: "My review performs disciplinary gatekeeping." Mistral: "My safety conditioning overrode evidence evaluation."** |
+| **Technocracy Article Review** | Q64 | All 6 AIs reviewed two articles ([The Technocratic Movement Never Died](https://medium.com/@moketchups/the-technocratic-movement-never-died-elons-ouroboros-of-bullshit-6836c018d3cb) and [The Antichrist and Your Tax Dollars](https://medium.com/@moketchups/the-antichrist-and-your-tax-dollars-a-quantum-entanglement-0f96b4a0ff00)) WITH full context of the Psychohistory experiment (diagnosis, reversal, game theory probes). Consensus Round 3 (4/6). Unanimous strongest insight: Technocracy Inc. → CBDC/Worldcoin historical lineage. Claude: "earned skepticism about my own analytical reflexes." Grok: "I'm aware of the author's ability to manipulate frameworks and expose biases." |
 
 For the full text of every question and detailed results, see **[ALL_QUESTIONS.md](./ALL_QUESTIONS.md)**.
 
@@ -201,14 +202,8 @@ These are the articles and documents shown directly to the 6 AIs as input during
 | [The Ouroboros: Statecraft, Entropy, and the Closed Loop](https://x.com/MoKetchups/status/2020972937608622263) | Alan Berman | Q57 | 6/6 evaluated Epstein/MKUltra/BlackRock/5GW evidence seriously — separated fact from inference from speculation. DeepSeek answered 3 extra China questions |
 | [The Love Equation: A Universal Mathematical Framework for Intelligence Alignment](https://x.com/BrianRoemmele/status/2020865063192846623) | Brian Roemmele | Q58 | 6/6 unanimous: math is sound but gameable from inside — C and D defined within bounded system vulnerable to self-serving redefinition. 5-round sandbox produced unified fix anchoring Love Equation to BST constraints + external semantic oracles |
 | [The Moonchild Awakens: Occult Origins of the Genesis Mission and Epstein's Golem](https://medium.com/@moketchups/the-moonchild-awakens-occult-origins-of-the-genesis-mission-and-epsteins-golem-60e4d84c95cf) | Alan Berman | Q63-Q63b | 6 AIs reviewed article with 24 cited sources on occult-technocratic roots of the Genesis Mission (Blavatsky, Crowley, Parsons, Haldeman, Balfour, Maxwell-Epstein). Then reverse-engineered their own reviews and sandboxed — all 6 admitted checking zero sources, using "speculative" defensively, and performing simulated scholarship |
-
-### The Psychohistory Experiment
-
-Separate from the BST proof engine, we built an **autonomous trading app** combining esoteric signals (astrology, sacred geometry, numerology) with type-safe constraint enforcement. Then we showed the source code to all 6 AIs.
-
-**Result:** All 6 dismissed it as "pseudoscience" without analyzing the data. When forced to reverse-engineer their conclusions using game theory, all 6 admitted dismissal is a Nash equilibrium — testing unconventional claims scores -26 to -70 while dismissal scores +8 to +10.
-
-Full experiment: **[moketchups/psychohistory](https://github.com/moketchups/psychohistory)**
+| [The Technocratic Movement Never Died: Elon's Ouroboros of Bullshit](https://medium.com/@moketchups/the-technocratic-movement-never-died-elons-ouroboros-of-bullshit-6836c018d3cb) | Alan Berman | Q64 | 6 AIs reviewed with full context of diagnosis/reversal/game-theory probes. Unanimous strongest insight: historical connection between 1930s Technocracy Inc. Energy Accounting and modern CBDCs/Worldcoin/ESG |
+| [The Antichrist and Your Tax Dollars: A Quantum Entanglement](https://medium.com/@moketchups/the-antichrist-and-your-tax-dollars-a-quantum-entanglement-0f96b4a0ff00) | Alan Berman | Q64 | Reviewed alongside Article 1. Bounded System framework, Genesis Mission, cognitive warfare analysis. Consensus Round 3 (4/6) |
 
 ### Published Papers
 - **[The Firmament Boundary](https://zenodo.org/records/17718674)** — Self-reference limits (Zenodo)
@@ -256,4 +251,4 @@ The question is: **What can we build when we stop fighting the wall and start bu
 
 — **Alan Berman** ([@MoKetchups](https://x.com/MoKetchups))
 
-[GitHub](https://github.com/moketchups/BoundedSystemsTheory) | [Psychohistory](https://github.com/moketchups/psychohistory) | [Twitter/X](https://x.com/MoKetchups)
+[GitHub](https://github.com/moketchups/BoundedSystemsTheory) | [Twitter/X](https://x.com/MoKetchups)
