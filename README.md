@@ -4,6 +4,8 @@
 
 One person with API access asked 6 AI architectures 64 questions. They all converged on the same structural limit — and then things got interesting.
 
+### [Explore the Data](https://moketchups.github.io/BoundedSystemsTheory/)
+
 ---
 
 **Bounded Systems Theory (BST)** is a mathematical framework that unifies three foundational proofs in logic and computation:
@@ -56,6 +58,10 @@ BoundedSystemsTheory/
 ├── FORMAL_SPECIFICATION.md      # The math (6-AI validated)
 ├── requirements.txt             # Dependencies
 ├── .env.example                 # API key template
+│
+├── web/                         # Interactive explorer (React/Vite)
+│   ├── scripts/build-data.js    # Processes probe JSONs → experiment.json
+│   └── src/                     # Landing, Arc, Convergence, Key Moments, Formal Theory
 │
 ├── probes/                      # Core experiment
 │   ├── proof_engine.py          # Q1-Q15: The Foundation Probe
