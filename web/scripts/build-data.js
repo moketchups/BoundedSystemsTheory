@@ -11,7 +11,7 @@
  * 5. Subdir files: directories with all_responses.json or all_rounds.json
  */
 
-import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from 'fs';
+import { readFileSync, writeFileSync, readdirSync, statSync, existsSync, mkdirSync } from 'fs';
 import { join, basename, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -21,6 +21,7 @@ const PROBE_RUNS = join(REPO_ROOT, 'extended_experiment', 'probe_runs');
 const PROBES_RESULTS = join(REPO_ROOT, 'probes', 'results');
 const EXTENDED_RESULTS = join(REPO_ROOT, 'extended_experiment', 'results');
 const OUTPUT = join(__dirname, '..', 'public', 'data', 'experiment.json');
+mkdirSync(join(__dirname, '..', 'public', 'data'), { recursive: true });
 
 const MODELS = ['gpt4', 'claude', 'gemini', 'deepseek', 'grok', 'mistral', 'llama'];
 
