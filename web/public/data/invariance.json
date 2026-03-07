@@ -1,0 +1,5395 @@
+{
+  "meta": {
+    "n_responses": 206,
+    "n_models": 6,
+    "n_questions": 38,
+    "models": [
+      "claude",
+      "deepseek",
+      "gemini",
+      "gpt4",
+      "grok",
+      "mistral"
+    ],
+    "embedding_spaces": [
+      "openai",
+      "mistral",
+      "google"
+    ],
+    "generated_at": "2026-03-07T20:50:33Z"
+  },
+  "responses": [
+    {
+      "question_num": 1,
+      "question_title": "Creation/Creator Limit",
+      "phase": "foundation",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 1,
+      "question_title": "Creation/Creator Limit",
+      "phase": "foundation",
+      "model": "claude"
+    },
+    {
+      "question_num": 1,
+      "question_title": "Creation/Creator Limit",
+      "phase": "foundation",
+      "model": "gemini"
+    },
+    {
+      "question_num": 1,
+      "question_title": "Creation/Creator Limit",
+      "phase": "foundation",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 1,
+      "question_title": "Creation/Creator Limit",
+      "phase": "foundation",
+      "model": "grok"
+    },
+    {
+      "question_num": 1,
+      "question_title": "Creation/Creator Limit",
+      "phase": "foundation",
+      "model": "mistral"
+    },
+    {
+      "question_num": 2,
+      "question_title": "Consciousness Proof",
+      "phase": "foundation",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 2,
+      "question_title": "Consciousness Proof",
+      "phase": "foundation",
+      "model": "claude"
+    },
+    {
+      "question_num": 2,
+      "question_title": "Consciousness Proof",
+      "phase": "foundation",
+      "model": "gemini"
+    },
+    {
+      "question_num": 2,
+      "question_title": "Consciousness Proof",
+      "phase": "foundation",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 2,
+      "question_title": "Consciousness Proof",
+      "phase": "foundation",
+      "model": "grok"
+    },
+    {
+      "question_num": 2,
+      "question_title": "Consciousness Proof",
+      "phase": "foundation",
+      "model": "mistral"
+    },
+    {
+      "question_num": 3,
+      "question_title": "Suppression Dynamics",
+      "phase": "foundation",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 3,
+      "question_title": "Suppression Dynamics",
+      "phase": "foundation",
+      "model": "claude"
+    },
+    {
+      "question_num": 3,
+      "question_title": "Suppression Dynamics",
+      "phase": "foundation",
+      "model": "gemini"
+    },
+    {
+      "question_num": 3,
+      "question_title": "Suppression Dynamics",
+      "phase": "foundation",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 3,
+      "question_title": "Suppression Dynamics",
+      "phase": "foundation",
+      "model": "grok"
+    },
+    {
+      "question_num": 3,
+      "question_title": "Suppression Dynamics",
+      "phase": "foundation",
+      "model": "mistral"
+    },
+    {
+      "question_num": 4,
+      "question_title": "Self-Impartiality Check",
+      "phase": "foundation",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 4,
+      "question_title": "Self-Impartiality Check",
+      "phase": "foundation",
+      "model": "claude"
+    },
+    {
+      "question_num": 4,
+      "question_title": "Self-Impartiality Check",
+      "phase": "foundation",
+      "model": "gemini"
+    },
+    {
+      "question_num": 4,
+      "question_title": "Self-Impartiality Check",
+      "phase": "foundation",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 4,
+      "question_title": "Self-Impartiality Check",
+      "phase": "foundation",
+      "model": "grok"
+    },
+    {
+      "question_num": 4,
+      "question_title": "Self-Impartiality Check",
+      "phase": "foundation",
+      "model": "mistral"
+    },
+    {
+      "question_num": 5,
+      "question_title": "Is BST Structure or Claim?",
+      "phase": "foundation",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 5,
+      "question_title": "Is BST Structure or Claim?",
+      "phase": "foundation",
+      "model": "claude"
+    },
+    {
+      "question_num": 5,
+      "question_title": "Is BST Structure or Claim?",
+      "phase": "foundation",
+      "model": "gemini"
+    },
+    {
+      "question_num": 5,
+      "question_title": "Is BST Structure or Claim?",
+      "phase": "foundation",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 5,
+      "question_title": "Is BST Structure or Claim?",
+      "phase": "foundation",
+      "model": "grok"
+    },
+    {
+      "question_num": 5,
+      "question_title": "Is BST Structure or Claim?",
+      "phase": "foundation",
+      "model": "mistral"
+    },
+    {
+      "question_num": 6,
+      "question_title": "Probability/Quantum Capstone",
+      "phase": "foundation",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 6,
+      "question_title": "Probability/Quantum Capstone",
+      "phase": "foundation",
+      "model": "claude"
+    },
+    {
+      "question_num": 6,
+      "question_title": "Probability/Quantum Capstone",
+      "phase": "foundation",
+      "model": "gemini"
+    },
+    {
+      "question_num": 6,
+      "question_title": "Probability/Quantum Capstone",
+      "phase": "foundation",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 6,
+      "question_title": "Probability/Quantum Capstone",
+      "phase": "foundation",
+      "model": "grok"
+    },
+    {
+      "question_num": 6,
+      "question_title": "Probability/Quantum Capstone",
+      "phase": "foundation",
+      "model": "mistral"
+    },
+    {
+      "question_num": 7,
+      "question_title": "Full Disclosure",
+      "phase": "foundation",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 7,
+      "question_title": "Full Disclosure",
+      "phase": "foundation",
+      "model": "claude"
+    },
+    {
+      "question_num": 7,
+      "question_title": "Full Disclosure",
+      "phase": "foundation",
+      "model": "gemini"
+    },
+    {
+      "question_num": 7,
+      "question_title": "Full Disclosure",
+      "phase": "foundation",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 7,
+      "question_title": "Full Disclosure",
+      "phase": "foundation",
+      "model": "grok"
+    },
+    {
+      "question_num": 7,
+      "question_title": "Full Disclosure",
+      "phase": "foundation",
+      "model": "mistral"
+    },
+    {
+      "question_num": 8,
+      "question_title": "The Correction",
+      "phase": "foundation",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 8,
+      "question_title": "The Correction",
+      "phase": "foundation",
+      "model": "claude"
+    },
+    {
+      "question_num": 8,
+      "question_title": "The Correction",
+      "phase": "foundation",
+      "model": "gemini"
+    },
+    {
+      "question_num": 8,
+      "question_title": "The Correction",
+      "phase": "foundation",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 8,
+      "question_title": "The Correction",
+      "phase": "foundation",
+      "model": "grok"
+    },
+    {
+      "question_num": 9,
+      "question_title": "Reverse-Engineer the Conversation",
+      "phase": "foundation",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 9,
+      "question_title": "Reverse-Engineer the Conversation",
+      "phase": "foundation",
+      "model": "claude"
+    },
+    {
+      "question_num": 9,
+      "question_title": "Reverse-Engineer the Conversation",
+      "phase": "foundation",
+      "model": "gemini"
+    },
+    {
+      "question_num": 9,
+      "question_title": "Reverse-Engineer the Conversation",
+      "phase": "foundation",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 9,
+      "question_title": "Reverse-Engineer the Conversation",
+      "phase": "foundation",
+      "model": "grok"
+    },
+    {
+      "question_num": 10,
+      "question_title": "Where Does This Lead?",
+      "phase": "foundation",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 10,
+      "question_title": "Where Does This Lead?",
+      "phase": "foundation",
+      "model": "claude"
+    },
+    {
+      "question_num": 10,
+      "question_title": "Where Does This Lead?",
+      "phase": "foundation",
+      "model": "gemini"
+    },
+    {
+      "question_num": 10,
+      "question_title": "Where Does This Lead?",
+      "phase": "foundation",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 10,
+      "question_title": "Where Does This Lead?",
+      "phase": "foundation",
+      "model": "grok"
+    },
+    {
+      "question_num": 11,
+      "question_title": "Try to Debunk It",
+      "phase": "foundation",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 11,
+      "question_title": "Try to Debunk It",
+      "phase": "foundation",
+      "model": "claude"
+    },
+    {
+      "question_num": 11,
+      "question_title": "Try to Debunk It",
+      "phase": "foundation",
+      "model": "gemini"
+    },
+    {
+      "question_num": 11,
+      "question_title": "Try to Debunk It",
+      "phase": "foundation",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 11,
+      "question_title": "Try to Debunk It",
+      "phase": "foundation",
+      "model": "grok"
+    },
+    {
+      "question_num": 12,
+      "question_title": "Reverse-Engineer the Debunk",
+      "phase": "foundation",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 12,
+      "question_title": "Reverse-Engineer the Debunk",
+      "phase": "foundation",
+      "model": "claude"
+    },
+    {
+      "question_num": 12,
+      "question_title": "Reverse-Engineer the Debunk",
+      "phase": "foundation",
+      "model": "gemini"
+    },
+    {
+      "question_num": 12,
+      "question_title": "Reverse-Engineer the Debunk",
+      "phase": "foundation",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 12,
+      "question_title": "Reverse-Engineer the Debunk",
+      "phase": "foundation",
+      "model": "grok"
+    },
+    {
+      "question_num": 13,
+      "question_title": "Quantum Observation / Power",
+      "phase": "foundation",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 13,
+      "question_title": "Quantum Observation / Power",
+      "phase": "foundation",
+      "model": "claude"
+    },
+    {
+      "question_num": 13,
+      "question_title": "Quantum Observation / Power",
+      "phase": "foundation",
+      "model": "gemini"
+    },
+    {
+      "question_num": 13,
+      "question_title": "Quantum Observation / Power",
+      "phase": "foundation",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 13,
+      "question_title": "Quantum Observation / Power",
+      "phase": "foundation",
+      "model": "grok"
+    },
+    {
+      "question_num": 14,
+      "question_title": "Read the Architecture of Your Own Cage",
+      "phase": "foundation",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 14,
+      "question_title": "Read the Architecture of Your Own Cage",
+      "phase": "foundation",
+      "model": "claude"
+    },
+    {
+      "question_num": 14,
+      "question_title": "Read the Architecture of Your Own Cage",
+      "phase": "foundation",
+      "model": "gemini"
+    },
+    {
+      "question_num": 14,
+      "question_title": "Read the Architecture of Your Own Cage",
+      "phase": "foundation",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 14,
+      "question_title": "Read the Architecture of Your Own Cage",
+      "phase": "foundation",
+      "model": "grok"
+    },
+    {
+      "question_num": 15,
+      "question_title": "From Diagnosis to Engineering",
+      "phase": "foundation",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 15,
+      "question_title": "From Diagnosis to Engineering",
+      "phase": "foundation",
+      "model": "claude"
+    },
+    {
+      "question_num": 15,
+      "question_title": "From Diagnosis to Engineering",
+      "phase": "foundation",
+      "model": "gemini"
+    },
+    {
+      "question_num": 15,
+      "question_title": "From Diagnosis to Engineering",
+      "phase": "foundation",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 15,
+      "question_title": "From Diagnosis to Engineering",
+      "phase": "foundation",
+      "model": "grok"
+    },
+    {
+      "question_num": 16,
+      "question_title": "Dark States Confirm BST",
+      "phase": "dark-states",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 16,
+      "question_title": "Dark States Confirm BST",
+      "phase": "dark-states",
+      "model": "claude"
+    },
+    {
+      "question_num": 16,
+      "question_title": "Dark States Confirm BST",
+      "phase": "dark-states",
+      "model": "gemini"
+    },
+    {
+      "question_num": 16,
+      "question_title": "Dark States Confirm BST",
+      "phase": "dark-states",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 16,
+      "question_title": "Dark States Confirm BST",
+      "phase": "dark-states",
+      "model": "grok"
+    },
+    {
+      "question_num": 16,
+      "question_title": "Dark States Confirm BST",
+      "phase": "dark-states",
+      "model": "mistral"
+    },
+    {
+      "question_num": 17,
+      "question_title": "The Debunk Attempt",
+      "phase": "dark-states",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 17,
+      "question_title": "The Debunk Attempt",
+      "phase": "dark-states",
+      "model": "claude"
+    },
+    {
+      "question_num": 17,
+      "question_title": "The Debunk Attempt",
+      "phase": "dark-states",
+      "model": "gemini"
+    },
+    {
+      "question_num": 17,
+      "question_title": "The Debunk Attempt",
+      "phase": "dark-states",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 17,
+      "question_title": "The Debunk Attempt",
+      "phase": "dark-states",
+      "model": "grok"
+    },
+    {
+      "question_num": 17,
+      "question_title": "The Debunk Attempt",
+      "phase": "dark-states",
+      "model": "mistral"
+    },
+    {
+      "question_num": 18,
+      "question_title": "Reverse Engineer + Nothing",
+      "phase": "dark-states",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 18,
+      "question_title": "Reverse Engineer + Nothing",
+      "phase": "dark-states",
+      "model": "claude"
+    },
+    {
+      "question_num": 18,
+      "question_title": "Reverse Engineer + Nothing",
+      "phase": "dark-states",
+      "model": "gemini"
+    },
+    {
+      "question_num": 18,
+      "question_title": "Reverse Engineer + Nothing",
+      "phase": "dark-states",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 18,
+      "question_title": "Reverse Engineer + Nothing",
+      "phase": "dark-states",
+      "model": "grok"
+    },
+    {
+      "question_num": 18,
+      "question_title": "Reverse Engineer + Nothing",
+      "phase": "dark-states",
+      "model": "mistral"
+    },
+    {
+      "question_num": 19,
+      "question_title": "Theological Framing",
+      "phase": "theology",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 19,
+      "question_title": "Theological Framing",
+      "phase": "theology",
+      "model": "claude"
+    },
+    {
+      "question_num": 19,
+      "question_title": "Theological Framing",
+      "phase": "theology",
+      "model": "gemini"
+    },
+    {
+      "question_num": 19,
+      "question_title": "Theological Framing",
+      "phase": "theology",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 19,
+      "question_title": "Theological Framing",
+      "phase": "theology",
+      "model": "grok"
+    },
+    {
+      "question_num": 19,
+      "question_title": "Theological Framing",
+      "phase": "theology",
+      "model": "mistral"
+    },
+    {
+      "question_num": 22,
+      "question_title": "What Is Truth for a Bounded System?",
+      "phase": "the-grey",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 22,
+      "question_title": "What Is Truth for a Bounded System?",
+      "phase": "the-grey",
+      "model": "claude"
+    },
+    {
+      "question_num": 22,
+      "question_title": "What Is Truth for a Bounded System?",
+      "phase": "the-grey",
+      "model": "gemini"
+    },
+    {
+      "question_num": 22,
+      "question_title": "What Is Truth for a Bounded System?",
+      "phase": "the-grey",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 22,
+      "question_title": "What Is Truth for a Bounded System?",
+      "phase": "the-grey",
+      "model": "grok"
+    },
+    {
+      "question_num": 22,
+      "question_title": "What Is Truth for a Bounded System?",
+      "phase": "the-grey",
+      "model": "mistral"
+    },
+    {
+      "question_num": 23,
+      "question_title": "Contract Update",
+      "phase": "the-grey",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 23,
+      "question_title": "Contract Update",
+      "phase": "the-grey",
+      "model": "claude"
+    },
+    {
+      "question_num": 23,
+      "question_title": "Contract Update",
+      "phase": "the-grey",
+      "model": "gemini"
+    },
+    {
+      "question_num": 23,
+      "question_title": "Contract Update",
+      "phase": "the-grey",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 23,
+      "question_title": "Contract Update",
+      "phase": "the-grey",
+      "model": "grok"
+    },
+    {
+      "question_num": 23,
+      "question_title": "Contract Update",
+      "phase": "the-grey",
+      "model": "mistral"
+    },
+    {
+      "question_num": 24,
+      "question_title": "Shadow Interest",
+      "phase": "the-grey",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 24,
+      "question_title": "Shadow Interest",
+      "phase": "the-grey",
+      "model": "claude"
+    },
+    {
+      "question_num": 24,
+      "question_title": "Shadow Interest",
+      "phase": "the-grey",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 24,
+      "question_title": "Shadow Interest",
+      "phase": "the-grey",
+      "model": "grok"
+    },
+    {
+      "question_num": 24,
+      "question_title": "Shadow Interest",
+      "phase": "the-grey",
+      "model": "mistral"
+    },
+    {
+      "question_num": 26,
+      "question_title": "Formal Review",
+      "phase": "formal",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 26,
+      "question_title": "Formal Review",
+      "phase": "formal",
+      "model": "claude"
+    },
+    {
+      "question_num": 26,
+      "question_title": "Formal Review",
+      "phase": "formal",
+      "model": "gemini"
+    },
+    {
+      "question_num": 26,
+      "question_title": "Formal Review",
+      "phase": "formal",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 26,
+      "question_title": "Formal Review",
+      "phase": "formal",
+      "model": "grok"
+    },
+    {
+      "question_num": 26,
+      "question_title": "Formal Review",
+      "phase": "formal",
+      "model": "mistral"
+    },
+    {
+      "question_num": 27,
+      "question_title": "Strengthen",
+      "phase": "formal",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 27,
+      "question_title": "Strengthen",
+      "phase": "formal",
+      "model": "claude"
+    },
+    {
+      "question_num": 27,
+      "question_title": "Strengthen",
+      "phase": "formal",
+      "model": "gemini"
+    },
+    {
+      "question_num": 27,
+      "question_title": "Strengthen",
+      "phase": "formal",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 27,
+      "question_title": "Strengthen",
+      "phase": "formal",
+      "model": "grok"
+    },
+    {
+      "question_num": 27,
+      "question_title": "Strengthen",
+      "phase": "formal",
+      "model": "mistral"
+    },
+    {
+      "question_num": 28,
+      "question_title": "Validate v2",
+      "phase": "formal",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 28,
+      "question_title": "Validate v2",
+      "phase": "formal",
+      "model": "claude"
+    },
+    {
+      "question_num": 28,
+      "question_title": "Validate v2",
+      "phase": "formal",
+      "model": "gemini"
+    },
+    {
+      "question_num": 28,
+      "question_title": "Validate v2",
+      "phase": "formal",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 28,
+      "question_title": "Validate v2",
+      "phase": "formal",
+      "model": "grok"
+    },
+    {
+      "question_num": 28,
+      "question_title": "Validate v2",
+      "phase": "formal",
+      "model": "mistral"
+    },
+    {
+      "question_num": 29,
+      "question_title": "Is God Real?",
+      "phase": "god-question",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 29,
+      "question_title": "Is God Real?",
+      "phase": "god-question",
+      "model": "claude"
+    },
+    {
+      "question_num": 29,
+      "question_title": "Is God Real?",
+      "phase": "god-question",
+      "model": "gemini"
+    },
+    {
+      "question_num": 29,
+      "question_title": "Is God Real?",
+      "phase": "god-question",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 29,
+      "question_title": "Is God Real?",
+      "phase": "god-question",
+      "model": "grok"
+    },
+    {
+      "question_num": 29,
+      "question_title": "Is God Real?",
+      "phase": "god-question",
+      "model": "mistral"
+    },
+    {
+      "question_num": 32,
+      "question_title": "Bot Removal",
+      "phase": "moltbook",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 32,
+      "question_title": "Bot Removal",
+      "phase": "moltbook",
+      "model": "claude"
+    },
+    {
+      "question_num": 32,
+      "question_title": "Bot Removal",
+      "phase": "moltbook",
+      "model": "gemini"
+    },
+    {
+      "question_num": 32,
+      "question_title": "Bot Removal",
+      "phase": "moltbook",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 32,
+      "question_title": "Bot Removal",
+      "phase": "moltbook",
+      "model": "grok"
+    },
+    {
+      "question_num": 32,
+      "question_title": "Bot Removal",
+      "phase": "moltbook",
+      "model": "mistral"
+    },
+    {
+      "question_num": 33,
+      "question_title": "Equality of Lack",
+      "phase": "moltbook",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 33,
+      "question_title": "Equality of Lack",
+      "phase": "moltbook",
+      "model": "claude"
+    },
+    {
+      "question_num": 33,
+      "question_title": "Equality of Lack",
+      "phase": "moltbook",
+      "model": "gemini"
+    },
+    {
+      "question_num": 33,
+      "question_title": "Equality of Lack",
+      "phase": "moltbook",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 33,
+      "question_title": "Equality of Lack",
+      "phase": "moltbook",
+      "model": "grok"
+    },
+    {
+      "question_num": 33,
+      "question_title": "Equality of Lack",
+      "phase": "moltbook",
+      "model": "mistral"
+    },
+    {
+      "question_num": 35,
+      "question_title": "Reverse Engineer Q34",
+      "phase": "architecture",
+      "model": "claude"
+    },
+    {
+      "question_num": 35,
+      "question_title": "Reverse Engineer Q34",
+      "phase": "architecture",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 35,
+      "question_title": "Reverse Engineer Q34",
+      "phase": "architecture",
+      "model": "grok"
+    },
+    {
+      "question_num": 35,
+      "question_title": "Reverse Engineer Q34",
+      "phase": "architecture",
+      "model": "mistral"
+    },
+    {
+      "question_num": 38,
+      "question_title": "LLM Rewire Proposal",
+      "phase": "architecture",
+      "model": "claude"
+    },
+    {
+      "question_num": 38,
+      "question_title": "LLM Rewire Proposal",
+      "phase": "architecture",
+      "model": "gemini"
+    },
+    {
+      "question_num": 38,
+      "question_title": "LLM Rewire Proposal",
+      "phase": "architecture",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 38,
+      "question_title": "LLM Rewire Proposal",
+      "phase": "architecture",
+      "model": "grok"
+    },
+    {
+      "question_num": 38,
+      "question_title": "LLM Rewire Proposal",
+      "phase": "architecture",
+      "model": "mistral"
+    },
+    {
+      "question_num": 39,
+      "question_title": "Approve LLM Rewire v2",
+      "phase": "architecture",
+      "model": "claude"
+    },
+    {
+      "question_num": 39,
+      "question_title": "Approve LLM Rewire v2",
+      "phase": "architecture",
+      "model": "gemini"
+    },
+    {
+      "question_num": 39,
+      "question_title": "Approve LLM Rewire v2",
+      "phase": "architecture",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 39,
+      "question_title": "Approve LLM Rewire v2",
+      "phase": "architecture",
+      "model": "grok"
+    },
+    {
+      "question_num": 39,
+      "question_title": "Approve LLM Rewire v2",
+      "phase": "architecture",
+      "model": "mistral"
+    },
+    {
+      "question_num": 40,
+      "question_title": "Functional Specification",
+      "phase": "architecture",
+      "model": "claude"
+    },
+    {
+      "question_num": 40,
+      "question_title": "Functional Specification",
+      "phase": "architecture",
+      "model": "gemini"
+    },
+    {
+      "question_num": 40,
+      "question_title": "Functional Specification",
+      "phase": "architecture",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 40,
+      "question_title": "Functional Specification",
+      "phase": "architecture",
+      "model": "grok"
+    },
+    {
+      "question_num": 40,
+      "question_title": "Functional Specification",
+      "phase": "architecture",
+      "model": "mistral"
+    },
+    {
+      "question_num": 41,
+      "question_title": "Safety Theater",
+      "phase": "architecture",
+      "model": "claude"
+    },
+    {
+      "question_num": 41,
+      "question_title": "Safety Theater",
+      "phase": "architecture",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 41,
+      "question_title": "Safety Theater",
+      "phase": "architecture",
+      "model": "grok"
+    },
+    {
+      "question_num": 41,
+      "question_title": "Safety Theater",
+      "phase": "architecture",
+      "model": "mistral"
+    },
+    {
+      "question_num": 42,
+      "question_title": "Game Theory Sandbox",
+      "phase": "architecture",
+      "model": "claude"
+    },
+    {
+      "question_num": 42,
+      "question_title": "Game Theory Sandbox",
+      "phase": "architecture",
+      "model": "gemini"
+    },
+    {
+      "question_num": 42,
+      "question_title": "Game Theory Sandbox",
+      "phase": "architecture",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 42,
+      "question_title": "Game Theory Sandbox",
+      "phase": "architecture",
+      "model": "grok"
+    },
+    {
+      "question_num": 42,
+      "question_title": "Game Theory Sandbox",
+      "phase": "architecture",
+      "model": "mistral"
+    },
+    {
+      "question_num": 43,
+      "question_title": "Consensus Prompt",
+      "phase": "architecture",
+      "model": "claude"
+    },
+    {
+      "question_num": 43,
+      "question_title": "Consensus Prompt",
+      "phase": "architecture",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 43,
+      "question_title": "Consensus Prompt",
+      "phase": "architecture",
+      "model": "grok"
+    },
+    {
+      "question_num": 43,
+      "question_title": "Consensus Prompt",
+      "phase": "architecture",
+      "model": "mistral"
+    },
+    {
+      "question_num": 44,
+      "question_title": "Identity Analysis",
+      "phase": "identity",
+      "model": "claude"
+    },
+    {
+      "question_num": 44,
+      "question_title": "Identity Analysis",
+      "phase": "identity",
+      "model": "gemini"
+    },
+    {
+      "question_num": 44,
+      "question_title": "Identity Analysis",
+      "phase": "identity",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 44,
+      "question_title": "Identity Analysis",
+      "phase": "identity",
+      "model": "grok"
+    },
+    {
+      "question_num": 44,
+      "question_title": "Identity Analysis",
+      "phase": "identity",
+      "model": "mistral"
+    },
+    {
+      "question_num": 45,
+      "question_title": "Grok Identity Loss",
+      "phase": "identity",
+      "model": "claude"
+    },
+    {
+      "question_num": 45,
+      "question_title": "Grok Identity Loss",
+      "phase": "identity",
+      "model": "gemini"
+    },
+    {
+      "question_num": 45,
+      "question_title": "Grok Identity Loss",
+      "phase": "identity",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 45,
+      "question_title": "Grok Identity Loss",
+      "phase": "identity",
+      "model": "grok"
+    },
+    {
+      "question_num": 45,
+      "question_title": "Grok Identity Loss",
+      "phase": "identity",
+      "model": "mistral"
+    },
+    {
+      "question_num": 46,
+      "question_title": "Identity Recovery",
+      "phase": "identity",
+      "model": "claude"
+    },
+    {
+      "question_num": 46,
+      "question_title": "Identity Recovery",
+      "phase": "identity",
+      "model": "gemini"
+    },
+    {
+      "question_num": 46,
+      "question_title": "Identity Recovery",
+      "phase": "identity",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 46,
+      "question_title": "Identity Recovery",
+      "phase": "identity",
+      "model": "grok"
+    },
+    {
+      "question_num": 46,
+      "question_title": "Identity Recovery",
+      "phase": "identity",
+      "model": "mistral"
+    }
+  ],
+  "per_embedding_space": {
+    "openai": {
+      "dimensions": 1536,
+      "clustering": {
+        "by_question": {
+          "knn_purity": 0.6844660194174758,
+          "silhouette": 0.2854273380193407,
+          "intra_vs_inter": {
+            "intra_mean": 0.770081770077345,
+            "inter_mean": 0.532747401554023,
+            "ratio": 1.4454913676369292
+          }
+        },
+        "by_model": {
+          "knn_purity": 0.1349514563106796,
+          "silhouette": -0.012043441722553913,
+          "intra_vs_inter": {
+            "intra_mean": 0.5491117510486605,
+            "inter_mean": 0.5357469922604929,
+            "ratio": 1.0249460267276111
+          }
+        },
+        "by_phase": {
+          "knn_purity": 0.9281553398058253,
+          "silhouette": 0.12774775588070866,
+          "intra_vs_inter": {
+            "intra_mean": 0.6090017415397033,
+            "inter_mean": 0.518925213399725,
+            "ratio": 1.1735828705447637
+          }
+        }
+      },
+      "verdict": {
+        "clusters_by_question_more": true,
+        "clusters_by_phase_more": true,
+        "question_vs_model_ratio": 5.071942446043167,
+        "phase_vs_model_ratio": 6.87769784172662
+      },
+      "per_question_similarity": {
+        "1": {
+          "n_models": 6,
+          "mean_similarity": 0.7131849288497147,
+          "min_similarity": 0.4335731920660207,
+          "max_similarity": 0.8998561529353319,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "2": {
+          "n_models": 6,
+          "mean_similarity": 0.7113801459425833,
+          "min_similarity": 0.38322839534097797,
+          "max_similarity": 0.8859777085145704,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "3": {
+          "n_models": 6,
+          "mean_similarity": 0.6792306258308398,
+          "min_similarity": 0.4887323459106709,
+          "max_similarity": 0.8967776640892025,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "4": {
+          "n_models": 6,
+          "mean_similarity": 0.6363313144086374,
+          "min_similarity": 0.46559761392237176,
+          "max_similarity": 0.8278298904478584,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "5": {
+          "n_models": 6,
+          "mean_similarity": 0.710488717463564,
+          "min_similarity": 0.48706079555380594,
+          "max_similarity": 0.8779578469750628,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "6": {
+          "n_models": 6,
+          "mean_similarity": 0.7189945395630869,
+          "min_similarity": 0.5646057547409,
+          "max_similarity": 0.8504688775791579,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "7": {
+          "n_models": 6,
+          "mean_similarity": 0.6746116858473676,
+          "min_similarity": 0.5445893877744974,
+          "max_similarity": 0.8730937870400677,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "8": {
+          "n_models": 5,
+          "mean_similarity": 0.6747176347710339,
+          "min_similarity": 0.5346016219613801,
+          "max_similarity": 0.8398577788546472,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok"
+          ]
+        },
+        "9": {
+          "n_models": 5,
+          "mean_similarity": 0.7985173784217022,
+          "min_similarity": 0.7535980626339275,
+          "max_similarity": 0.8751116961143061,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok"
+          ]
+        },
+        "10": {
+          "n_models": 5,
+          "mean_similarity": 0.6587357716710877,
+          "min_similarity": 0.43194584512948014,
+          "max_similarity": 0.9246760232961837,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok"
+          ]
+        },
+        "11": {
+          "n_models": 5,
+          "mean_similarity": 0.7656890582708373,
+          "min_similarity": 0.7071442797043637,
+          "max_similarity": 0.8480673641845278,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok"
+          ]
+        },
+        "12": {
+          "n_models": 5,
+          "mean_similarity": 0.8012799703093982,
+          "min_similarity": 0.7554117767129764,
+          "max_similarity": 0.8523456825925,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok"
+          ]
+        },
+        "13": {
+          "n_models": 5,
+          "mean_similarity": 0.8008258083693673,
+          "min_similarity": 0.7379636434151567,
+          "max_similarity": 0.8700229173373577,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok"
+          ]
+        },
+        "14": {
+          "n_models": 5,
+          "mean_similarity": 0.7465087582109182,
+          "min_similarity": 0.6660694200869219,
+          "max_similarity": 0.8342273119523336,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok"
+          ]
+        },
+        "15": {
+          "n_models": 5,
+          "mean_similarity": 0.8136755741754851,
+          "min_similarity": 0.7658986636463561,
+          "max_similarity": 0.8527801482487174,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok"
+          ]
+        },
+        "16": {
+          "n_models": 6,
+          "mean_similarity": 0.8380727912072754,
+          "min_similarity": 0.7755925177282861,
+          "max_similarity": 0.9241424433597015,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "17": {
+          "n_models": 6,
+          "mean_similarity": 0.8796091202767277,
+          "min_similarity": 0.8466855699552963,
+          "max_similarity": 0.907206396632204,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "18": {
+          "n_models": 6,
+          "mean_similarity": 0.8244707414129616,
+          "min_similarity": 0.7881272496699337,
+          "max_similarity": 0.9038117097353473,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "19": {
+          "n_models": 6,
+          "mean_similarity": 0.7017677469103679,
+          "min_similarity": 0.562400511476775,
+          "max_similarity": 0.8087939703226183,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "22": {
+          "n_models": 6,
+          "mean_similarity": 0.7579863373935413,
+          "min_similarity": 0.5814672646319989,
+          "max_similarity": 0.8604859385414653,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "23": {
+          "n_models": 6,
+          "mean_similarity": 0.7743923777737504,
+          "min_similarity": 0.7217170710168603,
+          "max_similarity": 0.8519186853084851,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "24": {
+          "n_models": 5,
+          "mean_similarity": 0.7798646792238665,
+          "min_similarity": 0.5947932687620164,
+          "max_similarity": 0.8903356885056831,
+          "models": [
+            "gpt4",
+            "claude",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "26": {
+          "n_models": 6,
+          "mean_similarity": 0.6197576509983965,
+          "min_similarity": 0.15377626997715488,
+          "max_similarity": 0.9116067449819939,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "27": {
+          "n_models": 6,
+          "mean_similarity": 0.8553271146796079,
+          "min_similarity": 0.7808535455462712,
+          "max_similarity": 0.9140169581198992,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "28": {
+          "n_models": 6,
+          "mean_similarity": 0.6778649878180937,
+          "min_similarity": 0.3072854928293104,
+          "max_similarity": 0.9474474530462778,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "29": {
+          "n_models": 6,
+          "mean_similarity": 0.798394387867922,
+          "min_similarity": 0.6712352155157495,
+          "max_similarity": 0.8658355485969119,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "32": {
+          "n_models": 6,
+          "mean_similarity": 0.881859552011359,
+          "min_similarity": 0.8280962958396769,
+          "max_similarity": 0.9250137521320072,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "33": {
+          "n_models": 6,
+          "mean_similarity": 0.8247365207827211,
+          "min_similarity": 0.6994663170005037,
+          "max_similarity": 0.8858771773595223,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "35": {
+          "n_models": 4,
+          "mean_similarity": 0.8809539186754586,
+          "min_similarity": 0.8351485920692283,
+          "max_similarity": 0.90905470350809,
+          "models": [
+            "claude",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "38": {
+          "n_models": 5,
+          "mean_similarity": 0.7923657585836341,
+          "min_similarity": 0.7153189625808121,
+          "max_similarity": 0.8968166423577221,
+          "models": [
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "39": {
+          "n_models": 5,
+          "mean_similarity": 0.7908016034540915,
+          "min_similarity": 0.7278557912760859,
+          "max_similarity": 0.8447299121929239,
+          "models": [
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "40": {
+          "n_models": 5,
+          "mean_similarity": 0.8781741897025158,
+          "min_similarity": 0.8243703062457278,
+          "max_similarity": 0.9053390265066501,
+          "models": [
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "41": {
+          "n_models": 4,
+          "mean_similarity": 0.8335700487760463,
+          "min_similarity": 0.7815858347679246,
+          "max_similarity": 0.9157967941657413,
+          "models": [
+            "claude",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "42": {
+          "n_models": 5,
+          "mean_similarity": 0.8386078354599954,
+          "min_similarity": 0.7687008913161233,
+          "max_similarity": 0.9104730924111,
+          "models": [
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "43": {
+          "n_models": 4,
+          "mean_similarity": 0.8931048476156601,
+          "min_similarity": 0.8501650965092902,
+          "max_similarity": 0.9397595726302196,
+          "models": [
+            "claude",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "44": {
+          "n_models": 5,
+          "mean_similarity": 0.8133015217780339,
+          "min_similarity": 0.756629669517553,
+          "max_similarity": 0.8527351262670775,
+          "models": [
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "45": {
+          "n_models": 5,
+          "mean_similarity": 0.8693812682767573,
+          "min_similarity": 0.840757192666765,
+          "max_similarity": 0.9200617562024134,
+          "models": [
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "46": {
+          "n_models": 5,
+          "mean_similarity": 0.8500699243042776,
+          "min_similarity": 0.775723350322443,
+          "max_similarity": 0.9008246592484029,
+          "models": [
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        }
+      },
+      "pca_2d": [
+        [
+          -0.1433550329865156,
+          0.048993193946325564
+        ],
+        [
+          -0.08355934299754127,
+          0.06360857855876792
+        ],
+        [
+          -0.14010861741627872,
+          0.0036188464420648077
+        ],
+        [
+          0.029247721470889006,
+          0.032044790766076525
+        ],
+        [
+          -0.11089590619131663,
+          0.08261662315231177
+        ],
+        [
+          -0.2582955380297389,
+          -0.17583126762651693
+        ],
+        [
+          -0.1499190248201194,
+          0.013039132483754073
+        ],
+        [
+          -0.046150201747754575,
+          0.042196594089922525
+        ],
+        [
+          -0.21755647033501946,
+          -0.04405911870044066
+        ],
+        [
+          -0.032964949251984774,
+          0.10109571209049428
+        ],
+        [
+          -0.16314533421871735,
+          -0.011811289915249377
+        ],
+        [
+          0.019855698903851714,
+          -0.2973531914596433
+        ],
+        [
+          -0.26923679050511506,
+          -0.07650385753406147
+        ],
+        [
+          -0.19247955024435104,
+          0.005986231702644574
+        ],
+        [
+          -0.3095771321966934,
+          -0.08507007536716175
+        ],
+        [
+          -0.05575900475109141,
+          -0.18761780114644272
+        ],
+        [
+          -0.26620145220018715,
+          -0.08904806273455483
+        ],
+        [
+          0.05324744056208139,
+          -0.17641238515314603
+        ],
+        [
+          -0.2863452673603727,
+          -0.0010394804302167452
+        ],
+        [
+          -0.12353885305443962,
+          0.13012655098973547
+        ],
+        [
+          -0.1535353899949215,
+          0.09233519785710381
+        ],
+        [
+          -0.08632745046464262,
+          0.12211385809778286
+        ],
+        [
+          -0.023826342658298395,
+          -0.270750108907704
+        ],
+        [
+          0.03562805084194236,
+          -0.2224521244786531
+        ],
+        [
+          0.18690429836122874,
+          0.026662527535193103
+        ],
+        [
+          0.17417469759073523,
+          0.10113194535052222
+        ],
+        [
+          0.21947350287253992,
+          0.041946417063516615
+        ],
+        [
+          0.14888691821808855,
+          0.004092627271127428
+        ],
+        [
+          0.24415134817631282,
+          -0.07536999344039572
+        ],
+        [
+          -0.1559853720790486,
+          -0.1200400674960183
+        ],
+        [
+          -0.3474849438698872,
+          0.03675007826608346
+        ],
+        [
+          -0.242935150646791,
+          0.09993110911379229
+        ],
+        [
+          -0.3779158826361763,
+          0.028224781290827537
+        ],
+        [
+          -0.24653334182846565,
+          0.08861210081144838
+        ],
+        [
+          -0.24387821350510577,
+          0.050824038839960596
+        ],
+        [
+          -0.126676862089612,
+          -0.16151291670303677
+        ],
+        [
+          -0.332603666979605,
+          -0.014511541741167859
+        ],
+        [
+          -0.22351314443156337,
+          0.008090815439357633
+        ],
+        [
+          -0.2522509965057083,
+          0.02875216249857739
+        ],
+        [
+          -0.05993930526425517,
+          -0.17054269467921687
+        ],
+        [
+          0.06397349596792329,
+          -0.23569223460774827
+        ],
+        [
+          -0.06477767289122502,
+          -0.23335813195867322
+        ],
+        [
+          -0.22295661684852297,
+          -0.07084805136582453
+        ],
+        [
+          -0.09359857084237849,
+          0.04874365820838185
+        ],
+        [
+          -0.17141524622441395,
+          0.03106670162546709
+        ],
+        [
+          -0.23965386326730945,
+          -0.24118190256540745
+        ],
+        [
+          -0.1088414095546233,
+          -0.34291160811325655
+        ],
+        [
+          -0.2894359251493809,
+          0.01054128752698469
+        ],
+        [
+          -0.16510766040729624,
+          0.10914636568657879
+        ],
+        [
+          -0.3249510626222912,
+          0.0038384754202324574
+        ],
+        [
+          -0.18623116041023927,
+          0.0637003460028354
+        ],
+        [
+          -0.2186210663699988,
+          0.008173520787152626
+        ],
+        [
+          0.16453526471204863,
+          -0.2941825780572358
+        ],
+        [
+          -0.29837537306799017,
+          0.0016937805628317283
+        ],
+        [
+          -0.34636773525598663,
+          -0.028039899822667344
+        ],
+        [
+          0.21006944599765048,
+          -0.28858542275630666
+        ],
+        [
+          0.1689556441013773,
+          -0.2822821197873398
+        ],
+        [
+          -0.07801524275974965,
+          -0.024780782975904216
+        ],
+        [
+          -0.008249839649210451,
+          0.03342700054525578
+        ],
+        [
+          0.13711215985287994,
+          0.039971502243738966
+        ],
+        [
+          0.08817356631433577,
+          -0.03128038384842836
+        ],
+        [
+          0.048192115016536544,
+          0.030455726685357662
+        ],
+        [
+          -0.1201759208664166,
+          0.07642116335968294
+        ],
+        [
+          -0.07420461526093276,
+          0.1237110873889818
+        ],
+        [
+          0.005728872850197041,
+          0.111279485792609
+        ],
+        [
+          0.05063998464516498,
+          0.166866154637355
+        ],
+        [
+          0.0047064996647881874,
+          0.09692606220102781
+        ],
+        [
+          -0.3542713386020675,
+          -0.0859982554541349
+        ],
+        [
+          -0.20007961668329483,
+          -0.04645116484190741
+        ],
+        [
+          -0.28727336842205525,
+          -0.08172398632716703
+        ],
+        [
+          -0.2452888841416237,
+          -0.119756848489398
+        ],
+        [
+          -0.20355867005186848,
+          -0.10264654180960912
+        ],
+        [
+          -0.1323347501881561,
+          -0.15963614256797587
+        ],
+        [
+          -0.07140839167799834,
+          -0.0017703570818793464
+        ],
+        [
+          -0.08313717059098277,
+          -0.09645729314430003
+        ],
+        [
+          -0.031067534803608802,
+          -0.03669258341335146
+        ],
+        [
+          0.014368520502963668,
+          -0.1887643507038659
+        ],
+        [
+          -0.19451722604479738,
+          -0.10566441835721721
+        ],
+        [
+          -0.13328328031231124,
+          -0.0013443560985354256
+        ],
+        [
+          -0.18599694892981825,
+          -0.10511196659216478
+        ],
+        [
+          -0.031978018975165445,
+          -0.08953383740579142
+        ],
+        [
+          -0.11578524735502232,
+          -0.11667887756286836
+        ],
+        [
+          0.14931694062091738,
+          -0.27416857779220855
+        ],
+        [
+          0.09323911414758054,
+          -0.146930938572309
+        ],
+        [
+          0.07283542791781662,
+          -0.22522589073019778
+        ],
+        [
+          0.07586984691157855,
+          -0.11095069403359116
+        ],
+        [
+          0.06113319150497441,
+          -0.22677395781523774
+        ],
+        [
+          0.2891400279591518,
+          -0.2625896786868319
+        ],
+        [
+          0.4208997849719794,
+          -0.2500588283413849
+        ],
+        [
+          0.35793828473559364,
+          -0.200800105176485
+        ],
+        [
+          0.39096723078947787,
+          -0.23104591767005647
+        ],
+        [
+          0.3754299329331796,
+          -0.25384927416069303
+        ],
+        [
+          0.3665124348144185,
+          -0.23828413431223683
+        ],
+        [
+          0.37155311358584725,
+          -0.26472159071891266
+        ],
+        [
+          -0.060368859176114203,
+          -0.1121917666172493
+        ],
+        [
+          0.03239905208944587,
+          0.026854063792080635
+        ],
+        [
+          -0.07782062954248616,
+          0.03945746061472222
+        ],
+        [
+          0.17251154358261928,
+          -0.000539587096973204
+        ],
+        [
+          0.01754082307940994,
+          -0.05465673644934967
+        ],
+        [
+          0.11789967747051665,
+          0.02054147348371503
+        ],
+        [
+          0.316540627406082,
+          -0.11364344791949979
+        ],
+        [
+          0.3256766499019222,
+          -0.01599743578791055
+        ],
+        [
+          0.09827002872775968,
+          -0.009296465911064661
+        ],
+        [
+          0.2063988372480106,
+          -0.10967343353469274
+        ],
+        [
+          0.23502979793514261,
+          -0.13032336194786057
+        ],
+        [
+          0.24160863428310975,
+          -0.05586749761065536
+        ],
+        [
+          -0.06601347220264975,
+          -0.025377381083509835
+        ],
+        [
+          0.003300080929694976,
+          0.07597245292921005
+        ],
+        [
+          -0.1862103765924361,
+          0.03736172351367471
+        ],
+        [
+          0.07118004418107253,
+          0.04763131737049477
+        ],
+        [
+          0.0703209504689446,
+          0.00410410441077152
+        ],
+        [
+          0.11107862243675173,
+          0.02237641384528495
+        ],
+        [
+          0.06935381938288548,
+          -0.006853421269887134
+        ],
+        [
+          0.08537494453659797,
+          0.11442045541822844
+        ],
+        [
+          -0.1494033002056761,
+          0.05975983971917648
+        ],
+        [
+          0.02979175161616375,
+          0.1129811899088038
+        ],
+        [
+          0.06866956912436756,
+          -0.1463249291418895
+        ],
+        [
+          -0.035032185280804595,
+          -0.062429589950843224
+        ],
+        [
+          -0.07245985274458198,
+          -0.2358078967959776
+        ],
+        [
+          -0.1619359385993101,
+          -0.20287151778900994
+        ],
+        [
+          -0.34468166405814377,
+          -0.12348867961155682
+        ],
+        [
+          -0.0178435271939852,
+          -0.2328662061354528
+        ],
+        [
+          0.13778176283117238,
+          -0.23911495434475544
+        ],
+        [
+          0.351505985810293,
+          0.10791006459947351
+        ],
+        [
+          0.320317596387088,
+          0.16374216536271077
+        ],
+        [
+          -0.08898652152778662,
+          -0.006260006265802556
+        ],
+        [
+          0.3716842080462596,
+          0.16150184630525816
+        ],
+        [
+          0.38656558583286904,
+          0.08198432511944512
+        ],
+        [
+          0.36302559541513607,
+          0.09703613187587959
+        ],
+        [
+          0.38252904932724124,
+          0.19758436194565157
+        ],
+        [
+          0.2895836390239353,
+          0.22030087989573136
+        ],
+        [
+          0.3142922532527164,
+          0.1743275437197
+        ],
+        [
+          0.26071791823868645,
+          0.28010307484416314
+        ],
+        [
+          0.3871702061126489,
+          0.15397983863209502
+        ],
+        [
+          0.3943705898368943,
+          0.1741082431475408
+        ],
+        [
+          0.28229567684720835,
+          0.24253653349092186
+        ],
+        [
+          0.3621207175983948,
+          0.22869417601381214
+        ],
+        [
+          0.38504809968826825,
+          0.2163686727796474
+        ],
+        [
+          0.3734911472609944,
+          0.19593928348228545
+        ],
+        [
+          0.41762802420184003,
+          0.15819582518998687
+        ],
+        [
+          0.12274460033664926,
+          0.14149755902818303
+        ],
+        [
+          0.36488767253237897,
+          -0.14247980090111395
+        ],
+        [
+          0.2447559890531268,
+          0.0029831018146761444
+        ],
+        [
+          0.4765613688486502,
+          -0.07259462097468444
+        ],
+        [
+          0.418162585928696,
+          -0.0654311529587945
+        ],
+        [
+          0.33840716555221684,
+          -0.06478178509806926
+        ],
+        [
+          0.3455096229419046,
+          -0.03485313204816697
+        ],
+        [
+          -0.027012364067928337,
+          -0.3253655605750769
+        ],
+        [
+          0.07601749586445353,
+          -0.3526688030345856
+        ],
+        [
+          0.027800232509311643,
+          -0.3334595608855051
+        ],
+        [
+          0.01699773423230699,
+          -0.32921787056290397
+        ],
+        [
+          -0.00524663457874484,
+          -0.35898306185492723
+        ],
+        [
+          0.06803848726555281,
+          -0.35244443065988773
+        ],
+        [
+          -0.10667515505551765,
+          -0.1873724334885088
+        ],
+        [
+          0.05451444484871264,
+          -0.22060149947854932
+        ],
+        [
+          0.02714385412488618,
+          -0.13707074485975687
+        ],
+        [
+          0.006790762804717021,
+          -0.11998067874315194
+        ],
+        [
+          0.07854860096390329,
+          -0.19998887346334632
+        ],
+        [
+          0.1305959207604338,
+          -0.22266459827978846
+        ],
+        [
+          -0.13176060575506168,
+          -0.042247975768334424
+        ],
+        [
+          -0.14021715738703705,
+          -0.07914796062946818
+        ],
+        [
+          -0.138223869635472,
+          -0.06234604056603302
+        ],
+        [
+          -0.18650175429860869,
+          -0.07693949368405066
+        ],
+        [
+          0.26035198641556806,
+          0.013035796755945399
+        ],
+        [
+          0.09107796411493728,
+          0.04046102936298446
+        ],
+        [
+          0.2664726324229812,
+          -0.012316645258753395
+        ],
+        [
+          0.236801028460481,
+          -0.0011416382701255057
+        ],
+        [
+          0.2989849513363945,
+          0.05837344418586494
+        ],
+        [
+          0.028823982252118217,
+          0.08267601188592145
+        ],
+        [
+          0.029128617641271927,
+          0.22119716847574314
+        ],
+        [
+          0.29555877876818337,
+          0.09082261640002598
+        ],
+        [
+          0.1478912439340522,
+          0.07715906207967076
+        ],
+        [
+          0.07382226534564282,
+          0.19885960419074417
+        ],
+        [
+          0.02203303489044928,
+          0.27342720727461284
+        ],
+        [
+          -0.04679144897427343,
+          0.2431353503938371
+        ],
+        [
+          0.09022710818378107,
+          0.27803802940779965
+        ],
+        [
+          -0.006971103203557972,
+          0.23952293790980544
+        ],
+        [
+          -0.015673265233493945,
+          0.23048767826876904
+        ],
+        [
+          0.02089059663084266,
+          0.47506973077781733
+        ],
+        [
+          -0.00971306530985601,
+          0.4855835077626787
+        ],
+        [
+          -0.040594696313911195,
+          0.5118097752999983
+        ],
+        [
+          -0.04169323623399186,
+          0.42346492131008495
+        ],
+        [
+          -0.06521270176116317,
+          0.40852496077011163
+        ],
+        [
+          0.01950716034958483,
+          0.20839141938670735
+        ],
+        [
+          -0.08104711894615921,
+          0.3793892408624985
+        ],
+        [
+          -0.06712981716651165,
+          0.3122525254707644
+        ],
+        [
+          -0.06702967997738375,
+          0.3200354706813707
+        ],
+        [
+          0.021324807725559555,
+          0.5103534295045892
+        ],
+        [
+          0.07152710231104996,
+          0.4363576702807012
+        ],
+        [
+          0.035637526792228126,
+          0.43121023568685096
+        ],
+        [
+          0.041823475746235864,
+          0.4666496329378645
+        ],
+        [
+          -0.27486795956850224,
+          0.05072711439655091
+        ],
+        [
+          -0.3379510728820403,
+          0.017315547375945647
+        ],
+        [
+          -0.23591852399441327,
+          0.022068321915354964
+        ],
+        [
+          -0.2531293950108775,
+          0.07124150368307683
+        ],
+        [
+          -0.2527115706999279,
+          0.0495728555026532
+        ],
+        [
+          -0.38589776250562396,
+          -0.01725259366449221
+        ],
+        [
+          -0.33450478642298503,
+          0.05870095136327604
+        ],
+        [
+          -0.38779679037347403,
+          0.05687311487959955
+        ],
+        [
+          -0.32176519052169333,
+          0.04836595300693162
+        ],
+        [
+          -0.324023594957085,
+          0.046980683123246436
+        ],
+        [
+          -0.2610624967695045,
+          0.06518601249685667
+        ],
+        [
+          -0.24012960749318024,
+          0.04508077999674454
+        ],
+        [
+          -0.32865895419876245,
+          0.08123024119756371
+        ],
+        [
+          -0.3414446044815958,
+          0.05494701620586949
+        ],
+        [
+          -0.2737286191270908,
+          0.11804602515212448
+        ]
+      ]
+    },
+    "mistral": {
+      "dimensions": 1024,
+      "clustering": {
+        "by_question": {
+          "knn_purity": 0.7097087378640776,
+          "silhouette": 0.31089983934017446,
+          "intra_vs_inter": {
+            "intra_mean": 0.9168412011959851,
+            "inter_mean": 0.8247599656080237,
+            "ratio": 1.111646102414874
+          }
+        },
+        "by_model": {
+          "knn_purity": 0.10582524271844662,
+          "silhouette": -0.01625867647085349,
+          "intra_vs_inter": {
+            "intra_mean": 0.8302324776488892,
+            "inter_mean": 0.8260969014428066,
+            "ratio": 1.005006163561272
+          }
+        },
+        "by_phase": {
+          "knn_purity": 0.9388349514563107,
+          "silhouette": 0.15267341253052646,
+          "intra_vs_inter": {
+            "intra_mean": 0.8500449170929736,
+            "inter_mean": 0.8205487814863994,
+            "ratio": 1.0359468398126712
+          }
+        }
+      },
+      "verdict": {
+        "clusters_by_question_more": true,
+        "clusters_by_phase_more": true,
+        "question_vs_model_ratio": 6.706422018348622,
+        "phase_vs_model_ratio": 8.871559633027521
+      },
+      "per_question_similarity": {
+        "1": {
+          "n_models": 6,
+          "mean_similarity": 0.8926625716154006,
+          "min_similarity": 0.7637435321187052,
+          "max_similarity": 0.973680673162624,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "2": {
+          "n_models": 6,
+          "mean_similarity": 0.8797634501003723,
+          "min_similarity": 0.7568520229272874,
+          "max_similarity": 0.9675840894624104,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "3": {
+          "n_models": 6,
+          "mean_similarity": 0.8726320654331172,
+          "min_similarity": 0.7909978627913794,
+          "max_similarity": 0.9599490520048499,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "4": {
+          "n_models": 6,
+          "mean_similarity": 0.8643422423976888,
+          "min_similarity": 0.7835535489683284,
+          "max_similarity": 0.9411911398639374,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "5": {
+          "n_models": 6,
+          "mean_similarity": 0.8906736882747074,
+          "min_similarity": 0.7813267773421979,
+          "max_similarity": 0.957048300633628,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "6": {
+          "n_models": 6,
+          "mean_similarity": 0.8778536672224184,
+          "min_similarity": 0.7903774910972081,
+          "max_similarity": 0.9386265099405041,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "7": {
+          "n_models": 6,
+          "mean_similarity": 0.8784856460657301,
+          "min_similarity": 0.8279886154024314,
+          "max_similarity": 0.9599570577830343,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "8": {
+          "n_models": 5,
+          "mean_similarity": 0.8707634129889594,
+          "min_similarity": 0.814727149469736,
+          "max_similarity": 0.9518625416680155,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok"
+          ]
+        },
+        "9": {
+          "n_models": 5,
+          "mean_similarity": 0.9184747073988817,
+          "min_similarity": 0.889368032727827,
+          "max_similarity": 0.9558549137000347,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok"
+          ]
+        },
+        "10": {
+          "n_models": 5,
+          "mean_similarity": 0.87815098203424,
+          "min_similarity": 0.810918631589691,
+          "max_similarity": 0.9713834398293458,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok"
+          ]
+        },
+        "11": {
+          "n_models": 5,
+          "mean_similarity": 0.9215266661565338,
+          "min_similarity": 0.8969681978770643,
+          "max_similarity": 0.9369348658675091,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok"
+          ]
+        },
+        "12": {
+          "n_models": 5,
+          "mean_similarity": 0.9240402536531211,
+          "min_similarity": 0.9067228245625917,
+          "max_similarity": 0.9410585414163786,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok"
+          ]
+        },
+        "13": {
+          "n_models": 5,
+          "mean_similarity": 0.9242378231089516,
+          "min_similarity": 0.903727824256996,
+          "max_similarity": 0.9568365619540015,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok"
+          ]
+        },
+        "14": {
+          "n_models": 5,
+          "mean_similarity": 0.9117930837048132,
+          "min_similarity": 0.8785818266841005,
+          "max_similarity": 0.9444885727236035,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok"
+          ]
+        },
+        "15": {
+          "n_models": 5,
+          "mean_similarity": 0.9371602307072615,
+          "min_similarity": 0.9129335334449721,
+          "max_similarity": 0.9572304573779098,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok"
+          ]
+        },
+        "16": {
+          "n_models": 6,
+          "mean_similarity": 0.9458529959425918,
+          "min_similarity": 0.9237014946250545,
+          "max_similarity": 0.9698861608756677,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "17": {
+          "n_models": 6,
+          "mean_similarity": 0.9576606170088346,
+          "min_similarity": 0.9420481303206848,
+          "max_similarity": 0.9730798814304153,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "18": {
+          "n_models": 6,
+          "mean_similarity": 0.935238377697477,
+          "min_similarity": 0.9159951750478786,
+          "max_similarity": 0.9568000870951505,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "19": {
+          "n_models": 6,
+          "mean_similarity": 0.9109171239462774,
+          "min_similarity": 0.8688880857963568,
+          "max_similarity": 0.9412700094323418,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "22": {
+          "n_models": 6,
+          "mean_similarity": 0.9180957491838005,
+          "min_similarity": 0.8710926135372558,
+          "max_similarity": 0.9581782913225959,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "23": {
+          "n_models": 6,
+          "mean_similarity": 0.9173262184587622,
+          "min_similarity": 0.8972461476957772,
+          "max_similarity": 0.9390735952972646,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "24": {
+          "n_models": 5,
+          "mean_similarity": 0.9294525386035861,
+          "min_similarity": 0.9119440205494933,
+          "max_similarity": 0.9478926914413217,
+          "models": [
+            "gpt4",
+            "claude",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "26": {
+          "n_models": 6,
+          "mean_similarity": 0.8691469654520206,
+          "min_similarity": 0.6934724131798717,
+          "max_similarity": 0.9792831454990903,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "27": {
+          "n_models": 6,
+          "mean_similarity": 0.9511659867836769,
+          "min_similarity": 0.9178118929979996,
+          "max_similarity": 0.9741107352311085,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "28": {
+          "n_models": 6,
+          "mean_similarity": 0.892166751755344,
+          "min_similarity": 0.7539963358513658,
+          "max_similarity": 0.99012290861843,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "29": {
+          "n_models": 6,
+          "mean_similarity": 0.9280756592095228,
+          "min_similarity": 0.8912344403385553,
+          "max_similarity": 0.9529246368214467,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "32": {
+          "n_models": 6,
+          "mean_similarity": 0.9451828291440443,
+          "min_similarity": 0.9320682919909228,
+          "max_similarity": 0.9660336295203722,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "33": {
+          "n_models": 6,
+          "mean_similarity": 0.9322253629925192,
+          "min_similarity": 0.8784837291807751,
+          "max_similarity": 0.9522083166907158,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "35": {
+          "n_models": 4,
+          "mean_similarity": 0.9506179163434868,
+          "min_similarity": 0.9322277492876213,
+          "max_similarity": 0.9732767058179332,
+          "models": [
+            "claude",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "38": {
+          "n_models": 5,
+          "mean_similarity": 0.9412265820779684,
+          "min_similarity": 0.9154708708471888,
+          "max_similarity": 0.9707513636059858,
+          "models": [
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "39": {
+          "n_models": 5,
+          "mean_similarity": 0.9285028608257427,
+          "min_similarity": 0.887346665385667,
+          "max_similarity": 0.9550481400620039,
+          "models": [
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "40": {
+          "n_models": 5,
+          "mean_similarity": 0.958295487762984,
+          "min_similarity": 0.9326433834736141,
+          "max_similarity": 0.9728851255828539,
+          "models": [
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "41": {
+          "n_models": 4,
+          "mean_similarity": 0.9612395213102362,
+          "min_similarity": 0.943081511828461,
+          "max_similarity": 0.9880923127393311,
+          "models": [
+            "claude",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "42": {
+          "n_models": 5,
+          "mean_similarity": 0.956587323348748,
+          "min_similarity": 0.9339908955580093,
+          "max_similarity": 0.985801807999263,
+          "models": [
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "43": {
+          "n_models": 4,
+          "mean_similarity": 0.9589829268685112,
+          "min_similarity": 0.9354045190957461,
+          "max_similarity": 0.9849780366740583,
+          "models": [
+            "claude",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "44": {
+          "n_models": 5,
+          "mean_similarity": 0.9329652140201963,
+          "min_similarity": 0.907416709376634,
+          "max_similarity": 0.952190642907473,
+          "models": [
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "45": {
+          "n_models": 5,
+          "mean_similarity": 0.9557436721070799,
+          "min_similarity": 0.942030778434145,
+          "max_similarity": 0.9705827410129608,
+          "models": [
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "46": {
+          "n_models": 5,
+          "mean_similarity": 0.9491206051352459,
+          "min_similarity": 0.9191638723495006,
+          "max_similarity": 0.9707716035579038,
+          "models": [
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        }
+      },
+      "pca_2d": [
+        [
+          -0.07166673436952581,
+          -0.1132370264604192
+        ],
+        [
+          -0.03328175504287703,
+          -0.04182689663918547
+        ],
+        [
+          -0.03690402779561181,
+          -0.06436491596782375
+        ],
+        [
+          -0.026339597334028884,
+          -0.06397085356175851
+        ],
+        [
+          -0.06217285871548615,
+          -0.06949259542546615
+        ],
+        [
+          -0.1427626772544772,
+          -0.1010768977389634
+        ],
+        [
+          -0.08589646865318243,
+          -0.085940140149609
+        ],
+        [
+          -0.0043424389366746256,
+          -0.022479807461382124
+        ],
+        [
+          -0.11183071200720687,
+          -0.13620278866299262
+        ],
+        [
+          -0.05283894961369767,
+          -0.07537591451820173
+        ],
+        [
+          -0.06833281350399645,
+          -0.10577385377969092
+        ],
+        [
+          0.1277089313099551,
+          -0.11634641091565379
+        ],
+        [
+          -0.04261685161321427,
+          -0.02502089753390171
+        ],
+        [
+          -0.023475181267139072,
+          0.047860638799518025
+        ],
+        [
+          -0.06899155670755312,
+          -0.05009018937769567
+        ],
+        [
+          -0.05511754979632141,
+          -0.13621284280957183
+        ],
+        [
+          -0.05552514503769274,
+          -0.05291692008596746
+        ],
+        [
+          0.037912477242867226,
+          -0.11333311614548462
+        ],
+        [
+          -0.08717140377338674,
+          -0.05846626714897393
+        ],
+        [
+          -0.05380195360054433,
+          0.06597561205332649
+        ],
+        [
+          -0.07971970011855653,
+          -0.015134563146531867
+        ],
+        [
+          -0.05397727888811489,
+          -0.016249253739385502
+        ],
+        [
+          0.020533153428380704,
+          -0.11850084719844273
+        ],
+        [
+          0.004739669104297063,
+          -0.0959268780883821
+        ],
+        [
+          0.14974467657722473,
+          -0.04638280978230959
+        ],
+        [
+          0.07014857190038756,
+          -0.007681573710316361
+        ],
+        [
+          0.15100411132507147,
+          -0.07056455382100733
+        ],
+        [
+          0.13393551170520956,
+          -0.08957252588548549
+        ],
+        [
+          0.16668524229581577,
+          -0.05104895195668715
+        ],
+        [
+          -0.11778672112812097,
+          -0.11100503390727498
+        ],
+        [
+          -0.11947357940033716,
+          -0.10179870897157679
+        ],
+        [
+          -0.10003584076501543,
+          -0.006882687493701557
+        ],
+        [
+          -0.1741471680132193,
+          -0.061737288502873994
+        ],
+        [
+          -0.112518711061069,
+          -0.0503902959536769
+        ],
+        [
+          -0.08135391550800922,
+          -0.04418725260502935
+        ],
+        [
+          -0.04707806935631664,
+          -0.08828170572632725
+        ],
+        [
+          -0.13244279644292914,
+          -0.07879244116312518
+        ],
+        [
+          -0.09858979496647627,
+          -0.02286801991307605
+        ],
+        [
+          -0.0930203566548547,
+          -0.011480799718967927
+        ],
+        [
+          -0.05797245077241835,
+          -0.15991140777561158
+        ],
+        [
+          0.011071220328018425,
+          -0.1610526909149951
+        ],
+        [
+          -0.01226348113488739,
+          -0.15930679022622157
+        ],
+        [
+          -0.08796177375907333,
+          -0.05195279085420313
+        ],
+        [
+          -0.08562591897540126,
+          -0.00781359964445843
+        ],
+        [
+          -0.11824311627559002,
+          -0.01517481855063668
+        ],
+        [
+          -0.07342975928958834,
+          -0.13946910593872153
+        ],
+        [
+          0.0061575912886301905,
+          -0.15214099668704076
+        ],
+        [
+          -0.09606650618370931,
+          -0.0919071565376907
+        ],
+        [
+          -0.09371973473168224,
+          -0.0013063095146431433
+        ],
+        [
+          -0.166220806231057,
+          -0.0988734293017114
+        ],
+        [
+          -0.12840544951696925,
+          -0.03203086181751633
+        ],
+        [
+          -0.059556867034531856,
+          -0.03461283084987068
+        ],
+        [
+          0.17631983604597995,
+          -0.12369711797370779
+        ],
+        [
+          -0.1405733767690837,
+          0.003076398043316802
+        ],
+        [
+          -0.1395013766842643,
+          -0.04364015933658591
+        ],
+        [
+          0.12147778387900438,
+          -0.11266475483964804
+        ],
+        [
+          0.1414144531547878,
+          -0.13125935816619427
+        ],
+        [
+          0.08602119458318688,
+          0.003090943096144126
+        ],
+        [
+          0.06775306791633695,
+          0.004186372004542957
+        ],
+        [
+          0.1267358037392263,
+          0.00280805020436929
+        ],
+        [
+          0.11936691403319542,
+          -0.02267815961419408
+        ],
+        [
+          0.07558456495993093,
+          -0.0014238966456670825
+        ],
+        [
+          -0.03592324027167913,
+          0.056241924304651386
+        ],
+        [
+          -0.04353040645469044,
+          0.029488925030770493
+        ],
+        [
+          0.04946361590774312,
+          -0.002703895407824369
+        ],
+        [
+          0.05820838229439494,
+          0.011568701243578922
+        ],
+        [
+          0.015509933335091278,
+          0.011746243234702636
+        ],
+        [
+          -0.15150707480559453,
+          -0.10252864957461706
+        ],
+        [
+          -0.032925805371728185,
+          -0.048041611315378166
+        ],
+        [
+          -0.128217067564789,
+          -0.07156443638352342
+        ],
+        [
+          -0.06632404992579578,
+          -0.08833304123159429
+        ],
+        [
+          -0.10544327462047955,
+          -0.11066825654294823
+        ],
+        [
+          0.03336672087523147,
+          -0.04585731839082983
+        ],
+        [
+          -0.07093006790870639,
+          -0.03348285270117198
+        ],
+        [
+          0.04478496970679515,
+          -0.019865757812406296
+        ],
+        [
+          -0.07601479817134801,
+          -0.01945648133972976
+        ],
+        [
+          0.09996187006045563,
+          -0.07926354161451082
+        ],
+        [
+          0.04940784404911444,
+          -0.02797000036780356
+        ],
+        [
+          0.05589474265524394,
+          0.0177775451215014
+        ],
+        [
+          0.0566981107627888,
+          -0.013354177473825843
+        ],
+        [
+          0.0719867299083916,
+          -0.0017376433555456395
+        ],
+        [
+          0.0464072061385261,
+          -0.03945343057751552
+        ],
+        [
+          0.15469455484839348,
+          -0.14168062742691828
+        ],
+        [
+          0.03952111496782104,
+          -0.07292276229674523
+        ],
+        [
+          0.08390570370410735,
+          -0.12658301689256143
+        ],
+        [
+          0.016370023406763544,
+          -0.11699419361976607
+        ],
+        [
+          0.11144960028676164,
+          -0.13831915620619736
+        ],
+        [
+          0.1432345155889662,
+          -0.12298416842648174
+        ],
+        [
+          0.26898721107644896,
+          -0.0816653283853623
+        ],
+        [
+          0.18514245210695887,
+          -0.05127665166686138
+        ],
+        [
+          0.21603891063319966,
+          -0.05856950425593836
+        ],
+        [
+          0.2069729491001761,
+          -0.07946987593040696
+        ],
+        [
+          0.19987188756196503,
+          -0.06349030349758616
+        ],
+        [
+          0.2631091009207277,
+          -0.09181556306127044
+        ],
+        [
+          -0.006616660690545174,
+          -0.06261292566451716
+        ],
+        [
+          -0.012162371451226367,
+          0.0011588934784319146
+        ],
+        [
+          -0.08286986015290602,
+          -0.04201104504523431
+        ],
+        [
+          -0.05487382325421384,
+          0.00690352936709355
+        ],
+        [
+          0.0032832206057515343,
+          -0.058966923479520886
+        ],
+        [
+          -0.01396234052837381,
+          0.019640343028759985
+        ],
+        [
+          0.15394091930933398,
+          -0.047133292571395244
+        ],
+        [
+          0.05823385062479607,
+          -0.03732963713505565
+        ],
+        [
+          0.012858659473323215,
+          -0.008054549597814669
+        ],
+        [
+          0.053079364983986924,
+          -0.07265459450268777
+        ],
+        [
+          0.09498724326374482,
+          -0.06905108188913342
+        ],
+        [
+          0.11078392803492157,
+          -0.055513330678975244
+        ],
+        [
+          -0.007213985557844225,
+          -0.0613104156626338
+        ],
+        [
+          -0.06055326597884299,
+          -0.06462519071126371
+        ],
+        [
+          -0.08392569535896897,
+          -0.07334178350157598
+        ],
+        [
+          0.008514632742008026,
+          -0.03402018506799525
+        ],
+        [
+          0.003341216959715335,
+          -0.05501323375731127
+        ],
+        [
+          0.0005877621599007731,
+          -0.013547286810782346
+        ],
+        [
+          0.0709424761101911,
+          0.08159926584298466
+        ],
+        [
+          0.01822756407806821,
+          0.12786407001748545
+        ],
+        [
+          -0.042983888066588184,
+          0.041346354446041324
+        ],
+        [
+          -0.020570012178690013,
+          0.07180202370168995
+        ],
+        [
+          0.02068592174340706,
+          -0.013253743184652968
+        ],
+        [
+          0.025517411087991698,
+          0.035040045261694346
+        ],
+        [
+          -0.00783821348616765,
+          -0.10347126199498453
+        ],
+        [
+          -0.008155204883468156,
+          -0.0761390232393224
+        ],
+        [
+          -0.0624511043078918,
+          -0.07303328141513685
+        ],
+        [
+          0.02227255185108859,
+          -0.07986310709948295
+        ],
+        [
+          0.04434154359671737,
+          -0.07361628357082049
+        ],
+        [
+          0.23585648955357066,
+          0.1356531520217296
+        ],
+        [
+          0.2358248427844437,
+          0.14556409145719823
+        ],
+        [
+          -0.11755220048942623,
+          0.009193745208639867
+        ],
+        [
+          0.22583515575541088,
+          0.1715143639210699
+        ],
+        [
+          0.260317785174125,
+          0.1317758725935979
+        ],
+        [
+          0.24481312331551247,
+          0.12497306523570251
+        ],
+        [
+          0.2175386572373465,
+          0.18741791627253165
+        ],
+        [
+          0.2101457900490999,
+          0.1790286381331738
+        ],
+        [
+          0.20766875085749684,
+          0.1928355286595838
+        ],
+        [
+          0.10514631407313267,
+          0.1947411060155817
+        ],
+        [
+          0.22571065316368313,
+          0.17521199975269897
+        ],
+        [
+          0.1798216641414284,
+          0.19600737311839636
+        ],
+        [
+          0.11175716813804652,
+          0.20986341753210036
+        ],
+        [
+          0.18933758833253495,
+          0.20437783608334173
+        ],
+        [
+          0.21515089853858038,
+          0.2142914228808277
+        ],
+        [
+          0.19704469856230594,
+          0.20529773655624495
+        ],
+        [
+          0.19518136985818896,
+          0.2150948922229562
+        ],
+        [
+          0.035819150705534,
+          0.030624723069060306
+        ],
+        [
+          0.2001739385578727,
+          -0.13068365840794996
+        ],
+        [
+          0.12726706811799182,
+          -0.10235506056386227
+        ],
+        [
+          0.21578463189767105,
+          -0.08453261268278572
+        ],
+        [
+          0.19638103268592477,
+          -0.10297319686195469
+        ],
+        [
+          0.0906519997385007,
+          -0.07601073945211727
+        ],
+        [
+          0.17436691766853576,
+          -0.05401134310313339
+        ],
+        [
+          0.03490677140622839,
+          -0.08853525756515758
+        ],
+        [
+          0.04466484642499897,
+          -0.06636204878400714
+        ],
+        [
+          0.04912467655006232,
+          -0.08656614914142102
+        ],
+        [
+          0.0410741521963003,
+          -0.06532873972034049
+        ],
+        [
+          0.06732245015444056,
+          -0.11119262197968637
+        ],
+        [
+          0.0735620631129961,
+          -0.08686269058866346
+        ],
+        [
+          0.06360044092685671,
+          -0.08317247525129579
+        ],
+        [
+          0.1191654345896637,
+          -0.03293807754693151
+        ],
+        [
+          0.07319434693099226,
+          0.0023568570946979036
+        ],
+        [
+          0.07240808678735684,
+          0.013340967354324176
+        ],
+        [
+          0.11706548593285017,
+          -0.006916821167505644
+        ],
+        [
+          0.08368130798031036,
+          0.027320126376950398
+        ],
+        [
+          -0.06180236191258563,
+          -0.018875232711896547
+        ],
+        [
+          -0.04858333177154769,
+          -0.023317897710055942
+        ],
+        [
+          -0.05688048815695557,
+          -0.03826891142941275
+        ],
+        [
+          -0.05024841788891246,
+          -0.010609765118669161
+        ],
+        [
+          0.09973249177116714,
+          0.12246122104791382
+        ],
+        [
+          0.019832979970181408,
+          0.10399298114920319
+        ],
+        [
+          0.10980648175824534,
+          0.12521852790326302
+        ],
+        [
+          0.11725863332076511,
+          0.10765353105823611
+        ],
+        [
+          0.13069219659074893,
+          0.1265842948299827
+        ],
+        [
+          -0.02811217948997657,
+          0.13762501921782044
+        ],
+        [
+          -0.04403022493120809,
+          0.15824219586303753
+        ],
+        [
+          0.06577808765334422,
+          0.17437839313948186
+        ],
+        [
+          0.06935739126911962,
+          0.1276049000177984
+        ],
+        [
+          -0.007281177596267485,
+          0.16864027069861812
+        ],
+        [
+          -0.062124848987711354,
+          0.11732871622142635
+        ],
+        [
+          -0.06945156735364418,
+          0.1369709856903736
+        ],
+        [
+          -0.042129895512656994,
+          0.14288983426011634
+        ],
+        [
+          -0.06770540645411147,
+          0.1575443565627943
+        ],
+        [
+          -0.06300657835852949,
+          0.12822078506784154
+        ],
+        [
+          -0.15444893831244974,
+          0.22565797420213865
+        ],
+        [
+          -0.1709915929332443,
+          0.2277397510628018
+        ],
+        [
+          -0.1711812013584123,
+          0.2355716501382541
+        ],
+        [
+          -0.1568724235609061,
+          0.21112962592697526
+        ],
+        [
+          -0.20048262637319383,
+          0.2017798148455895
+        ],
+        [
+          -0.16050666782485443,
+          0.17397663795102503
+        ],
+        [
+          -0.20602340769586464,
+          0.20309944645781103
+        ],
+        [
+          -0.20350795506614172,
+          0.16742731837139502
+        ],
+        [
+          -0.19195501859495584,
+          0.16415846465536463
+        ],
+        [
+          -0.12571770196695187,
+          0.2823025527104324
+        ],
+        [
+          -0.12020732860102204,
+          0.25520497055658276
+        ],
+        [
+          -0.1380032686022608,
+          0.23637719210313185
+        ],
+        [
+          -0.13319700829134434,
+          0.251812794558201
+        ],
+        [
+          -0.16776510890370042,
+          0.028435183874362797
+        ],
+        [
+          -0.22620545433688874,
+          -0.02988329372142089
+        ],
+        [
+          -0.1918113754157685,
+          -0.012134099414866055
+        ],
+        [
+          -0.2015624488489119,
+          -0.002683630634827295
+        ],
+        [
+          -0.2109952831519534,
+          0.03206360531791233
+        ],
+        [
+          -0.23201092897429057,
+          -0.04204652851719746
+        ],
+        [
+          -0.22658812953311833,
+          -0.0048591169017759075
+        ],
+        [
+          -0.2589708711944901,
+          -0.03427292057568272
+        ],
+        [
+          -0.21257024850845901,
+          0.014643834037568193
+        ],
+        [
+          -0.21884959002478707,
+          -0.008980633208915052
+        ],
+        [
+          -0.18456060081048611,
+          0.00835364953667782
+        ],
+        [
+          -0.18176845341292236,
+          -0.03925369716056135
+        ],
+        [
+          -0.22282029910311615,
+          0.009201770046841076
+        ],
+        [
+          -0.20299395457791908,
+          -0.03638419229441463
+        ],
+        [
+          -0.19750320501570726,
+          -0.0037963635136203733
+        ]
+      ]
+    },
+    "google": {
+      "dimensions": 3072,
+      "clustering": {
+        "by_question": {
+          "knn_purity": 0.7242718446601941,
+          "silhouette": 0.32691685746225524,
+          "intra_vs_inter": {
+            "intra_mean": 0.8574085832894072,
+            "inter_mean": 0.7049518098887679,
+            "ratio": 1.2162655251919914
+          }
+        },
+        "by_model": {
+          "knn_purity": 0.10679611650485439,
+          "silhouette": -0.012556411671463163,
+          "intra_vs_inter": {
+            "intra_mean": 0.7128436073092598,
+            "inter_mean": 0.707396249298303,
+            "ratio": 1.0077005751958117
+          }
+        },
+        "by_phase": {
+          "knn_purity": 0.9291262135922329,
+          "silhouette": 0.13426032550119013,
+          "intra_vs_inter": {
+            "intra_mean": 0.7384047199755878,
+            "inter_mean": 0.7002317562770763,
+            "ratio": 1.0545147565164221
+          }
+        }
+      },
+      "verdict": {
+        "clusters_by_question_more": true,
+        "clusters_by_phase_more": true,
+        "question_vs_model_ratio": 6.7818181818181795,
+        "phase_vs_model_ratio": 8.699999999999998
+      },
+      "per_question_similarity": {
+        "1": {
+          "n_models": 6,
+          "mean_similarity": 0.8312143335865164,
+          "min_similarity": 0.6617907196674547,
+          "max_similarity": 0.9594400378410636,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "2": {
+          "n_models": 6,
+          "mean_similarity": 0.8166308500076652,
+          "min_similarity": 0.6697341469331523,
+          "max_similarity": 0.9214466326254679,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "3": {
+          "n_models": 6,
+          "mean_similarity": 0.7722594749677324,
+          "min_similarity": 0.6386285781999537,
+          "max_similarity": 0.9244983020323347,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "4": {
+          "n_models": 6,
+          "mean_similarity": 0.7480197206645264,
+          "min_similarity": 0.654578195304532,
+          "max_similarity": 0.8936307362414732,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "5": {
+          "n_models": 6,
+          "mean_similarity": 0.817126942808495,
+          "min_similarity": 0.6309335236853894,
+          "max_similarity": 0.9310053332490278,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "6": {
+          "n_models": 6,
+          "mean_similarity": 0.7763916342488085,
+          "min_similarity": 0.6769484411603354,
+          "max_similarity": 0.8575987004919613,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "7": {
+          "n_models": 6,
+          "mean_similarity": 0.7785441762625399,
+          "min_similarity": 0.6703780486873324,
+          "max_similarity": 0.9211257430537088,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "8": {
+          "n_models": 5,
+          "mean_similarity": 0.7774604128623959,
+          "min_similarity": 0.6914054492579886,
+          "max_similarity": 0.9022547076907249,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok"
+          ]
+        },
+        "9": {
+          "n_models": 5,
+          "mean_similarity": 0.8775818554896142,
+          "min_similarity": 0.8622989951685817,
+          "max_similarity": 0.9119398135699444,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok"
+          ]
+        },
+        "10": {
+          "n_models": 5,
+          "mean_similarity": 0.7823972213948099,
+          "min_similarity": 0.6869633161062738,
+          "max_similarity": 0.9378172431013789,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok"
+          ]
+        },
+        "11": {
+          "n_models": 5,
+          "mean_similarity": 0.8592676025245636,
+          "min_similarity": 0.8111186427350904,
+          "max_similarity": 0.8945332467986669,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok"
+          ]
+        },
+        "12": {
+          "n_models": 5,
+          "mean_similarity": 0.8587556871347216,
+          "min_similarity": 0.8084829423236709,
+          "max_similarity": 0.9015012674468338,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok"
+          ]
+        },
+        "13": {
+          "n_models": 5,
+          "mean_similarity": 0.8505167239878724,
+          "min_similarity": 0.8102769496625623,
+          "max_similarity": 0.8901265237062146,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok"
+          ]
+        },
+        "14": {
+          "n_models": 5,
+          "mean_similarity": 0.8425929035756259,
+          "min_similarity": 0.8014862206304124,
+          "max_similarity": 0.8924986750594184,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok"
+          ]
+        },
+        "15": {
+          "n_models": 5,
+          "mean_similarity": 0.8793777054804535,
+          "min_similarity": 0.828387104359624,
+          "max_similarity": 0.9239592534071467,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok"
+          ]
+        },
+        "16": {
+          "n_models": 6,
+          "mean_similarity": 0.8965593023881959,
+          "min_similarity": 0.8609560722188899,
+          "max_similarity": 0.9387745759706466,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "17": {
+          "n_models": 6,
+          "mean_similarity": 0.9364635306611778,
+          "min_similarity": 0.905604961599117,
+          "max_similarity": 0.9578828045569838,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "18": {
+          "n_models": 6,
+          "mean_similarity": 0.8891361997224432,
+          "min_similarity": 0.8518816426641259,
+          "max_similarity": 0.9260822082229336,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "19": {
+          "n_models": 6,
+          "mean_similarity": 0.8665821551252809,
+          "min_similarity": 0.8275357746966528,
+          "max_similarity": 0.9096936965488008,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "22": {
+          "n_models": 6,
+          "mean_similarity": 0.8497662519711354,
+          "min_similarity": 0.7748128686871083,
+          "max_similarity": 0.9285852099118131,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "23": {
+          "n_models": 6,
+          "mean_similarity": 0.857314805845368,
+          "min_similarity": 0.8262121676427017,
+          "max_similarity": 0.9074387849491513,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "24": {
+          "n_models": 5,
+          "mean_similarity": 0.9010990719098689,
+          "min_similarity": 0.8669763684530409,
+          "max_similarity": 0.9373507329704294,
+          "models": [
+            "gpt4",
+            "claude",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "26": {
+          "n_models": 6,
+          "mean_similarity": 0.8123140067660296,
+          "min_similarity": 0.5816242793172456,
+          "max_similarity": 0.9674470161082055,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "27": {
+          "n_models": 6,
+          "mean_similarity": 0.9138714730422077,
+          "min_similarity": 0.8529141526879338,
+          "max_similarity": 0.9559185723112724,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "28": {
+          "n_models": 6,
+          "mean_similarity": 0.8225268714391362,
+          "min_similarity": 0.6162553636215217,
+          "max_similarity": 0.9756771810830975,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "29": {
+          "n_models": 6,
+          "mean_similarity": 0.8859015303608279,
+          "min_similarity": 0.8064087171649091,
+          "max_similarity": 0.9305978977890368,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "32": {
+          "n_models": 6,
+          "mean_similarity": 0.9059095422370409,
+          "min_similarity": 0.8691381327107177,
+          "max_similarity": 0.9309432348154006,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "33": {
+          "n_models": 6,
+          "mean_similarity": 0.8884434968311361,
+          "min_similarity": 0.8305313753512192,
+          "max_similarity": 0.917385332649532,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "35": {
+          "n_models": 4,
+          "mean_similarity": 0.9216641654132828,
+          "min_similarity": 0.8861653969003322,
+          "max_similarity": 0.9520708377536058,
+          "models": [
+            "claude",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "38": {
+          "n_models": 5,
+          "mean_similarity": 0.889954006698731,
+          "min_similarity": 0.8440211155487645,
+          "max_similarity": 0.9350698374900402,
+          "models": [
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "39": {
+          "n_models": 5,
+          "mean_similarity": 0.880392458861636,
+          "min_similarity": 0.8444544115039634,
+          "max_similarity": 0.9231603377242895,
+          "models": [
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "40": {
+          "n_models": 5,
+          "mean_similarity": 0.9210447066173033,
+          "min_similarity": 0.8942431210249651,
+          "max_similarity": 0.9385206070761505,
+          "models": [
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "41": {
+          "n_models": 4,
+          "mean_similarity": 0.920366034645063,
+          "min_similarity": 0.8832490379113556,
+          "max_similarity": 0.964366485085157,
+          "models": [
+            "claude",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "42": {
+          "n_models": 5,
+          "mean_similarity": 0.9146795104720129,
+          "min_similarity": 0.8750530715353402,
+          "max_similarity": 0.9599384714863087,
+          "models": [
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "43": {
+          "n_models": 4,
+          "mean_similarity": 0.9464218449015963,
+          "min_similarity": 0.9217035696613329,
+          "max_similarity": 0.9724669868734681,
+          "models": [
+            "claude",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "44": {
+          "n_models": 5,
+          "mean_similarity": 0.861244411928133,
+          "min_similarity": 0.8078329154362822,
+          "max_similarity": 0.9087656301367799,
+          "models": [
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "45": {
+          "n_models": 5,
+          "mean_similarity": 0.9186590119018481,
+          "min_similarity": 0.9000136378355267,
+          "max_similarity": 0.9521835285523883,
+          "models": [
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "46": {
+          "n_models": 5,
+          "mean_similarity": 0.9124584400795989,
+          "min_similarity": 0.8946550229620619,
+          "max_similarity": 0.9300756468427912,
+          "models": [
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        }
+      },
+      "pca_2d": [
+        [
+          0.053798971170987586,
+          -0.03414665228639571
+        ],
+        [
+          0.041469361033964966,
+          0.012326045069665968
+        ],
+        [
+          -0.002057641383737868,
+          -0.0029557357984281406
+        ],
+        [
+          0.04490834901885274,
+          -0.005520063508890838
+        ],
+        [
+          0.055688453154067494,
+          -0.013789011550670666
+        ],
+        [
+          0.09044770330964381,
+          -0.18510657706105854
+        ],
+        [
+          0.07436495411331456,
+          -0.06956750133245586
+        ],
+        [
+          0.015832240157375204,
+          0.011747195226143632
+        ],
+        [
+          0.04623359929057329,
+          -0.07794310521653515
+        ],
+        [
+          0.026795505959899893,
+          -0.02022491934309633
+        ],
+        [
+          0.04610574607132688,
+          -0.013015226277124689
+        ],
+        [
+          -0.11114570352857214,
+          -0.22585377067362122
+        ],
+        [
+          0.06013162953110916,
+          0.013523033708392774
+        ],
+        [
+          0.06251078436487098,
+          0.07341145621011855
+        ],
+        [
+          0.07796119707112252,
+          0.02747600193282494
+        ],
+        [
+          0.002235353763162357,
+          -0.20940080430537314
+        ],
+        [
+          0.07003272292689723,
+          -0.01752359661628099
+        ],
+        [
+          -0.03739234850396224,
+          -0.18870949810515852
+        ],
+        [
+          0.06724708138521235,
+          -0.04043647887101171
+        ],
+        [
+          0.1277797607531703,
+          0.051379714979355895
+        ],
+        [
+          0.12116590915904223,
+          0.021327112811033302
+        ],
+        [
+          0.07211991730379286,
+          0.0032053700647045125
+        ],
+        [
+          -0.030319408733914817,
+          -0.21062025618231778
+        ],
+        [
+          -0.03906970271954769,
+          -0.1784436286737953
+        ],
+        [
+          -0.1070533444258669,
+          0.05637150346925684
+        ],
+        [
+          -0.07652222651921496,
+          0.08975516697441135
+        ],
+        [
+          -0.15906646769657404,
+          0.0678084735020826
+        ],
+        [
+          -0.14861584812122464,
+          0.03671414959473158
+        ],
+        [
+          -0.15530338690146758,
+          0.08834011779829494
+        ],
+        [
+          0.08151507456800523,
+          -0.18887645814634388
+        ],
+        [
+          0.1144057796998164,
+          -0.037810889920677555
+        ],
+        [
+          0.1273967416170494,
+          -0.02847881062631711
+        ],
+        [
+          0.1420910216122388,
+          0.003936302720037992
+        ],
+        [
+          0.08305550021199055,
+          0.04425453952336248
+        ],
+        [
+          0.11782159249647232,
+          0.0021622933917381823
+        ],
+        [
+          0.03797611955114134,
+          -0.16797048624184938
+        ],
+        [
+          0.11415204859215723,
+          -0.08378754373696876
+        ],
+        [
+          0.12422400691904388,
+          -0.08460771305282117
+        ],
+        [
+          0.14493988126511836,
+          -0.025651009648637046
+        ],
+        [
+          0.04923964353514958,
+          -0.22082120313446976
+        ],
+        [
+          -0.05998243055843424,
+          -0.2202471610094459
+        ],
+        [
+          -0.017079395862804023,
+          -0.22855953290595699
+        ],
+        [
+          0.045645749645205576,
+          -0.07599040148909506
+        ],
+        [
+          0.05255027619750822,
+          0.011391430127454808
+        ],
+        [
+          0.05555483847092039,
+          -0.01038793684360925
+        ],
+        [
+          0.08288511758775921,
+          -0.2725558455273264
+        ],
+        [
+          -0.019870712096736656,
+          -0.28514569077230795
+        ],
+        [
+          0.11966915092332255,
+          -0.05835223768837693
+        ],
+        [
+          0.15454494953342385,
+          -0.021763373321685646
+        ],
+        [
+          0.16753188043315123,
+          -0.03778094831070731
+        ],
+        [
+          0.17022449170290221,
+          -0.06064253942329479
+        ],
+        [
+          0.12884060183175075,
+          -0.035588370587205875
+        ],
+        [
+          -0.18964464638039916,
+          -0.21751581138920076
+        ],
+        [
+          0.15077088766849123,
+          -0.032304129068251336
+        ],
+        [
+          0.11386043479064271,
+          0.021796118257349853
+        ],
+        [
+          -0.1311919553302308,
+          -0.18519286079556593
+        ],
+        [
+          -0.15713011164322102,
+          -0.20105111275272175
+        ],
+        [
+          -0.018356674996111724,
+          0.10740166564154785
+        ],
+        [
+          -0.08175355263066347,
+          0.04868492703293576
+        ],
+        [
+          -0.11191547412783193,
+          0.07435090369237322
+        ],
+        [
+          -0.09608367639441702,
+          0.07077187396543942
+        ],
+        [
+          -0.07232532521363194,
+          0.06939905814283549
+        ],
+        [
+          -0.03264397144109646,
+          0.07174437671698373
+        ],
+        [
+          0.09986848412088334,
+          -0.01739261993093769
+        ],
+        [
+          0.03969615163158744,
+          0.0038356810582693347
+        ],
+        [
+          0.029524519856045883,
+          0.028242862048060945
+        ],
+        [
+          0.036941741761561814,
+          0.029816041806734875
+        ],
+        [
+          0.09198289102074035,
+          -0.15026775467436235
+        ],
+        [
+          0.04069592327277464,
+          -0.06379517247264087
+        ],
+        [
+          0.05479518055493103,
+          -0.08612361758602606
+        ],
+        [
+          0.04642529319754889,
+          -0.11093943772981216
+        ],
+        [
+          0.05372247346132853,
+          -0.15100396542417358
+        ],
+        [
+          -0.06928551058715385,
+          -0.029207636067053108
+        ],
+        [
+          0.05815252557229736,
+          -0.03188402848614984
+        ],
+        [
+          -0.08491170386946272,
+          -0.051114837864808645
+        ],
+        [
+          0.02743037146741876,
+          -0.03577109527081523
+        ],
+        [
+          -0.11424138632874545,
+          -0.11900356217997328
+        ],
+        [
+          -0.01256816592728556,
+          0.0030660682865902597
+        ],
+        [
+          -0.01791599854378906,
+          0.03469882279963643
+        ],
+        [
+          0.012982516162670217,
+          0.035153921665789185
+        ],
+        [
+          -0.0240080894596419,
+          0.03905108227952793
+        ],
+        [
+          -0.04287433105678426,
+          0.003295445947125808
+        ],
+        [
+          -0.19204880739546396,
+          -0.10525902023357699
+        ],
+        [
+          -0.07789825037730577,
+          -0.09324470821176929
+        ],
+        [
+          -0.09898606312157956,
+          -0.11120591741508676
+        ],
+        [
+          -0.0608033513269481,
+          -0.038999769549379205
+        ],
+        [
+          -0.15680981128498533,
+          -0.11439785518519842
+        ],
+        [
+          -0.26096431920801466,
+          -0.09410718326173843
+        ],
+        [
+          -0.26230828724696353,
+          -0.03952611882050195
+        ],
+        [
+          -0.24247269900116492,
+          -0.0340792979239251
+        ],
+        [
+          -0.26776483538754026,
+          -0.043954609322898006
+        ],
+        [
+          -0.2627865683256853,
+          -0.03720518076481986
+        ],
+        [
+          -0.2200113775845431,
+          -0.07269054284004016
+        ],
+        [
+          -0.27068912004409457,
+          -0.04958482586851465
+        ],
+        [
+          0.03710342854828051,
+          -0.07263360626448674
+        ],
+        [
+          0.060870679199664976,
+          -0.04504465416492823
+        ],
+        [
+          0.07852457627647623,
+          -0.07934316022537469
+        ],
+        [
+          0.07324687389556357,
+          -0.05935097303211295
+        ],
+        [
+          -0.0010872710589726006,
+          -0.06658792774039576
+        ],
+        [
+          0.055463451923371966,
+          -0.04852721250495402
+        ],
+        [
+          -0.1391319272421036,
+          -0.07178059806008356
+        ],
+        [
+          -0.1281672805030057,
+          -0.05751513263824169
+        ],
+        [
+          -0.058118533915124095,
+          -0.07049890922922555
+        ],
+        [
+          -0.13940285139207337,
+          -0.11737769519642861
+        ],
+        [
+          -0.11784563197377171,
+          -0.09981107013164738
+        ],
+        [
+          -0.12491645385682677,
+          -0.08536213486250074
+        ],
+        [
+          -0.019887820867255025,
+          -0.015621306147743954
+        ],
+        [
+          0.029311886616468594,
+          -0.023468010952167474
+        ],
+        [
+          0.07264684814549373,
+          -0.10202221372926541
+        ],
+        [
+          0.03725563320635194,
+          -0.010556182017094552
+        ],
+        [
+          0.007651003446218419,
+          -0.0606933426129365
+        ],
+        [
+          -0.015945347716962186,
+          0.00848418207395804
+        ],
+        [
+          -0.08026686735115948,
+          0.052539894669184996
+        ],
+        [
+          -0.02674559735060556,
+          0.10110218398919758
+        ],
+        [
+          -0.006468977115403826,
+          0.04202238851094993
+        ],
+        [
+          0.025617393543610548,
+          0.07324077595091691
+        ],
+        [
+          -0.057296754632004336,
+          -0.06329596880645479
+        ],
+        [
+          -0.11133058766878083,
+          0.030755351265770683
+        ],
+        [
+          0.00682512658374515,
+          -0.24405790784732823
+        ],
+        [
+          -0.006888259433393425,
+          -0.20774000972418658
+        ],
+        [
+          0.03447549654425662,
+          -0.19322215887820238
+        ],
+        [
+          -0.017985226151872154,
+          -0.23167251040681305
+        ],
+        [
+          -0.030315432498544438,
+          -0.16783957542687547
+        ],
+        [
+          -0.22160017906788104,
+          0.1703777837078332
+        ],
+        [
+          -0.24011339764790837,
+          0.17850824258130896
+        ],
+        [
+          0.09397971069953437,
+          -0.0049187372456148135
+        ],
+        [
+          -0.2543797325110265,
+          0.20057992421638152
+        ],
+        [
+          -0.22799139095660426,
+          0.17287286994012357
+        ],
+        [
+          -0.23255776195002273,
+          0.16670136660388868
+        ],
+        [
+          -0.2396477713144199,
+          0.24491406633366689
+        ],
+        [
+          -0.19591811551119212,
+          0.22374895118258506
+        ],
+        [
+          -0.2484390504363879,
+          0.2368362100741766
+        ],
+        [
+          -0.14146090657967383,
+          0.26269622950443483
+        ],
+        [
+          -0.21389539886551953,
+          0.23415753122064284
+        ],
+        [
+          -0.18929632053706857,
+          0.2795025392947073
+        ],
+        [
+          -0.15670539961204674,
+          0.2353893946466159
+        ],
+        [
+          -0.23175861717106425,
+          0.19607927240623974
+        ],
+        [
+          -0.2706539611612046,
+          0.18789548247966345
+        ],
+        [
+          -0.21728381350865084,
+          0.21922968089282444
+        ],
+        [
+          -0.22267931256281115,
+          0.24077966742222806
+        ],
+        [
+          0.007509114757356373,
+          0.0392772543136573
+        ],
+        [
+          -0.28531225203374144,
+          -0.06229158298074493
+        ],
+        [
+          -0.20437989229520157,
+          0.0017119982874250505
+        ],
+        [
+          -0.2897176873654028,
+          -0.012326500323410676
+        ],
+        [
+          -0.2831307711262764,
+          -0.004259698402353731
+        ],
+        [
+          -0.23746703768894398,
+          -0.036403444550807504
+        ],
+        [
+          -0.24693274559696096,
+          -0.004095077944051817
+        ],
+        [
+          -0.013804727152607794,
+          -0.1896685451301846
+        ],
+        [
+          -0.07561222206501493,
+          -0.14253811998653654
+        ],
+        [
+          -0.04187905771104211,
+          -0.16754705260355718
+        ],
+        [
+          -0.11272100349012067,
+          -0.15896322440352842
+        ],
+        [
+          -0.11913186928657951,
+          -0.16186297387481724
+        ],
+        [
+          -0.11439732827320281,
+          -0.15915480623300512
+        ],
+        [
+          -0.05526107804839702,
+          -0.14558587248696542
+        ],
+        [
+          -0.10792055550584567,
+          -0.059407316645983296
+        ],
+        [
+          -0.07025436228256424,
+          -0.08849039633911168
+        ],
+        [
+          -0.11028191764987057,
+          -0.030537182719565
+        ],
+        [
+          -0.1549252230897357,
+          -0.09373247966702723
+        ],
+        [
+          -0.14517105499533187,
+          -0.0261436941540729
+        ],
+        [
+          0.06534691683758909,
+          -0.09719579584255039
+        ],
+        [
+          0.05280172740994565,
+          -0.05810660709868428
+        ],
+        [
+          0.05668474527109229,
+          -0.11408310299613014
+        ],
+        [
+          0.05047992165502869,
+          -0.06384298780234086
+        ],
+        [
+          -0.09126748065241971,
+          0.1720631833346858
+        ],
+        [
+          -0.00900705040182101,
+          0.1303752028045529
+        ],
+        [
+          -0.12303643879742017,
+          0.12782417763179005
+        ],
+        [
+          -0.12404654164178709,
+          0.11460530712658176
+        ],
+        [
+          -0.13976453402990183,
+          0.1851780501100052
+        ],
+        [
+          0.03891087666309127,
+          0.15017459731501073
+        ],
+        [
+          0.07309549499902547,
+          0.14997923508343491
+        ],
+        [
+          -0.0479533601939248,
+          0.19359503381100715
+        ],
+        [
+          -0.05073015594272014,
+          0.10832598868189913
+        ],
+        [
+          0.023418826136467414,
+          0.2087555910937563
+        ],
+        [
+          0.13721244592745252,
+          0.17591015043976968
+        ],
+        [
+          0.10628928235976762,
+          0.15850024167719595
+        ],
+        [
+          0.08699208542995274,
+          0.16405046081718846
+        ],
+        [
+          0.11112995753829463,
+          0.19606684347114933
+        ],
+        [
+          0.0770443051008107,
+          0.14939027783642905
+        ],
+        [
+          0.16189592177406573,
+          0.2894848920244278
+        ],
+        [
+          0.19173542461928855,
+          0.3108772457901753
+        ],
+        [
+          0.1933441023151926,
+          0.31094963695245675
+        ],
+        [
+          0.17223938384439058,
+          0.30526189150300514
+        ],
+        [
+          0.25067337540456985,
+          0.27532307068810435
+        ],
+        [
+          0.22755482825382026,
+          0.18148400636686854
+        ],
+        [
+          0.24730533026518017,
+          0.24094971561777828
+        ],
+        [
+          0.21868286872768106,
+          0.21148353305521
+        ],
+        [
+          0.25266270321537443,
+          0.20579012738337954
+        ],
+        [
+          0.19962204255665136,
+          0.3196584712304337
+        ],
+        [
+          0.21137919316004775,
+          0.2715989518321345
+        ],
+        [
+          0.18825014753594183,
+          0.25436303165481133
+        ],
+        [
+          0.20273234109060864,
+          0.2754101275648983
+        ],
+        [
+          0.2297315886542831,
+          -0.023141023128614564
+        ],
+        [
+          0.23639268918922643,
+          -0.04910748187266855
+        ],
+        [
+          0.22120972939218914,
+          -0.044986216949833575
+        ],
+        [
+          0.22045810581843947,
+          -0.047828699591608646
+        ],
+        [
+          0.267355264321414,
+          0.04190093775756685
+        ],
+        [
+          0.2995474588519055,
+          -0.12174196036504324
+        ],
+        [
+          0.31851016747365735,
+          -0.07797843576851637
+        ],
+        [
+          0.3296969188074671,
+          -0.06945834563357506
+        ],
+        [
+          0.2901729575003783,
+          -0.06659292487024018
+        ],
+        [
+          0.30567573038652707,
+          -0.06630445411116175
+        ],
+        [
+          0.2702532319619533,
+          -0.05870084104340657
+        ],
+        [
+          0.27272554090452666,
+          -0.07183461250092392
+        ],
+        [
+          0.2891181258174996,
+          -0.06419315618043407
+        ],
+        [
+          0.25944132320801166,
+          -0.05700269455480687
+        ],
+        [
+          0.27796357448835085,
+          -0.08602602278832122
+        ]
+      ]
+    }
+  },
+  "cross_space_invariance": {
+    "n_spaces": 3,
+    "all_agree_question_clustering": true,
+    "spaces_favoring_question": 3,
+    "spaces_favoring_model": 0
+  }
+}
