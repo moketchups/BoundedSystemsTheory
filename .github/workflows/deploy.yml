@@ -28,7 +28,6 @@ jobs:
         run: |
           npm ci
           node scripts/build-data.js
-          cd .. && python3 scripts/convergence_analysis.py --mode heuristic --output web/public/data/analysis.json && cd web
           npx vite build --base=/BoundedSystemsTheory/
       - uses: actions/upload-pages-artifact@v3
         with:

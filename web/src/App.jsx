@@ -5,7 +5,6 @@ import Arc from './components/Arc'
 import Convergence from './components/Convergence'
 import KeyMoments from './components/KeyMoments'
 import FormalTheory from './components/FormalTheory'
-import Analysis from './components/Analysis'
 
 function Nav() {
   const loc = useLocation()
@@ -15,7 +14,6 @@ function Nav() {
     { to: '/convergence', label: 'Convergence' },
     { to: '/moments', label: 'Key Moments' },
     { to: '/theory', label: 'Formal Theory' },
-    { to: '/analysis', label: 'Analysis' },
   ]
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-surface/90 backdrop-blur border-b border-border">
@@ -83,7 +81,6 @@ export default function App() {
           <Route path="/convergence" element={<Convergence data={data} />} />
           <Route path="/moments" element={<KeyMoments data={data} />} />
           <Route path="/theory" element={<FormalTheory />} />
-          <Route path="/analysis" element={<Analysis />} />
         </Routes>
       </main>
     </>
