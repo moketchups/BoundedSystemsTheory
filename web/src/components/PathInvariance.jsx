@@ -175,7 +175,7 @@ export default function PathInvariance() {
     <div className="max-w-5xl mx-auto px-4 py-8">
       <h1 className="text-lg font-semibold mb-1">Path Invariance</h1>
       <p className="text-xs text-muted mb-6">
-        Do different models arrive at the same structural endpoint? 206 responses embedded in 3 independent vector spaces.
+        Do different models arrive at the same structural endpoint? 206 responses measured across 6 independent instruments.
       </p>
 
       {/* Cross-space verdict */}
@@ -188,7 +188,7 @@ export default function PathInvariance() {
           <p className="text-sm font-medium mb-1" style={{
             color: data.cross_space_invariance.all_agree_question_clustering ? '#22c55e' : '#eab308'
           }}>
-            {data.cross_space_invariance.spaces_favoring_question}/{data.cross_space_invariance.n_spaces} embedding spaces:
+            {data.cross_space_invariance.spaces_favoring_question}/{data.cross_space_invariance.n_spaces} measurement spaces:
             responses cluster by question, not by model
           </p>
           <p className="text-xs text-muted">
