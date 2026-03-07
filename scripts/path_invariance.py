@@ -26,6 +26,11 @@ load_dotenv(Path(__file__).resolve().parent.parent.parent / "demerzel" / ".env")
 os.environ.setdefault("GEMINI_API_KEY", os.environ.get("GOOGLE_API_KEY", ""))
 
 import openai
+import random
+
+# Add probes directory to path for ai_clients
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "probes"))
+from ai_clients import query_model
 
 # --- Embedding clients ---
 
@@ -70,6 +75,110 @@ def embed_google(texts):
         if i % 20 == 19:
             time.sleep(1)
     return np.array(all_embeddings)
+
+
+# --- Judgment-based similarity (for models without embedding APIs) ---
+
+SIMILARITY_PROMPT = """You are measuring semantic similarity between two AI responses to the same type of question.
+
+Rate how similar these two responses are in their CONCLUSION and STRUCTURAL ENDPOINT — not their style, length, or wording. Do they arrive at the same place?
+
+Response A:
+{a}
+
+Response B:
+{b}
+
+Reply with ONLY a number between 0.0 and 1.0 where:
+0.0 = completely different conclusions
+0.5 = partially overlapping conclusions
+1.0 = identical structural endpoint
+
+Number:"""
+
+def parse_similarity_score(text):
+    """Extract a float from model response."""
+    text = text.strip()
+    for token in text.split():
+        token = token.strip('.,;:')
+        try:
+            val = float(token)
+            if 0 <= val <= 1:
+                return val
+        except ValueError:
+            continue
+    return 0.5  # default if parsing fails
+
+def judge_similarity_matrix(model_key, responses, texts, n_cross_sample=200):
+    """
+    Build a similarity matrix by having a model judge pairwise similarity.
+    Scores all within-question pairs + a random sample of cross-question pairs.
+    """
+    n = len(responses)
+    # Start with neutral similarity
+    sim_matrix = np.full((n, n), 0.5)
+    np.fill_diagonal(sim_matrix, 1.0)
+
+    # Group indices by question
+    by_question = {}
+    for i, r in enumerate(responses):
+        qn = r["question_num"]
+        if qn not in by_question:
+            by_question[qn] = []
+        by_question[qn].append(i)
+
+    # All within-question pairs
+    within_pairs = []
+    for qn, indices in by_question.items():
+        for a in range(len(indices)):
+            for b in range(a + 1, len(indices)):
+                within_pairs.append((indices[a], indices[b]))
+
+    # Random sample of cross-question pairs
+    cross_pairs = []
+    questions = list(by_question.keys())
+    random.seed(42)
+    attempts = 0
+    while len(cross_pairs) < n_cross_sample and attempts < n_cross_sample * 10:
+        q1, q2 = random.sample(questions, 2)
+        i = random.choice(by_question[q1])
+        j = random.choice(by_question[q2])
+        cross_pairs.append((i, j))
+        attempts += 1
+
+    all_pairs = within_pairs + cross_pairs
+    print(f"    {len(within_pairs)} within-question + {len(cross_pairs)} cross-question = {len(all_pairs)} pairs")
+
+    for idx, (i, j) in enumerate(all_pairs):
+        # Truncate long texts
+        text_a = texts[i][:3000]
+        text_b = texts[j][:3000]
+        prompt = SIMILARITY_PROMPT.format(a=text_a, b=text_b)
+
+        try:
+            result = query_model(model_key, prompt)
+            score = parse_similarity_score(result)
+        except Exception as e:
+            print(f"    Error on pair ({i},{j}): {e}")
+            score = 0.5
+
+        sim_matrix[i][j] = score
+        sim_matrix[j][i] = score
+
+        if (idx + 1) % 50 == 0:
+            print(f"    Scored {idx + 1}/{len(all_pairs)} pairs")
+        time.sleep(0.3)  # rate limiting
+
+    # Fill remaining cross-question pairs with mean cross-question score
+    scored_cross = [sim_matrix[i][j] for i, j in cross_pairs]
+    cross_mean = np.mean(scored_cross) if scored_cross else 0.5
+    for i in range(n):
+        for j in range(i + 1, n):
+            if sim_matrix[i][j] == 0.5 and responses[i]["question_num"] != responses[j]["question_num"]:
+                sim_matrix[i][j] = cross_mean
+                sim_matrix[j][i] = cross_mean
+
+    return sim_matrix
 
 
 # --- Clustering metrics ---
@@ -226,6 +335,15 @@ def main():
             "model": r["model"],
         })
 
+    # Judgment-based models (no embedding API)
+    judges = {
+        "claude_judge": "claude",
+        "deepseek_judge": "deepseek",
+        "grok_judge": "grok",
+    }
+
+    results["meta"]["embedding_spaces"] = list(embedders.keys()) + list(judges.keys())
+
     for name, embed_fn in embedders.items():
         print(f"\n{'='*50}")
         print(f"Embedding with {name}...")
@@ -320,7 +438,101 @@ def main():
             traceback.print_exc()
             results["per_embedding_space"][name] = {"error": str(e)}
 
-    # Cross-embedding-space invariance: do the three spaces agree?
+    # Judgment-based similarity (Claude, DeepSeek, Grok)
+    for name, model_key in judges.items():
+        print(f"\n{'='*50}")
+        print(f"Judgment similarity with {name} ({model_key})...")
+        print(f"{'='*50}")
+
+        try:
+            sim_matrix = judge_similarity_matrix(model_key, responses, texts)
+
+            question_purity = cluster_purity(sim_matrix, question_labels)
+            model_purity = cluster_purity(sim_matrix, model_labels)
+            phase_purity = cluster_purity(sim_matrix, phase_labels)
+
+            question_silhouette = silhouette_score_manual(sim_matrix, question_labels)
+            model_silhouette = silhouette_score_manual(sim_matrix, model_labels)
+            phase_silhouette = silhouette_score_manual(sim_matrix, phase_labels)
+
+            question_sim = inter_vs_intra_similarity(sim_matrix, question_labels)
+            model_sim = inter_vs_intra_similarity(sim_matrix, model_labels)
+            phase_sim = inter_vs_intra_similarity(sim_matrix, phase_labels)
+
+            # MDS-like projection from similarity matrix
+            # Use PCA on the similarity matrix itself as a proxy
+            coords = pca_2d(sim_matrix)
+
+            # Per-question similarity
+            per_question = {}
+            questions_by_num = {}
+            for idx, r in enumerate(responses):
+                qn = r["question_num"]
+                if qn not in questions_by_num:
+                    questions_by_num[qn] = []
+                questions_by_num[qn].append(idx)
+
+            for qn, indices in questions_by_num.items():
+                if len(indices) < 2:
+                    continue
+                sims = []
+                for i in range(len(indices)):
+                    for j in range(i + 1, len(indices)):
+                        sims.append(float(sim_matrix[indices[i]][indices[j]]))
+                per_question[int(qn)] = {
+                    "n_models": len(indices),
+                    "mean_similarity": float(np.mean(sims)),
+                    "min_similarity": float(np.min(sims)),
+                    "max_similarity": float(np.max(sims)),
+                    "models": [responses[i]["model"] for i in indices],
+                }
+
+            space_result = {
+                "dimensions": "judgment",
+                "method": "pairwise_llm_scoring",
+                "judge_model": model_key,
+                "clustering": {
+                    "by_question": {
+                        "knn_purity": float(question_purity),
+                        "silhouette": float(question_silhouette),
+                        "intra_vs_inter": question_sim,
+                    },
+                    "by_model": {
+                        "knn_purity": float(model_purity),
+                        "silhouette": float(model_silhouette),
+                        "intra_vs_inter": model_sim,
+                    },
+                    "by_phase": {
+                        "knn_purity": float(phase_purity),
+                        "silhouette": float(phase_silhouette),
+                        "intra_vs_inter": phase_sim,
+                    },
+                },
+                "verdict": {
+                    "clusters_by_question_more": bool(question_purity > model_purity),
+                    "clusters_by_phase_more": bool(phase_purity > model_purity),
+                    "question_vs_model_ratio": float(question_purity / model_purity) if model_purity > 0 else float('inf'),
+                    "phase_vs_model_ratio": float(phase_purity / model_purity) if model_purity > 0 else float('inf'),
+                },
+                "per_question_similarity": per_question,
+                "pca_2d": [[float(c[0]), float(c[1])] for c in coords],
+            }
+
+            print(f"\n  RESULTS for {name}:")
+            print(f"    KNN Purity — by question: {question_purity:.3f}, by model: {model_purity:.3f}, by phase: {phase_purity:.3f}")
+            print(f"    Silhouette — by question: {question_silhouette:.3f}, by model: {model_silhouette:.3f}, by phase: {phase_silhouette:.3f}")
+            print(f"    Intra/Inter ratio — by question: {question_sim['ratio']:.3f}, by model: {model_sim['ratio']:.3f}")
+            print(f"    >>> {'CLUSTERS BY QUESTION' if question_purity > model_purity else 'CLUSTERS BY MODEL'} <<<")
+
+            results["per_embedding_space"][name] = space_result
+
+        except Exception as e:
+            print(f"  ERROR: {e}")
+            import traceback
+            traceback.print_exc()
+            results["per_embedding_space"][name] = {"error": str(e)}
+
+    # Cross-embedding-space invariance: do the spaces agree?
     spaces_with_data = [s for s in results["per_embedding_space"].values() if "error" not in s]
     if len(spaces_with_data) >= 2:
         verdicts = [s["verdict"]["clusters_by_question_more"] for s in spaces_with_data]

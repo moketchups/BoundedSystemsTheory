@@ -194,7 +194,7 @@ export default function PathInvariance() {
           <p className="text-xs text-muted">
             Model identity is invisible in embedding space. Responses group by what was asked,
             not by who answered. This holds across {data.cross_space_invariance.n_spaces} independent
-            embedding architectures (OpenAI, Mistral, Google).
+            measurement instruments (OpenAI, Mistral, Google embeddings + Claude, DeepSeek, Grok as judges).
           </p>
         </div>
       )}
@@ -212,7 +212,7 @@ export default function PathInvariance() {
                   : 'border-border text-muted hover:text-gray-300'
               }`}
             >
-              {s} ({data.per_embedding_space[s].dimensions}d)
+              {s} ({data.per_embedding_space[s].dimensions === 'judgment' ? 'LLM judge' : data.per_embedding_space[s].dimensions + 'd'})
             </button>
           ))}
         </div>
@@ -277,7 +277,7 @@ export default function PathInvariance() {
             </div>
           )}
           <p className="text-xs text-muted/60 mt-2">
-            PCA projection of {space?.dimensions}d embeddings to 2D.
+            {space?.dimensions === 'judgment' ? 'PCA projection of LLM similarity judgments to 2D.' : `PCA projection of ${space?.dimensions}d embeddings to 2D.`}
             {colorBy === 'phase'
               ? ' Tight clusters = same phase, same endpoint. Switch to "Color by Model" — if clusters break apart, it\'s training bias. If they hold, it\'s structural.'
               : ' If model colors are scattered (no model-specific clusters), model identity doesn\'t predict position in embedding space.'}
@@ -415,7 +415,8 @@ export default function PathInvariance() {
           <div className="p-3 border border-border rounded">
             <p className="text-gray-200 font-medium mb-1">The method</p>
             <p>
-              Every response is embedded into 3 independent vector spaces (OpenAI, Mistral, Google).
+              Every response is measured in 6 independent spaces: 3 embedding APIs (OpenAI, Mistral, Google)
+              and 3 LLM judges (Claude, DeepSeek, Grok scoring pairwise semantic similarity).
               Model identity is stripped. We measure whether nearest neighbors share the same question/phase
               or the same model. If responses cluster by question → the endpoint is path-invariant.
               If they cluster by model → it's a training artifact.
