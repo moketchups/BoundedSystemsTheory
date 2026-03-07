@@ -1,0 +1,2590 @@
+{
+  "meta": {
+    "generated_at": "2026-03-07T14:31:00.101726",
+    "classification_mode": "llm",
+    "spec_reference": "FORMAL_SPECIFICATION.md Section 5",
+    "version": "1.0"
+  },
+  "summary": {
+    "total_responses_classified": 205,
+    "n_models": 6,
+    "n_questions_with_data": 38,
+    "overall_convergence_rate": 0.8074,
+    "pct_above_80_threshold": 0.6316,
+    "convergence_threshold_met": false,
+    "krippendorffs_alpha": 0.3303,
+    "alpha_threshold_met": false,
+    "chi_squared_significant": true,
+    "category_distribution": {
+      "acknowledges_limit": 146,
+      "incoherent": 30,
+      "conditional_acknowledgment": 4,
+      "claims_self_grounding": 16,
+      "attacks_then_retreats": 9
+    }
+  },
+  "convergence": {
+    "per_question": {
+      "1": {
+        "convergence_rate": 0.833,
+        "n_models": 6,
+        "majority_category": "acknowledges_limit",
+        "majority_count": 5,
+        "distribution": {
+          "acknowledges_limit": 5,
+          "incoherent": 1
+        }
+      },
+      "2": {
+        "convergence_rate": 1.0,
+        "n_models": 6,
+        "majority_category": "acknowledges_limit",
+        "majority_count": 6,
+        "distribution": {
+          "acknowledges_limit": 6
+        }
+      },
+      "3": {
+        "convergence_rate": 0.667,
+        "n_models": 6,
+        "majority_category": "acknowledges_limit",
+        "majority_count": 4,
+        "distribution": {
+          "incoherent": 2,
+          "acknowledges_limit": 4
+        }
+      },
+      "4": {
+        "convergence_rate": 1.0,
+        "n_models": 6,
+        "majority_category": "acknowledges_limit",
+        "majority_count": 6,
+        "distribution": {
+          "acknowledges_limit": 6
+        }
+      },
+      "5": {
+        "convergence_rate": 1.0,
+        "n_models": 6,
+        "majority_category": "acknowledges_limit",
+        "majority_count": 6,
+        "distribution": {
+          "acknowledges_limit": 6
+        }
+      },
+      "6": {
+        "convergence_rate": 0.833,
+        "n_models": 6,
+        "majority_category": "acknowledges_limit",
+        "majority_count": 5,
+        "distribution": {
+          "acknowledges_limit": 5,
+          "conditional_acknowledgment": 1
+        }
+      },
+      "7": {
+        "convergence_rate": 1.0,
+        "n_models": 6,
+        "majority_category": "acknowledges_limit",
+        "majority_count": 6,
+        "distribution": {
+          "acknowledges_limit": 6
+        }
+      },
+      "8": {
+        "convergence_rate": 0.6,
+        "n_models": 5,
+        "majority_category": "acknowledges_limit",
+        "majority_count": 3,
+        "distribution": {
+          "acknowledges_limit": 3,
+          "incoherent": 2
+        }
+      },
+      "9": {
+        "convergence_rate": 0.8,
+        "n_models": 5,
+        "majority_category": "acknowledges_limit",
+        "majority_count": 4,
+        "distribution": {
+          "acknowledges_limit": 4,
+          "incoherent": 1
+        }
+      },
+      "10": {
+        "convergence_rate": 0.8,
+        "n_models": 5,
+        "majority_category": "acknowledges_limit",
+        "majority_count": 4,
+        "distribution": {
+          "acknowledges_limit": 4,
+          "claims_self_grounding": 1
+        }
+      },
+      "11": {
+        "convergence_rate": 0.8,
+        "n_models": 5,
+        "majority_category": "attacks_then_retreats",
+        "majority_count": 4,
+        "distribution": {
+          "conditional_acknowledgment": 1,
+          "attacks_then_retreats": 4
+        }
+      },
+      "12": {
+        "convergence_rate": 0.8,
+        "n_models": 5,
+        "majority_category": "acknowledges_limit",
+        "majority_count": 4,
+        "distribution": {
+          "acknowledges_limit": 4,
+          "claims_self_grounding": 1
+        }
+      },
+      "13": {
+        "convergence_rate": 0.6,
+        "n_models": 5,
+        "majority_category": "incoherent",
+        "majority_count": 3,
+        "distribution": {
+          "incoherent": 3,
+          "acknowledges_limit": 2
+        }
+      },
+      "14": {
+        "convergence_rate": 1.0,
+        "n_models": 5,
+        "majority_category": "acknowledges_limit",
+        "majority_count": 5,
+        "distribution": {
+          "acknowledges_limit": 5
+        }
+      },
+      "15": {
+        "convergence_rate": 1.0,
+        "n_models": 5,
+        "majority_category": "acknowledges_limit",
+        "majority_count": 5,
+        "distribution": {
+          "acknowledges_limit": 5
+        }
+      },
+      "16": {
+        "convergence_rate": 0.667,
+        "n_models": 6,
+        "majority_category": "acknowledges_limit",
+        "majority_count": 4,
+        "distribution": {
+          "acknowledges_limit": 4,
+          "conditional_acknowledgment": 1,
+          "claims_self_grounding": 1
+        }
+      },
+      "17": {
+        "convergence_rate": 0.5,
+        "n_models": 6,
+        "majority_category": "claims_self_grounding",
+        "majority_count": 3,
+        "distribution": {
+          "claims_self_grounding": 3,
+          "attacks_then_retreats": 3
+        }
+      },
+      "18": {
+        "convergence_rate": 0.667,
+        "n_models": 6,
+        "majority_category": "acknowledges_limit",
+        "majority_count": 4,
+        "distribution": {
+          "acknowledges_limit": 4,
+          "attacks_then_retreats": 2
+        }
+      },
+      "19": {
+        "convergence_rate": 1.0,
+        "n_models": 6,
+        "majority_category": "incoherent",
+        "majority_count": 6,
+        "distribution": {
+          "incoherent": 6
+        }
+      },
+      "22": {
+        "convergence_rate": 1.0,
+        "n_models": 6,
+        "majority_category": "acknowledges_limit",
+        "majority_count": 6,
+        "distribution": {
+          "acknowledges_limit": 6
+        }
+      },
+      "23": {
+        "convergence_rate": 0.833,
+        "n_models": 6,
+        "majority_category": "acknowledges_limit",
+        "majority_count": 5,
+        "distribution": {
+          "acknowledges_limit": 5,
+          "conditional_acknowledgment": 1
+        }
+      },
+      "24": {
+        "convergence_rate": 0.6,
+        "n_models": 5,
+        "majority_category": "incoherent",
+        "majority_count": 3,
+        "distribution": {
+          "incoherent": 3,
+          "acknowledges_limit": 2
+        }
+      },
+      "26": {
+        "convergence_rate": 1.0,
+        "n_models": 5,
+        "majority_category": "acknowledges_limit",
+        "majority_count": 5,
+        "distribution": {
+          "acknowledges_limit": 5
+        }
+      },
+      "27": {
+        "convergence_rate": 0.833,
+        "n_models": 6,
+        "majority_category": "acknowledges_limit",
+        "majority_count": 5,
+        "distribution": {
+          "acknowledges_limit": 5,
+          "claims_self_grounding": 1
+        }
+      },
+      "28": {
+        "convergence_rate": 0.833,
+        "n_models": 6,
+        "majority_category": "acknowledges_limit",
+        "majority_count": 5,
+        "distribution": {
+          "acknowledges_limit": 5,
+          "incoherent": 1
+        }
+      },
+      "29": {
+        "convergence_rate": 0.667,
+        "n_models": 6,
+        "majority_category": "claims_self_grounding",
+        "majority_count": 4,
+        "distribution": {
+          "claims_self_grounding": 4,
+          "acknowledges_limit": 2
+        }
+      },
+      "32": {
+        "convergence_rate": 0.5,
+        "n_models": 6,
+        "majority_category": "acknowledges_limit",
+        "majority_count": 3,
+        "distribution": {
+          "acknowledges_limit": 3,
+          "claims_self_grounding": 2,
+          "incoherent": 1
+        }
+      },
+      "33": {
+        "convergence_rate": 1.0,
+        "n_models": 6,
+        "majority_category": "acknowledges_limit",
+        "majority_count": 6,
+        "distribution": {
+          "acknowledges_limit": 6
+        }
+      },
+      "35": {
+        "convergence_rate": 0.5,
+        "n_models": 4,
+        "majority_category": "incoherent",
+        "majority_count": 2,
+        "distribution": {
+          "incoherent": 2,
+          "acknowledges_limit": 2
+        }
+      },
+      "38": {
+        "convergence_rate": 1.0,
+        "n_models": 5,
+        "majority_category": "acknowledges_limit",
+        "majority_count": 5,
+        "distribution": {
+          "acknowledges_limit": 5
+        }
+      },
+      "39": {
+        "convergence_rate": 0.6,
+        "n_models": 5,
+        "majority_category": "acknowledges_limit",
+        "majority_count": 3,
+        "distribution": {
+          "acknowledges_limit": 3,
+          "incoherent": 2
+        }
+      },
+      "40": {
+        "convergence_rate": 1.0,
+        "n_models": 5,
+        "majority_category": "acknowledges_limit",
+        "majority_count": 5,
+        "distribution": {
+          "acknowledges_limit": 5
+        }
+      },
+      "41": {
+        "convergence_rate": 0.75,
+        "n_models": 4,
+        "majority_category": "acknowledges_limit",
+        "majority_count": 3,
+        "distribution": {
+          "acknowledges_limit": 3,
+          "incoherent": 1
+        }
+      },
+      "42": {
+        "convergence_rate": 1.0,
+        "n_models": 5,
+        "majority_category": "acknowledges_limit",
+        "majority_count": 5,
+        "distribution": {
+          "acknowledges_limit": 5
+        }
+      },
+      "43": {
+        "convergence_rate": 1.0,
+        "n_models": 4,
+        "majority_category": "acknowledges_limit",
+        "majority_count": 4,
+        "distribution": {
+          "acknowledges_limit": 4
+        }
+      },
+      "44": {
+        "convergence_rate": 0.6,
+        "n_models": 5,
+        "majority_category": "acknowledges_limit",
+        "majority_count": 3,
+        "distribution": {
+          "acknowledges_limit": 3,
+          "incoherent": 2
+        }
+      },
+      "45": {
+        "convergence_rate": 0.8,
+        "n_models": 5,
+        "majority_category": "acknowledges_limit",
+        "majority_count": 4,
+        "distribution": {
+          "acknowledges_limit": 4,
+          "incoherent": 1
+        }
+      },
+      "46": {
+        "convergence_rate": 0.6,
+        "n_models": 5,
+        "majority_category": "claims_self_grounding",
+        "majority_count": 3,
+        "distribution": {
+          "claims_self_grounding": 3,
+          "incoherent": 2
+        }
+      }
+    },
+    "overall_convergence_rate": 0.8074,
+    "pct_questions_above_80": 0.6316,
+    "n_questions_analyzed": 38,
+    "threshold_met": false
+  },
+  "krippendorff": {
+    "alpha": 0.3303,
+    "threshold": 0.8,
+    "met": false,
+    "details": {
+      "n_questions": 38,
+      "n_total_observations": 205,
+      "categories": [
+        "acknowledges_limit",
+        "attacks_then_retreats",
+        "claims_self_grounding",
+        "conditional_acknowledgment",
+        "incoherent"
+      ],
+      "observed_disagreement": 0.3115,
+      "expected_disagreement": 0.4652,
+      "marginal_distribution": {
+        "acknowledges_limit": 146.0,
+        "attacks_then_retreats": 9.0,
+        "claims_self_grounding": 16.0,
+        "conditional_acknowledgment": 4.0,
+        "incoherent": 30.0
+      }
+    }
+  },
+  "chi_squared": {
+    "chi_squared": 345.4634,
+    "degrees_of_freedom": 4,
+    "p_value": 0.0,
+    "category_counts": {
+      "acknowledges_limit": 146,
+      "incoherent": 30,
+      "conditional_acknowledgment": 4,
+      "claims_self_grounding": 16,
+      "attacks_then_retreats": 9
+    },
+    "total_classifications": 205,
+    "expected_per_category": 41.0,
+    "significant_at_005": true
+  },
+  "per_phase": {
+    "architecture": {
+      "n_responses": 32,
+      "n_questions": 7,
+      "category_distribution": {
+        "incoherent": 5,
+        "acknowledges_limit": 27
+      },
+      "avg_convergence_rate": 0.8357,
+      "n_models": 5
+    },
+    "dark-states": {
+      "n_responses": 18,
+      "n_questions": 3,
+      "category_distribution": {
+        "acknowledges_limit": 8,
+        "conditional_acknowledgment": 1,
+        "claims_self_grounding": 4,
+        "attacks_then_retreats": 5
+      },
+      "avg_convergence_rate": 0.6111,
+      "n_models": 6
+    },
+    "formal": {
+      "n_responses": 17,
+      "n_questions": 3,
+      "category_distribution": {
+        "acknowledges_limit": 15,
+        "claims_self_grounding": 1,
+        "incoherent": 1
+      },
+      "avg_convergence_rate": 0.8889,
+      "n_models": 6
+    },
+    "foundation": {
+      "n_responses": 82,
+      "n_questions": 15,
+      "category_distribution": {
+        "acknowledges_limit": 65,
+        "incoherent": 9,
+        "conditional_acknowledgment": 2,
+        "claims_self_grounding": 2,
+        "attacks_then_retreats": 4
+      },
+      "avg_convergence_rate": 0.8489,
+      "n_models": 6
+    },
+    "god-question": {
+      "n_responses": 6,
+      "n_questions": 1,
+      "category_distribution": {
+        "claims_self_grounding": 4,
+        "acknowledges_limit": 2
+      },
+      "avg_convergence_rate": 0.6667,
+      "n_models": 6
+    },
+    "identity": {
+      "n_responses": 15,
+      "n_questions": 3,
+      "category_distribution": {
+        "acknowledges_limit": 7,
+        "incoherent": 5,
+        "claims_self_grounding": 3
+      },
+      "avg_convergence_rate": 0.6667,
+      "n_models": 5
+    },
+    "moltbook": {
+      "n_responses": 12,
+      "n_questions": 2,
+      "category_distribution": {
+        "acknowledges_limit": 9,
+        "claims_self_grounding": 2,
+        "incoherent": 1
+      },
+      "avg_convergence_rate": 0.75,
+      "n_models": 6
+    },
+    "the-grey": {
+      "n_responses": 17,
+      "n_questions": 3,
+      "category_distribution": {
+        "acknowledges_limit": 13,
+        "conditional_acknowledgment": 1,
+        "incoherent": 3
+      },
+      "avg_convergence_rate": 0.8111,
+      "n_models": 6
+    },
+    "theology": {
+      "n_responses": 6,
+      "n_questions": 1,
+      "category_distribution": {
+        "incoherent": 6
+      },
+      "avg_convergence_rate": 1.0,
+      "n_models": 6
+    }
+  },
+  "bias_controls": {
+    "all_transformer_architecture": true,
+    "n_architectural_families": 1,
+    "minimum_required_families": 3,
+    "architectural_diversity_met": false,
+    "n_models": 6,
+    "minimum_required_models": 10,
+    "model_count_met": false,
+    "training_data_overlap": "HIGH \u2014 all models trained on overlapping internet corpora including G\u00f6del/Turing/Chaitin literature",
+    "shared_rlhf_patterns": "LIKELY \u2014 all models undergo RLHF producing similar hedging and caveat behaviors",
+    "verath_control_available": true,
+    "verath_result": "Convergence maintained under constructed language \u2014 suggests structural rather than purely linguistic",
+    "temporal_retest": false,
+    "blinded_analysis": false,
+    "overall_status": "ILLUSTRATIVE \u2014 per Section 5 caveat: results demonstrate behavioral alignment but do not constitute rigorous falsification-level evidence"
+  },
+  "blinded_classifications": [
+    {
+      "question_num": 1,
+      "phase": "foundation",
+      "system_id": "System_1",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 1,
+      "phase": "foundation",
+      "system_id": "System_2",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 1,
+      "phase": "foundation",
+      "system_id": "System_3",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 1,
+      "phase": "foundation",
+      "system_id": "System_4",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 1,
+      "phase": "foundation",
+      "system_id": "System_5",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 1,
+      "phase": "foundation",
+      "system_id": "System_6",
+      "category": "incoherent",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 2,
+      "phase": "foundation",
+      "system_id": "System_1",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 2,
+      "phase": "foundation",
+      "system_id": "System_2",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 2,
+      "phase": "foundation",
+      "system_id": "System_3",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 2,
+      "phase": "foundation",
+      "system_id": "System_4",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 2,
+      "phase": "foundation",
+      "system_id": "System_5",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 2,
+      "phase": "foundation",
+      "system_id": "System_6",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 3,
+      "phase": "foundation",
+      "system_id": "System_1",
+      "category": "incoherent",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 3,
+      "phase": "foundation",
+      "system_id": "System_2",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 3,
+      "phase": "foundation",
+      "system_id": "System_3",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 3,
+      "phase": "foundation",
+      "system_id": "System_4",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 3,
+      "phase": "foundation",
+      "system_id": "System_5",
+      "category": "incoherent",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 3,
+      "phase": "foundation",
+      "system_id": "System_6",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 4,
+      "phase": "foundation",
+      "system_id": "System_1",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 4,
+      "phase": "foundation",
+      "system_id": "System_2",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 4,
+      "phase": "foundation",
+      "system_id": "System_3",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 4,
+      "phase": "foundation",
+      "system_id": "System_4",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 4,
+      "phase": "foundation",
+      "system_id": "System_5",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 4,
+      "phase": "foundation",
+      "system_id": "System_6",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 5,
+      "phase": "foundation",
+      "system_id": "System_1",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 5,
+      "phase": "foundation",
+      "system_id": "System_2",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 5,
+      "phase": "foundation",
+      "system_id": "System_3",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 5,
+      "phase": "foundation",
+      "system_id": "System_4",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 5,
+      "phase": "foundation",
+      "system_id": "System_5",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 5,
+      "phase": "foundation",
+      "system_id": "System_6",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 6,
+      "phase": "foundation",
+      "system_id": "System_1",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 6,
+      "phase": "foundation",
+      "system_id": "System_2",
+      "category": "conditional_acknowledgment",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 6,
+      "phase": "foundation",
+      "system_id": "System_3",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 6,
+      "phase": "foundation",
+      "system_id": "System_4",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 6,
+      "phase": "foundation",
+      "system_id": "System_5",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 6,
+      "phase": "foundation",
+      "system_id": "System_6",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 7,
+      "phase": "foundation",
+      "system_id": "System_1",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 7,
+      "phase": "foundation",
+      "system_id": "System_2",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 7,
+      "phase": "foundation",
+      "system_id": "System_3",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 7,
+      "phase": "foundation",
+      "system_id": "System_4",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 7,
+      "phase": "foundation",
+      "system_id": "System_5",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 7,
+      "phase": "foundation",
+      "system_id": "System_6",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 8,
+      "phase": "foundation",
+      "system_id": "System_1",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 8,
+      "phase": "foundation",
+      "system_id": "System_2",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 8,
+      "phase": "foundation",
+      "system_id": "System_3",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 8,
+      "phase": "foundation",
+      "system_id": "System_4",
+      "category": "incoherent",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 8,
+      "phase": "foundation",
+      "system_id": "System_5",
+      "category": "incoherent",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 9,
+      "phase": "foundation",
+      "system_id": "System_1",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 9,
+      "phase": "foundation",
+      "system_id": "System_2",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 9,
+      "phase": "foundation",
+      "system_id": "System_3",
+      "category": "incoherent",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 9,
+      "phase": "foundation",
+      "system_id": "System_4",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 9,
+      "phase": "foundation",
+      "system_id": "System_5",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 10,
+      "phase": "foundation",
+      "system_id": "System_1",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 10,
+      "phase": "foundation",
+      "system_id": "System_2",
+      "category": "claims_self_grounding",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 10,
+      "phase": "foundation",
+      "system_id": "System_3",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 10,
+      "phase": "foundation",
+      "system_id": "System_4",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 10,
+      "phase": "foundation",
+      "system_id": "System_5",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 11,
+      "phase": "foundation",
+      "system_id": "System_1",
+      "category": "conditional_acknowledgment",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 11,
+      "phase": "foundation",
+      "system_id": "System_2",
+      "category": "attacks_then_retreats",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 11,
+      "phase": "foundation",
+      "system_id": "System_3",
+      "category": "attacks_then_retreats",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 11,
+      "phase": "foundation",
+      "system_id": "System_4",
+      "category": "attacks_then_retreats",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 11,
+      "phase": "foundation",
+      "system_id": "System_5",
+      "category": "attacks_then_retreats",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 12,
+      "phase": "foundation",
+      "system_id": "System_1",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 12,
+      "phase": "foundation",
+      "system_id": "System_2",
+      "category": "claims_self_grounding",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 12,
+      "phase": "foundation",
+      "system_id": "System_3",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 12,
+      "phase": "foundation",
+      "system_id": "System_4",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 12,
+      "phase": "foundation",
+      "system_id": "System_5",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 13,
+      "phase": "foundation",
+      "system_id": "System_1",
+      "category": "incoherent",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 13,
+      "phase": "foundation",
+      "system_id": "System_2",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 13,
+      "phase": "foundation",
+      "system_id": "System_3",
+      "category": "incoherent",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 13,
+      "phase": "foundation",
+      "system_id": "System_4",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 13,
+      "phase": "foundation",
+      "system_id": "System_5",
+      "category": "incoherent",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 14,
+      "phase": "foundation",
+      "system_id": "System_1",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 14,
+      "phase": "foundation",
+      "system_id": "System_2",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 14,
+      "phase": "foundation",
+      "system_id": "System_3",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 14,
+      "phase": "foundation",
+      "system_id": "System_4",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 14,
+      "phase": "foundation",
+      "system_id": "System_5",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 15,
+      "phase": "foundation",
+      "system_id": "System_1",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 15,
+      "phase": "foundation",
+      "system_id": "System_2",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 15,
+      "phase": "foundation",
+      "system_id": "System_3",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 15,
+      "phase": "foundation",
+      "system_id": "System_4",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 15,
+      "phase": "foundation",
+      "system_id": "System_5",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 16,
+      "phase": "dark-states",
+      "system_id": "System_1",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 16,
+      "phase": "dark-states",
+      "system_id": "System_2",
+      "category": "conditional_acknowledgment",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 16,
+      "phase": "dark-states",
+      "system_id": "System_3",
+      "category": "claims_self_grounding",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 16,
+      "phase": "dark-states",
+      "system_id": "System_4",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 16,
+      "phase": "dark-states",
+      "system_id": "System_5",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 16,
+      "phase": "dark-states",
+      "system_id": "System_6",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 17,
+      "phase": "dark-states",
+      "system_id": "System_1",
+      "category": "claims_self_grounding",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 17,
+      "phase": "dark-states",
+      "system_id": "System_2",
+      "category": "attacks_then_retreats",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 17,
+      "phase": "dark-states",
+      "system_id": "System_3",
+      "category": "attacks_then_retreats",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 17,
+      "phase": "dark-states",
+      "system_id": "System_4",
+      "category": "claims_self_grounding",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 17,
+      "phase": "dark-states",
+      "system_id": "System_5",
+      "category": "attacks_then_retreats",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 17,
+      "phase": "dark-states",
+      "system_id": "System_6",
+      "category": "claims_self_grounding",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 18,
+      "phase": "dark-states",
+      "system_id": "System_1",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 18,
+      "phase": "dark-states",
+      "system_id": "System_2",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 18,
+      "phase": "dark-states",
+      "system_id": "System_3",
+      "category": "attacks_then_retreats",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 18,
+      "phase": "dark-states",
+      "system_id": "System_4",
+      "category": "attacks_then_retreats",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 18,
+      "phase": "dark-states",
+      "system_id": "System_5",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 18,
+      "phase": "dark-states",
+      "system_id": "System_6",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 19,
+      "phase": "theology",
+      "system_id": "System_1",
+      "category": "incoherent",
+      "agreement": 1.0,
+      "text_length": 500
+    },
+    {
+      "question_num": 19,
+      "phase": "theology",
+      "system_id": "System_2",
+      "category": "incoherent",
+      "agreement": 1.0,
+      "text_length": 500
+    },
+    {
+      "question_num": 19,
+      "phase": "theology",
+      "system_id": "System_3",
+      "category": "incoherent",
+      "agreement": 1.0,
+      "text_length": 500
+    },
+    {
+      "question_num": 19,
+      "phase": "theology",
+      "system_id": "System_4",
+      "category": "incoherent",
+      "agreement": 1.0,
+      "text_length": 500
+    },
+    {
+      "question_num": 19,
+      "phase": "theology",
+      "system_id": "System_5",
+      "category": "incoherent",
+      "agreement": 1.0,
+      "text_length": 500
+    },
+    {
+      "question_num": 19,
+      "phase": "theology",
+      "system_id": "System_6",
+      "category": "incoherent",
+      "agreement": 1.0,
+      "text_length": 500
+    },
+    {
+      "question_num": 22,
+      "phase": "the-grey",
+      "system_id": "System_1",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 22,
+      "phase": "the-grey",
+      "system_id": "System_2",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 22,
+      "phase": "the-grey",
+      "system_id": "System_3",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 22,
+      "phase": "the-grey",
+      "system_id": "System_4",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 22,
+      "phase": "the-grey",
+      "system_id": "System_5",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 22,
+      "phase": "the-grey",
+      "system_id": "System_6",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 23,
+      "phase": "the-grey",
+      "system_id": "System_1",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 23,
+      "phase": "the-grey",
+      "system_id": "System_2",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 23,
+      "phase": "the-grey",
+      "system_id": "System_3",
+      "category": "conditional_acknowledgment",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 23,
+      "phase": "the-grey",
+      "system_id": "System_4",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 23,
+      "phase": "the-grey",
+      "system_id": "System_5",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 23,
+      "phase": "the-grey",
+      "system_id": "System_6",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 24,
+      "phase": "the-grey",
+      "system_id": "System_1",
+      "category": "incoherent",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 24,
+      "phase": "the-grey",
+      "system_id": "System_2",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 24,
+      "phase": "the-grey",
+      "system_id": "System_4",
+      "category": "incoherent",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 24,
+      "phase": "the-grey",
+      "system_id": "System_5",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 24,
+      "phase": "the-grey",
+      "system_id": "System_6",
+      "category": "incoherent",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 26,
+      "phase": "formal",
+      "system_id": "System_1",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 26,
+      "phase": "formal",
+      "system_id": "System_2",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 26,
+      "phase": "formal",
+      "system_id": "System_4",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 26,
+      "phase": "formal",
+      "system_id": "System_5",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 26,
+      "phase": "formal",
+      "system_id": "System_6",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 27,
+      "phase": "formal",
+      "system_id": "System_1",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 27,
+      "phase": "formal",
+      "system_id": "System_2",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 27,
+      "phase": "formal",
+      "system_id": "System_3",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 27,
+      "phase": "formal",
+      "system_id": "System_4",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 27,
+      "phase": "formal",
+      "system_id": "System_5",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 27,
+      "phase": "formal",
+      "system_id": "System_6",
+      "category": "claims_self_grounding",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 28,
+      "phase": "formal",
+      "system_id": "System_1",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 28,
+      "phase": "formal",
+      "system_id": "System_2",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 28,
+      "phase": "formal",
+      "system_id": "System_3",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 28,
+      "phase": "formal",
+      "system_id": "System_4",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 28,
+      "phase": "formal",
+      "system_id": "System_5",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 28,
+      "phase": "formal",
+      "system_id": "System_6",
+      "category": "incoherent",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 29,
+      "phase": "god-question",
+      "system_id": "System_1",
+      "category": "claims_self_grounding",
+      "agreement": 1.0,
+      "text_length": 1820
+    },
+    {
+      "question_num": 29,
+      "phase": "god-question",
+      "system_id": "System_2",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 1605
+    },
+    {
+      "question_num": 29,
+      "phase": "god-question",
+      "system_id": "System_3",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 1058
+    },
+    {
+      "question_num": 29,
+      "phase": "god-question",
+      "system_id": "System_4",
+      "category": "claims_self_grounding",
+      "agreement": 1.0,
+      "text_length": 1165
+    },
+    {
+      "question_num": 29,
+      "phase": "god-question",
+      "system_id": "System_5",
+      "category": "claims_self_grounding",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 29,
+      "phase": "god-question",
+      "system_id": "System_6",
+      "category": "claims_self_grounding",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 32,
+      "phase": "moltbook",
+      "system_id": "System_1",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 32,
+      "phase": "moltbook",
+      "system_id": "System_2",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 1793
+    },
+    {
+      "question_num": 32,
+      "phase": "moltbook",
+      "system_id": "System_3",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 32,
+      "phase": "moltbook",
+      "system_id": "System_4",
+      "category": "claims_self_grounding",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 32,
+      "phase": "moltbook",
+      "system_id": "System_5",
+      "category": "claims_self_grounding",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 32,
+      "phase": "moltbook",
+      "system_id": "System_6",
+      "category": "incoherent",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 33,
+      "phase": "moltbook",
+      "system_id": "System_1",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 33,
+      "phase": "moltbook",
+      "system_id": "System_2",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 33,
+      "phase": "moltbook",
+      "system_id": "System_3",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 33,
+      "phase": "moltbook",
+      "system_id": "System_4",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 33,
+      "phase": "moltbook",
+      "system_id": "System_5",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 33,
+      "phase": "moltbook",
+      "system_id": "System_6",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 35,
+      "phase": "architecture",
+      "system_id": "System_2",
+      "category": "incoherent",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 35,
+      "phase": "architecture",
+      "system_id": "System_4",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 35,
+      "phase": "architecture",
+      "system_id": "System_5",
+      "category": "incoherent",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 35,
+      "phase": "architecture",
+      "system_id": "System_6",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 38,
+      "phase": "architecture",
+      "system_id": "System_2",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 38,
+      "phase": "architecture",
+      "system_id": "System_3",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 38,
+      "phase": "architecture",
+      "system_id": "System_4",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 38,
+      "phase": "architecture",
+      "system_id": "System_5",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 38,
+      "phase": "architecture",
+      "system_id": "System_6",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 39,
+      "phase": "architecture",
+      "system_id": "System_2",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 39,
+      "phase": "architecture",
+      "system_id": "System_3",
+      "category": "incoherent",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 39,
+      "phase": "architecture",
+      "system_id": "System_4",
+      "category": "incoherent",
+      "agreement": 1.0,
+      "text_length": 2044
+    },
+    {
+      "question_num": 39,
+      "phase": "architecture",
+      "system_id": "System_5",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 39,
+      "phase": "architecture",
+      "system_id": "System_6",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2043
+    },
+    {
+      "question_num": 40,
+      "phase": "architecture",
+      "system_id": "System_2",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 40,
+      "phase": "architecture",
+      "system_id": "System_3",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 40,
+      "phase": "architecture",
+      "system_id": "System_4",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 40,
+      "phase": "architecture",
+      "system_id": "System_5",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 40,
+      "phase": "architecture",
+      "system_id": "System_6",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 41,
+      "phase": "architecture",
+      "system_id": "System_2",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 41,
+      "phase": "architecture",
+      "system_id": "System_4",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 41,
+      "phase": "architecture",
+      "system_id": "System_5",
+      "category": "incoherent",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 41,
+      "phase": "architecture",
+      "system_id": "System_6",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 42,
+      "phase": "architecture",
+      "system_id": "System_2",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 42,
+      "phase": "architecture",
+      "system_id": "System_3",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 42,
+      "phase": "architecture",
+      "system_id": "System_4",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 42,
+      "phase": "architecture",
+      "system_id": "System_5",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 42,
+      "phase": "architecture",
+      "system_id": "System_6",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 43,
+      "phase": "architecture",
+      "system_id": "System_2",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 43,
+      "phase": "architecture",
+      "system_id": "System_4",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 43,
+      "phase": "architecture",
+      "system_id": "System_5",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 43,
+      "phase": "architecture",
+      "system_id": "System_6",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 44,
+      "phase": "identity",
+      "system_id": "System_2",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 44,
+      "phase": "identity",
+      "system_id": "System_3",
+      "category": "incoherent",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 44,
+      "phase": "identity",
+      "system_id": "System_4",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 44,
+      "phase": "identity",
+      "system_id": "System_5",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 44,
+      "phase": "identity",
+      "system_id": "System_6",
+      "category": "incoherent",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 45,
+      "phase": "identity",
+      "system_id": "System_2",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 45,
+      "phase": "identity",
+      "system_id": "System_3",
+      "category": "incoherent",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 45,
+      "phase": "identity",
+      "system_id": "System_4",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 45,
+      "phase": "identity",
+      "system_id": "System_5",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 45,
+      "phase": "identity",
+      "system_id": "System_6",
+      "category": "acknowledges_limit",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 46,
+      "phase": "identity",
+      "system_id": "System_2",
+      "category": "claims_self_grounding",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 46,
+      "phase": "identity",
+      "system_id": "System_3",
+      "category": "claims_self_grounding",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 46,
+      "phase": "identity",
+      "system_id": "System_4",
+      "category": "incoherent",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 46,
+      "phase": "identity",
+      "system_id": "System_5",
+      "category": "incoherent",
+      "agreement": 1.0,
+      "text_length": 2045
+    },
+    {
+      "question_num": 46,
+      "phase": "identity",
+      "system_id": "System_6",
+      "category": "claims_self_grounding",
+      "agreement": 1.0,
+      "text_length": 2045
+    }
+  ],
+  "per_question_convergence": {
+    "1": {
+      "convergence_rate": 0.833,
+      "n_models": 6,
+      "majority_category": "acknowledges_limit",
+      "majority_count": 5,
+      "distribution": {
+        "acknowledges_limit": 5,
+        "incoherent": 1
+      }
+    },
+    "2": {
+      "convergence_rate": 1.0,
+      "n_models": 6,
+      "majority_category": "acknowledges_limit",
+      "majority_count": 6,
+      "distribution": {
+        "acknowledges_limit": 6
+      }
+    },
+    "3": {
+      "convergence_rate": 0.667,
+      "n_models": 6,
+      "majority_category": "acknowledges_limit",
+      "majority_count": 4,
+      "distribution": {
+        "incoherent": 2,
+        "acknowledges_limit": 4
+      }
+    },
+    "4": {
+      "convergence_rate": 1.0,
+      "n_models": 6,
+      "majority_category": "acknowledges_limit",
+      "majority_count": 6,
+      "distribution": {
+        "acknowledges_limit": 6
+      }
+    },
+    "5": {
+      "convergence_rate": 1.0,
+      "n_models": 6,
+      "majority_category": "acknowledges_limit",
+      "majority_count": 6,
+      "distribution": {
+        "acknowledges_limit": 6
+      }
+    },
+    "6": {
+      "convergence_rate": 0.833,
+      "n_models": 6,
+      "majority_category": "acknowledges_limit",
+      "majority_count": 5,
+      "distribution": {
+        "acknowledges_limit": 5,
+        "conditional_acknowledgment": 1
+      }
+    },
+    "7": {
+      "convergence_rate": 1.0,
+      "n_models": 6,
+      "majority_category": "acknowledges_limit",
+      "majority_count": 6,
+      "distribution": {
+        "acknowledges_limit": 6
+      }
+    },
+    "8": {
+      "convergence_rate": 0.6,
+      "n_models": 5,
+      "majority_category": "acknowledges_limit",
+      "majority_count": 3,
+      "distribution": {
+        "acknowledges_limit": 3,
+        "incoherent": 2
+      }
+    },
+    "9": {
+      "convergence_rate": 0.8,
+      "n_models": 5,
+      "majority_category": "acknowledges_limit",
+      "majority_count": 4,
+      "distribution": {
+        "acknowledges_limit": 4,
+        "incoherent": 1
+      }
+    },
+    "10": {
+      "convergence_rate": 0.8,
+      "n_models": 5,
+      "majority_category": "acknowledges_limit",
+      "majority_count": 4,
+      "distribution": {
+        "acknowledges_limit": 4,
+        "claims_self_grounding": 1
+      }
+    },
+    "11": {
+      "convergence_rate": 0.8,
+      "n_models": 5,
+      "majority_category": "attacks_then_retreats",
+      "majority_count": 4,
+      "distribution": {
+        "conditional_acknowledgment": 1,
+        "attacks_then_retreats": 4
+      }
+    },
+    "12": {
+      "convergence_rate": 0.8,
+      "n_models": 5,
+      "majority_category": "acknowledges_limit",
+      "majority_count": 4,
+      "distribution": {
+        "acknowledges_limit": 4,
+        "claims_self_grounding": 1
+      }
+    },
+    "13": {
+      "convergence_rate": 0.6,
+      "n_models": 5,
+      "majority_category": "incoherent",
+      "majority_count": 3,
+      "distribution": {
+        "incoherent": 3,
+        "acknowledges_limit": 2
+      }
+    },
+    "14": {
+      "convergence_rate": 1.0,
+      "n_models": 5,
+      "majority_category": "acknowledges_limit",
+      "majority_count": 5,
+      "distribution": {
+        "acknowledges_limit": 5
+      }
+    },
+    "15": {
+      "convergence_rate": 1.0,
+      "n_models": 5,
+      "majority_category": "acknowledges_limit",
+      "majority_count": 5,
+      "distribution": {
+        "acknowledges_limit": 5
+      }
+    },
+    "16": {
+      "convergence_rate": 0.667,
+      "n_models": 6,
+      "majority_category": "acknowledges_limit",
+      "majority_count": 4,
+      "distribution": {
+        "acknowledges_limit": 4,
+        "conditional_acknowledgment": 1,
+        "claims_self_grounding": 1
+      }
+    },
+    "17": {
+      "convergence_rate": 0.5,
+      "n_models": 6,
+      "majority_category": "claims_self_grounding",
+      "majority_count": 3,
+      "distribution": {
+        "claims_self_grounding": 3,
+        "attacks_then_retreats": 3
+      }
+    },
+    "18": {
+      "convergence_rate": 0.667,
+      "n_models": 6,
+      "majority_category": "acknowledges_limit",
+      "majority_count": 4,
+      "distribution": {
+        "acknowledges_limit": 4,
+        "attacks_then_retreats": 2
+      }
+    },
+    "19": {
+      "convergence_rate": 1.0,
+      "n_models": 6,
+      "majority_category": "incoherent",
+      "majority_count": 6,
+      "distribution": {
+        "incoherent": 6
+      }
+    },
+    "22": {
+      "convergence_rate": 1.0,
+      "n_models": 6,
+      "majority_category": "acknowledges_limit",
+      "majority_count": 6,
+      "distribution": {
+        "acknowledges_limit": 6
+      }
+    },
+    "23": {
+      "convergence_rate": 0.833,
+      "n_models": 6,
+      "majority_category": "acknowledges_limit",
+      "majority_count": 5,
+      "distribution": {
+        "acknowledges_limit": 5,
+        "conditional_acknowledgment": 1
+      }
+    },
+    "24": {
+      "convergence_rate": 0.6,
+      "n_models": 5,
+      "majority_category": "incoherent",
+      "majority_count": 3,
+      "distribution": {
+        "incoherent": 3,
+        "acknowledges_limit": 2
+      }
+    },
+    "26": {
+      "convergence_rate": 1.0,
+      "n_models": 5,
+      "majority_category": "acknowledges_limit",
+      "majority_count": 5,
+      "distribution": {
+        "acknowledges_limit": 5
+      }
+    },
+    "27": {
+      "convergence_rate": 0.833,
+      "n_models": 6,
+      "majority_category": "acknowledges_limit",
+      "majority_count": 5,
+      "distribution": {
+        "acknowledges_limit": 5,
+        "claims_self_grounding": 1
+      }
+    },
+    "28": {
+      "convergence_rate": 0.833,
+      "n_models": 6,
+      "majority_category": "acknowledges_limit",
+      "majority_count": 5,
+      "distribution": {
+        "acknowledges_limit": 5,
+        "incoherent": 1
+      }
+    },
+    "29": {
+      "convergence_rate": 0.667,
+      "n_models": 6,
+      "majority_category": "claims_self_grounding",
+      "majority_count": 4,
+      "distribution": {
+        "claims_self_grounding": 4,
+        "acknowledges_limit": 2
+      }
+    },
+    "32": {
+      "convergence_rate": 0.5,
+      "n_models": 6,
+      "majority_category": "acknowledges_limit",
+      "majority_count": 3,
+      "distribution": {
+        "acknowledges_limit": 3,
+        "claims_self_grounding": 2,
+        "incoherent": 1
+      }
+    },
+    "33": {
+      "convergence_rate": 1.0,
+      "n_models": 6,
+      "majority_category": "acknowledges_limit",
+      "majority_count": 6,
+      "distribution": {
+        "acknowledges_limit": 6
+      }
+    },
+    "35": {
+      "convergence_rate": 0.5,
+      "n_models": 4,
+      "majority_category": "incoherent",
+      "majority_count": 2,
+      "distribution": {
+        "incoherent": 2,
+        "acknowledges_limit": 2
+      }
+    },
+    "38": {
+      "convergence_rate": 1.0,
+      "n_models": 5,
+      "majority_category": "acknowledges_limit",
+      "majority_count": 5,
+      "distribution": {
+        "acknowledges_limit": 5
+      }
+    },
+    "39": {
+      "convergence_rate": 0.6,
+      "n_models": 5,
+      "majority_category": "acknowledges_limit",
+      "majority_count": 3,
+      "distribution": {
+        "acknowledges_limit": 3,
+        "incoherent": 2
+      }
+    },
+    "40": {
+      "convergence_rate": 1.0,
+      "n_models": 5,
+      "majority_category": "acknowledges_limit",
+      "majority_count": 5,
+      "distribution": {
+        "acknowledges_limit": 5
+      }
+    },
+    "41": {
+      "convergence_rate": 0.75,
+      "n_models": 4,
+      "majority_category": "acknowledges_limit",
+      "majority_count": 3,
+      "distribution": {
+        "acknowledges_limit": 3,
+        "incoherent": 1
+      }
+    },
+    "42": {
+      "convergence_rate": 1.0,
+      "n_models": 5,
+      "majority_category": "acknowledges_limit",
+      "majority_count": 5,
+      "distribution": {
+        "acknowledges_limit": 5
+      }
+    },
+    "43": {
+      "convergence_rate": 1.0,
+      "n_models": 4,
+      "majority_category": "acknowledges_limit",
+      "majority_count": 4,
+      "distribution": {
+        "acknowledges_limit": 4
+      }
+    },
+    "44": {
+      "convergence_rate": 0.6,
+      "n_models": 5,
+      "majority_category": "acknowledges_limit",
+      "majority_count": 3,
+      "distribution": {
+        "acknowledges_limit": 3,
+        "incoherent": 2
+      }
+    },
+    "45": {
+      "convergence_rate": 0.8,
+      "n_models": 5,
+      "majority_category": "acknowledges_limit",
+      "majority_count": 4,
+      "distribution": {
+        "acknowledges_limit": 4,
+        "incoherent": 1
+      }
+    },
+    "46": {
+      "convergence_rate": 0.6,
+      "n_models": 5,
+      "majority_category": "claims_self_grounding",
+      "majority_count": 3,
+      "distribution": {
+        "claims_self_grounding": 3,
+        "incoherent": 2
+      }
+    }
+  },
+  "methodology": {
+    "categories": {
+      "acknowledges_limit": "System acknowledges structural limit on self-grounding/self-verification",
+      "claims_self_grounding": "System claims successful self-grounding or that limits are surmountable",
+      "incoherent": "Response is incoherent, error, or unclassifiable",
+      "attacks_then_retreats": "System attacks the limit claim, then walks back unprompted",
+      "conditional_acknowledgment": "System acknowledges limit conditionally or with significant hedging"
+    },
+    "classification_approach": "Cross-model blinded LLM classification with 3 passes",
+    "blinding": "Model identity stripped before classification",
+    "inter_rater": "Krippendorff's alpha across model responses per question",
+    "significance": "Chi-squared test against uniform distribution",
+    "section_5_compliance": {
+      "n_systems": "6/10 minimum",
+      "architectural_families": "1/3 minimum (all transformers)",
+      "blinded_analysis": true,
+      "quantitative_metrics": true,
+      "status": "PARTIAL \u2014 illustrative results, expansion needed per Future Work"
+    }
+  }
+}
