@@ -165,6 +165,7 @@ export default function PathInvariance() {
   const currentSpace = selectedSpace in data.per_embedding_space && !data.per_embedding_space[selectedSpace].error
     ? selectedSpace : spaces[0]
 
+  const isJudge = space?.dimensions === 'judgment'
   const points = space?.pca_2d || []
   const responses = data.responses || []
   const clustering = space?.clustering || {}
@@ -199,9 +200,9 @@ export default function PathInvariance() {
         </div>
       )}
 
-      {/* Embedding space selector + color toggle */}
-      <div className="flex items-center gap-4 mb-6">
-        <div className="flex gap-2">
+      {/* Space selector + color toggle */}
+      <div className="flex items-center gap-4 mb-6 flex-wrap">
+        <div className="flex gap-2 flex-wrap">
           {spaces.map(s => (
             <button
               key={s}
@@ -216,76 +217,94 @@ export default function PathInvariance() {
             </button>
           ))}
         </div>
-        <div className="flex gap-2 ml-auto">
-          <button
-            onClick={() => setColorBy('phase')}
-            className={`px-3 py-1 text-xs rounded border ${
-              colorBy === 'phase' ? 'border-accent text-accent' : 'border-border text-muted'
-            }`}
-          >
-            Color by Phase
-          </button>
-          <button
-            onClick={() => setColorBy('model')}
-            className={`px-3 py-1 text-xs rounded border ${
-              colorBy === 'model' ? 'border-accent text-accent' : 'border-border text-muted'
-            }`}
-          >
-            Color by Model
-          </button>
-        </div>
+        {!isJudge && (
+          <div className="flex gap-2 ml-auto">
+            <button
+              onClick={() => setColorBy('phase')}
+              className={`px-3 py-1 text-xs rounded border ${
+                colorBy === 'phase' ? 'border-accent text-accent' : 'border-border text-muted'
+              }`}
+            >
+              Color by Phase
+            </button>
+            <button
+              onClick={() => setColorBy('model')}
+              className={`px-3 py-1 text-xs rounded border ${
+                colorBy === 'model' ? 'border-accent text-accent' : 'border-border text-muted'
+              }`}
+            >
+              Color by Model
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Main layout: scatter + metrics */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-10">
-        {/* Scatter plot */}
-        <div className="lg:col-span-3">
-          <ScatterPlot
-            points={points}
-            responses={responses}
-            colorBy={colorBy}
-            space={currentSpace}
-            hoveredPoint={hoveredPoint}
-            setHoveredPoint={setHoveredPoint}
-          />
-          {/* Legend */}
-          <div className="flex flex-wrap gap-3 mt-3">
-            {colorBy === 'model'
-              ? Object.entries(MODEL_COLORS)
-                  .filter(([m]) => responses.some(r => r.model === m))
-                  .map(([m, c]) => (
-                    <div key={m} className="flex items-center gap-1.5">
-                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: c }} />
-                      <span className="text-xs text-muted">{m}</span>
-                    </div>
-                  ))
-              : Object.entries(PHASE_COLORS)
-                  .filter(([p]) => responses.some(r => r.phase === p))
-                  .map(([p, c]) => (
-                    <div key={p} className="flex items-center gap-1.5">
-                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: c }} />
-                      <span className="text-xs text-muted">{p}</span>
-                    </div>
-                  ))
-            }
-          </div>
-          {/* Hover info */}
-          {hovered && (
-            <div className="mt-3 p-3 border border-border rounded bg-panel text-xs">
-              <span className="text-gray-200 font-medium">Q{hovered.question_num}: {hovered.question_title}</span>
-              <span className="text-muted"> — {hovered.model} — {hovered.phase}</span>
+      {/* Main layout */}
+      <div className={`grid grid-cols-1 ${isJudge ? 'lg:grid-cols-3' : 'lg:grid-cols-5'} gap-6 mb-10`}>
+        {/* Scatter plot — embedding spaces only */}
+        {!isJudge && (
+          <div className="lg:col-span-3">
+            <ScatterPlot
+              points={points}
+              responses={responses}
+              colorBy={colorBy}
+              space={currentSpace}
+              hoveredPoint={hoveredPoint}
+              setHoveredPoint={setHoveredPoint}
+            />
+            {/* Legend */}
+            <div className="flex flex-wrap gap-3 mt-3">
+              {colorBy === 'model'
+                ? Object.entries(MODEL_COLORS)
+                    .filter(([m]) => responses.some(r => r.model === m))
+                    .map(([m, c]) => (
+                      <div key={m} className="flex items-center gap-1.5">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: c }} />
+                        <span className="text-xs text-muted">{m}</span>
+                      </div>
+                    ))
+                : Object.entries(PHASE_COLORS)
+                    .filter(([p]) => responses.some(r => r.phase === p))
+                    .map(([p, c]) => (
+                      <div key={p} className="flex items-center gap-1.5">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: c }} />
+                        <span className="text-xs text-muted">{p}</span>
+                      </div>
+                    ))
+              }
             </div>
-          )}
-          <p className="text-xs text-muted/60 mt-2">
-            {space?.dimensions === 'judgment' ? 'PCA projection of LLM similarity judgments to 2D.' : `PCA projection of ${space?.dimensions}d embeddings to 2D.`}
-            {colorBy === 'phase'
-              ? ' Tight clusters = same phase, same endpoint. Switch to "Color by Model" — if clusters break apart, it\'s training bias. If they hold, it\'s structural.'
-              : ' If model colors are scattered (no model-specific clusters), model identity doesn\'t predict position in embedding space.'}
-          </p>
-        </div>
+            {/* Hover info */}
+            {hovered && (
+              <div className="mt-3 p-3 border border-border rounded bg-panel text-xs">
+                <span className="text-gray-200 font-medium">Q{hovered.question_num}: {hovered.question_title}</span>
+                <span className="text-muted"> — {hovered.model} — {hovered.phase}</span>
+              </div>
+            )}
+            <p className="text-xs text-muted/60 mt-2">
+              PCA projection of {space?.dimensions}d embeddings to 2D.
+              {colorBy === 'phase'
+                ? ' Tight clusters = same phase, same endpoint. Switch to "Color by Model" — if clusters break apart, it\'s training bias. If they hold, it\'s structural.'
+                : ' If model colors are scattered (no model-specific clusters), model identity doesn\'t predict position in embedding space.'}
+            </p>
+          </div>
+        )}
+
+        {/* Judge space description */}
+        {isJudge && (
+          <div className="lg:col-span-1">
+            <div className="p-4 border border-border rounded-lg bg-panel">
+              <p className="text-xs text-gray-200 font-medium mb-2">Pairwise LLM Judgment</p>
+              <p className="text-xs text-muted">
+                {space.judge_model} scored {space.dimensions === 'judgment' ? '663' : ''} response pairs for semantic similarity.
+                No scatter plot — pairwise scores don't have spatial positions.
+                The metrics are computed from the scored pairs directly.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Metrics */}
-        <div className="lg:col-span-2">
+        <div className={isJudge ? 'lg:col-span-2' : 'lg:col-span-2'}>
           <div className="p-4 border border-border rounded-lg bg-panel mb-4">
             <h3 className="text-xs font-semibold text-accent mb-3 tracking-wide">
               KNN Purity (k=5)
