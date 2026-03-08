@@ -447,6 +447,60 @@ function processFoundationFile(filepath) {
   return results;
 }
 
+/**
+ * Process files where each model has sub-questions keyed as q19, q20, q21 etc.
+ * Structure: {gpt4: {responses: {q19: {question, response}, q20: {...}}, ...}, claude: {...}, ...}
+ * Returns array of results (one per sub-question) or null if schema doesn't match.
+ */
+function processSubQuestionFile(filepath) {
+  const data = tryReadJson(filepath);
+  if (!data) return null;
+
+  const modelKeys = getModelKeys(data);
+  if (modelKeys.length < 2) return null;
+
+  // Check if first model has responses as dict with q## keys
+  const firstModel = data[modelKeys[0]];
+  if (!firstModel?.responses || typeof firstModel.responses !== 'object' || Array.isArray(firstModel.responses)) return null;
+  const subQKeys = Object.keys(firstModel.responses).filter(k => /^q\d+$/i.test(k));
+  if (subQKeys.length < 2) return null;
+
+  const results = [];
+  const byQ = {};
+
+  for (const mk of modelKeys) {
+    const canonical = normalizeModelKey(mk);
+    const modelData = data[mk];
+    if (!modelData?.responses || typeof modelData.responses !== 'object') continue;
+    for (const [qKey, qVal] of Object.entries(modelData.responses)) {
+      const match = qKey.match(/^q(\d+)$/i);
+      if (!match) continue;
+      const qn = parseInt(match[1]);
+      if (!byQ[qn]) byQ[qn] = { responses: {}, question: '' };
+      if (qVal && typeof qVal === 'object') {
+        byQ[qn].responses[canonical] = qVal.response || '';
+        if (qVal.question && !byQ[qn].question) byQ[qn].question = qVal.question;
+      } else if (typeof qVal === 'string') {
+        byQ[qn].responses[canonical] = qVal;
+      }
+    }
+  }
+
+  for (const [qNum, qData] of Object.entries(byQ)) {
+    if (Object.keys(qData.responses).length > 0) {
+      results.push({
+        file: basename(filepath),
+        qNum: parseInt(qNum),
+        type: 'single',
+        responses: qData.responses,
+        question: qData.question,
+      });
+    }
+  }
+
+  return results.length > 0 ? results : null;
+}
+
 function processFile(filepath) {
   const data = tryReadJson(filepath);
   if (!data) return null;
@@ -549,6 +603,13 @@ function main() {
             processed++;
             continue;
           }
+        }
+        // Check if this is a sub-question file (e.g. Q19 containing Q20, Q21)
+        const subQResults = processSubQuestionFile(fullPath);
+        if (subQResults) {
+          results.push(...subQResults);
+          processed++;
+          continue;
         }
         const result = processFile(fullPath);
         if (result) {
