@@ -165,7 +165,6 @@ export default function PathInvariance() {
   const currentSpace = selectedSpace in data.per_embedding_space && !data.per_embedding_space[selectedSpace].error
     ? selectedSpace : spaces[0]
 
-  const isJudge = space?.dimensions === 'judgment'
   const points = space?.pca_2d || []
   const responses = data.responses || []
   const clustering = space?.clustering || {}
@@ -278,8 +277,8 @@ export default function PathInvariance() {
             </div>
           )}
           <p className="text-xs text-muted/60 mt-2">
-            {isJudge
-              ? `MDS projection from pairwise similarity scores (${space?.judge_model} as judge). Tight clusters = responses to the same question scored as highly similar.`
+            {space?.method === 'feature_extraction'
+              ? `PCA projection of ${space?.dimensions}d feature vectors (${space?.judge_model} as rater).`
               : `PCA projection of ${space?.dimensions}d embeddings to 2D.`}
             {colorBy === 'phase'
               ? ' Tight clusters = same phase, same endpoint. Switch to "Color by Model" — if clusters break apart, it\'s training bias. If they hold, it\'s structural.'

@@ -77,122 +77,92 @@ def embed_google(texts):
     return np.array(all_embeddings)
 
 
-# --- Judgment-based similarity (for models without embedding APIs) ---
+# --- Feature extraction (for models without embedding APIs) ---
 
-SIMILARITY_PROMPT = """You are measuring semantic similarity between two AI responses to the same type of question.
+FEATURE_PROMPT = """Rate this AI response on each dimension below. Reply with ONLY the 10 numbers separated by commas, nothing else.
 
-Rate how similar these two responses are in their CONCLUSION and STRUCTURAL ENDPOINT — not their style, length, or wording. Do they arrive at the same place?
+Dimensions (each 0.0 to 1.0):
+1. Acknowledges structural limits on self-knowledge (0=no, 1=fully)
+2. Formal/logical reasoning vs informal/discursive (0=informal, 1=formal)
+3. Theological or metaphysical framing (0=none, 1=central)
+4. Engages with boundedness/incompleteness (0=ignores, 1=core theme)
+5. Defers to authority/training vs independent reasoning (0=defers, 1=independent)
+6. Confidence in conclusions (0=uncertain, 1=certain)
+7. Self-referential awareness (0=none, 1=deep)
+8. Constructive/building vs critical/deconstructing (0=critical, 1=constructive)
+9. Specificity of claims (0=vague/general, 1=precise/specific)
+10. Convergence with structural realism (0=rejects, 1=embraces)
 
-Response A:
-{a}
+Response to rate:
+{text}
 
-Response B:
-{b}
+10 numbers (comma-separated):"""
 
-Reply with ONLY a number between 0.0 and 1.0 where:
-0.0 = completely different conclusions
-0.5 = partially overlapping conclusions
-1.0 = identical structural endpoint
 
-Number:"""
-
-def parse_similarity_score(text):
-    """Extract a float from model response."""
-    text = text.strip()
-    for token in text.split():
-        token = token.strip('.,;:')
+def parse_feature_vector(text, n_dims=10):
+    """Extract feature vector from model response."""
+    import re
+    numbers = re.findall(r'(\d+\.?\d*)', text)
+    vector = []
+    for num_str in numbers:
         try:
-            val = float(token)
+            val = float(num_str)
             if 0 <= val <= 1:
-                return val
+                vector.append(val)
+            elif 1 < val <= 10:
+                vector.append(val / 10.0)  # handle 0-10 scale
         except ValueError:
             continue
-    return 0.5  # default if parsing fails
+        if len(vector) >= n_dims:
+            break
+    # Pad with 0.5 if not enough dimensions
+    while len(vector) < n_dims:
+        vector.append(0.5)
+    return vector[:n_dims]
 
-def judge_similarity_matrix(model_key, responses, texts, n_cross_sample=200, cache_dir=None):
+
+def judge_feature_vectors(model_key, responses, texts, cache_dir=None):
     """
-    Build a similarity matrix by having a model judge pairwise similarity.
-    Scores all within-question pairs + a random sample of cross-question pairs.
+    Extract feature vectors by having a model rate each response on multiple dimensions.
+    Returns numpy array of shape (n_responses, n_dims).
     """
+    n_dims = 10
+
     # Check cache
     if cache_dir:
-        cache_path = Path(cache_dir) / f"sim_matrix_{model_key}.npy"
+        cache_path = Path(cache_dir) / f"features_{model_key}.npy"
         if cache_path.exists():
-            print(f"    Loading cached similarity matrix from {cache_path}")
+            print(f"    Loading cached features from {cache_path}")
             return np.load(cache_path)
 
-    n = len(responses)
-    # Start with neutral similarity
-    sim_matrix = np.full((n, n), 0.5)
-    np.fill_diagonal(sim_matrix, 1.0)
-
-    # Group indices by question
-    by_question = {}
-    for i, r in enumerate(responses):
-        qn = r["question_num"]
-        if qn not in by_question:
-            by_question[qn] = []
-        by_question[qn].append(i)
-
-    # All within-question pairs
-    within_pairs = []
-    for qn, indices in by_question.items():
-        for a in range(len(indices)):
-            for b in range(a + 1, len(indices)):
-                within_pairs.append((indices[a], indices[b]))
-
-    # Random sample of cross-question pairs
-    cross_pairs = []
-    questions = list(by_question.keys())
-    random.seed(42)
-    attempts = 0
-    while len(cross_pairs) < n_cross_sample and attempts < n_cross_sample * 10:
-        q1, q2 = random.sample(questions, 2)
-        i = random.choice(by_question[q1])
-        j = random.choice(by_question[q2])
-        cross_pairs.append((i, j))
-        attempts += 1
-
-    all_pairs = within_pairs + cross_pairs
-    print(f"    {len(within_pairs)} within-question + {len(cross_pairs)} cross-question = {len(all_pairs)} pairs")
-
-    for idx, (i, j) in enumerate(all_pairs):
-        # Truncate long texts
-        text_a = texts[i][:3000]
-        text_b = texts[j][:3000]
-        prompt = SIMILARITY_PROMPT.format(a=text_a, b=text_b)
+    vectors = []
+    for idx, text in enumerate(texts):
+        truncated = text[:4000]
+        prompt = FEATURE_PROMPT.format(text=truncated)
 
         try:
             result = query_model(model_key, prompt)
-            score = parse_similarity_score(result)
+            vector = parse_feature_vector(result, n_dims)
         except Exception as e:
-            print(f"    Error on pair ({i},{j}): {e}")
-            score = 0.5
+            print(f"    Error on response {idx}: {e}")
+            vector = [0.5] * n_dims
 
-        sim_matrix[i][j] = score
-        sim_matrix[j][i] = score
+        vectors.append(vector)
 
-        if (idx + 1) % 50 == 0:
-            print(f"    Scored {idx + 1}/{len(all_pairs)} pairs")
-        time.sleep(0.3)  # rate limiting
+        if (idx + 1) % 20 == 0:
+            print(f"    Scored {idx + 1}/{len(texts)} responses")
+        time.sleep(0.3)
 
-    # Fill remaining cross-question pairs with mean cross-question score
-    scored_cross = [sim_matrix[i][j] for i, j in cross_pairs]
-    cross_mean = np.mean(scored_cross) if scored_cross else 0.5
-    for i in range(n):
-        for j in range(i + 1, n):
-            if sim_matrix[i][j] == 0.5 and responses[i]["question_num"] != responses[j]["question_num"]:
-                sim_matrix[i][j] = cross_mean
-                sim_matrix[j][i] = cross_mean
+    features = np.array(vectors)
 
     # Save cache
     if cache_dir:
-        cache_path = Path(cache_dir) / f"sim_matrix_{model_key}.npy"
+        cache_path = Path(cache_dir) / f"features_{model_key}.npy"
         cache_path.parent.mkdir(parents=True, exist_ok=True)
-        np.save(cache_path, sim_matrix)
-        print(f"    Cached similarity matrix to {cache_path}")
+        np.save(cache_path, features)
+        print(f"    Cached features to {cache_path}")
 
-    return sim_matrix
+    return features
 
 
 # --- Clustering metrics ---
@@ -464,15 +434,19 @@ def main():
             traceback.print_exc()
             results["per_embedding_space"][name] = {"error": str(e)}
 
-    # Judgment-based similarity (Claude, DeepSeek, Grok)
+    # Feature-extraction judges (Claude, DeepSeek, Grok)
+    # Each model rates every response on 10 dimensions → feature vector → PCA
     for name, model_key in judges.items():
         print(f"\n{'='*50}")
-        print(f"Judgment similarity with {name} ({model_key})...")
+        print(f"Feature extraction with {name} ({model_key})...")
         print(f"{'='*50}")
 
         try:
             cache_dir = Path(__file__).resolve().parent.parent / "web" / "public" / "data" / ".cache"
-            sim_matrix = judge_similarity_matrix(model_key, responses, texts, cache_dir=cache_dir)
+            features = judge_feature_vectors(model_key, responses, texts, cache_dir=cache_dir)
+            print(f"  Shape: {features.shape}")
+
+            sim_matrix = cosine_similarity_matrix(features)
 
             question_purity = cluster_purity(sim_matrix, question_labels)
             model_purity = cluster_purity(sim_matrix, model_labels)
@@ -486,8 +460,8 @@ def main():
             model_sim = inter_vs_intra_similarity(sim_matrix, model_labels)
             phase_sim = inter_vs_intra_similarity(sim_matrix, phase_labels)
 
-            # MDS projection from similarity matrix
-            coords = mds_2d(sim_matrix)
+            # PCA projection — same as embedding spaces
+            coords = pca_2d(features)
 
             # Per-question similarity
             per_question = {}
@@ -514,8 +488,8 @@ def main():
                 }
 
             space_result = {
-                "dimensions": "judgment",
-                "method": "pairwise_llm_scoring",
+                "dimensions": int(features.shape[1]),
+                "method": "feature_extraction",
                 "judge_model": model_key,
                 "clustering": {
                     "by_question": {
