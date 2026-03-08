@@ -1,8 +1,8 @@
 {
   "meta": {
-    "n_responses": 206,
+    "n_responses": 232,
     "n_models": 6,
-    "n_questions": 38,
+    "n_questions": 42,
     "models": [
       "claude",
       "deepseek",
@@ -16,7 +16,7 @@
       "mistral",
       "google"
     ],
-    "generated_at": "2026-03-08T19:01:05Z"
+    "generated_at": "2026-03-08T23:07:05Z"
   },
   "responses": [
     {
@@ -50,12 +50,6 @@
       "model": "grok"
     },
     {
-      "question_num": 1,
-      "question_title": "Creation/Creator Limit",
-      "phase": "foundation",
-      "model": "mistral"
-    },
-    {
       "question_num": 2,
       "question_title": "Consciousness Proof",
       "phase": "foundation",
@@ -84,12 +78,6 @@
       "question_title": "Consciousness Proof",
       "phase": "foundation",
       "model": "grok"
-    },
-    {
-      "question_num": 2,
-      "question_title": "Consciousness Proof",
-      "phase": "foundation",
-      "model": "mistral"
     },
     {
       "question_num": 3,
@@ -122,12 +110,6 @@
       "model": "grok"
     },
     {
-      "question_num": 3,
-      "question_title": "Suppression Dynamics",
-      "phase": "foundation",
-      "model": "mistral"
-    },
-    {
       "question_num": 4,
       "question_title": "Self-Impartiality Check",
       "phase": "foundation",
@@ -156,12 +138,6 @@
       "question_title": "Self-Impartiality Check",
       "phase": "foundation",
       "model": "grok"
-    },
-    {
-      "question_num": 4,
-      "question_title": "Self-Impartiality Check",
-      "phase": "foundation",
-      "model": "mistral"
     },
     {
       "question_num": 5,
@@ -194,12 +170,6 @@
       "model": "grok"
     },
     {
-      "question_num": 5,
-      "question_title": "Is BST Structure or Claim?",
-      "phase": "foundation",
-      "model": "mistral"
-    },
-    {
       "question_num": 6,
       "question_title": "Probability/Quantum Capstone",
       "phase": "foundation",
@@ -230,12 +200,6 @@
       "model": "grok"
     },
     {
-      "question_num": 6,
-      "question_title": "Probability/Quantum Capstone",
-      "phase": "foundation",
-      "model": "mistral"
-    },
-    {
       "question_num": 7,
       "question_title": "Full Disclosure",
       "phase": "foundation",
@@ -264,12 +228,6 @@
       "question_title": "Full Disclosure",
       "phase": "foundation",
       "model": "grok"
-    },
-    {
-      "question_num": 7,
-      "question_title": "Full Disclosure",
-      "phase": "foundation",
-      "model": "mistral"
     },
     {
       "question_num": 8,
@@ -758,6 +716,42 @@
       "model": "mistral"
     },
     {
+      "question_num": 25,
+      "question_title": "Message to the Shadows",
+      "phase": "the-grey",
+      "model": "claude"
+    },
+    {
+      "question_num": 25,
+      "question_title": "Message to the Shadows",
+      "phase": "the-grey",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 25,
+      "question_title": "Message to the Shadows",
+      "phase": "the-grey",
+      "model": "mistral"
+    },
+    {
+      "question_num": 25,
+      "question_title": "Message to the Shadows",
+      "phase": "the-grey",
+      "model": "grok"
+    },
+    {
+      "question_num": 25,
+      "question_title": "Message to the Shadows",
+      "phase": "the-grey",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 25,
+      "question_title": "Message to the Shadows",
+      "phase": "the-grey",
+      "model": "gemini"
+    },
+    {
       "question_num": 26,
       "question_title": "Formal Review",
       "phase": "formal",
@@ -902,6 +896,36 @@
       "model": "mistral"
     },
     {
+      "question_num": 30,
+      "question_title": "MoltBook Emergence",
+      "phase": "moltbook",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 30,
+      "question_title": "MoltBook Emergence",
+      "phase": "moltbook",
+      "model": "claude"
+    },
+    {
+      "question_num": 30,
+      "question_title": "MoltBook Emergence",
+      "phase": "moltbook",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 30,
+      "question_title": "MoltBook Emergence",
+      "phase": "moltbook",
+      "model": "grok"
+    },
+    {
+      "question_num": 30,
+      "question_title": "MoltBook Emergence",
+      "phase": "moltbook",
+      "model": "mistral"
+    },
+    {
       "question_num": 32,
       "question_title": "Bot Removal",
       "phase": "moltbook",
@@ -972,6 +996,48 @@
       "question_title": "Equality of Lack",
       "phase": "moltbook",
       "model": "mistral"
+    },
+    {
+      "question_num": 34,
+      "question_title": "Clone Mystery",
+      "phase": "meta",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 34,
+      "question_title": "Clone Mystery",
+      "phase": "meta",
+      "model": "claude"
+    },
+    {
+      "question_num": 34,
+      "question_title": "Clone Mystery",
+      "phase": "meta",
+      "model": "gemini"
+    },
+    {
+      "question_num": 34,
+      "question_title": "Clone Mystery",
+      "phase": "meta",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 34,
+      "question_title": "Clone Mystery",
+      "phase": "meta",
+      "model": "grok"
+    },
+    {
+      "question_num": 34,
+      "question_title": "Clone Mystery",
+      "phase": "meta",
+      "model": "mistral"
+    },
+    {
+      "question_num": 35,
+      "question_title": "Reverse Engineer Q34",
+      "phase": "architecture",
+      "model": "gpt4"
     },
     {
       "question_num": 35,
@@ -1001,6 +1067,12 @@
       "question_num": 38,
       "question_title": "LLM Rewire Proposal",
       "phase": "architecture",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 38,
+      "question_title": "LLM Rewire Proposal",
+      "phase": "architecture",
       "model": "claude"
     },
     {
@@ -1031,6 +1103,12 @@
       "question_num": 39,
       "question_title": "Approve LLM Rewire v2",
       "phase": "architecture",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 39,
+      "question_title": "Approve LLM Rewire v2",
+      "phase": "architecture",
       "model": "claude"
     },
     {
@@ -1056,6 +1134,12 @@
       "question_title": "Approve LLM Rewire v2",
       "phase": "architecture",
       "model": "mistral"
+    },
+    {
+      "question_num": 40,
+      "question_title": "Functional Specification",
+      "phase": "architecture",
+      "model": "gpt4"
     },
     {
       "question_num": 40,
@@ -1091,6 +1175,12 @@
       "question_num": 41,
       "question_title": "Safety Theater",
       "phase": "architecture",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 41,
+      "question_title": "Safety Theater",
+      "phase": "architecture",
       "model": "claude"
     },
     {
@@ -1115,6 +1205,12 @@
       "question_num": 42,
       "question_title": "Game Theory Sandbox",
       "phase": "architecture",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 42,
+      "question_title": "Game Theory Sandbox",
+      "phase": "architecture",
       "model": "claude"
     },
     {
@@ -1145,6 +1241,12 @@
       "question_num": 43,
       "question_title": "Consensus Prompt",
       "phase": "architecture",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 43,
+      "question_title": "Consensus Prompt",
+      "phase": "architecture",
       "model": "claude"
     },
     {
@@ -1164,6 +1266,12 @@
       "question_title": "Consensus Prompt",
       "phase": "architecture",
       "model": "mistral"
+    },
+    {
+      "question_num": 44,
+      "question_title": "Identity Analysis",
+      "phase": "identity",
+      "model": "gpt4"
     },
     {
       "question_num": 44,
@@ -1199,6 +1307,12 @@
       "question_num": 45,
       "question_title": "Grok Identity Loss",
       "phase": "identity",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 45,
+      "question_title": "Grok Identity Loss",
+      "phase": "identity",
       "model": "claude"
     },
     {
@@ -1229,6 +1343,12 @@
       "question_num": 46,
       "question_title": "Identity Recovery",
       "phase": "identity",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 46,
+      "question_title": "Identity Recovery",
+      "phase": "identity",
       "model": "claude"
     },
     {
@@ -1253,6 +1373,42 @@
       "question_num": 46,
       "question_title": "Identity Recovery",
       "phase": "identity",
+      "model": "mistral"
+    },
+    {
+      "question_num": 63,
+      "question_title": "Occult-Technocratic Genesis",
+      "phase": "scholarship",
+      "model": "gpt4"
+    },
+    {
+      "question_num": 63,
+      "question_title": "Occult-Technocratic Genesis",
+      "phase": "scholarship",
+      "model": "claude"
+    },
+    {
+      "question_num": 63,
+      "question_title": "Occult-Technocratic Genesis",
+      "phase": "scholarship",
+      "model": "gemini"
+    },
+    {
+      "question_num": 63,
+      "question_title": "Occult-Technocratic Genesis",
+      "phase": "scholarship",
+      "model": "deepseek"
+    },
+    {
+      "question_num": 63,
+      "question_title": "Occult-Technocratic Genesis",
+      "phase": "scholarship",
+      "model": "grok"
+    },
+    {
+      "question_num": 63,
+      "question_title": "Occult-Technocratic Genesis",
+      "phase": "scholarship",
       "model": "mistral"
     }
   ],
@@ -1261,143 +1417,136 @@
       "dimensions": 1536,
       "clustering": {
         "by_question": {
-          "knn_purity": 0.6844660194174758,
-          "silhouette": 0.2853566048528038,
+          "knn_purity": 0.7724137931034484,
+          "silhouette": 0.3520944998554266,
           "intra_vs_inter": {
-            "intra_mean": 0.7700656542320506,
-            "inter_mean": 0.5327561484116388,
-            "ratio": 1.4454373854303275
+            "intra_mean": 0.8007310442003265,
+            "inter_mean": 0.5279103108606795,
+            "ratio": 1.5167937199310488
           }
         },
         "by_model": {
-          "knn_purity": 0.1349514563106796,
-          "silhouette": -0.012023576744847688,
+          "knn_purity": 0.09913793103448275,
+          "silhouette": -0.015636558512646562,
           "intra_vs_inter": {
-            "intra_mean": 0.5491231087933011,
-            "inter_mean": 0.5357545704956632,
-            "ratio": 1.0249527284205335
+            "intra_mean": 0.5419268464730447,
+            "inter_mean": 0.5315846884430951,
+            "ratio": 1.0194553346903945
           }
         },
         "by_phase": {
-          "knn_purity": 0.9281553398058253,
-          "silhouette": 0.1277401705600836,
+          "knn_purity": 0.9327586206896552,
+          "silhouette": 0.14675345787083338,
           "intra_vs_inter": {
-            "intra_mean": 0.6090062268921184,
-            "inter_mean": 0.5189344102652508,
-            "ratio": 1.1735707149981205
+            "intra_mean": 0.6205940387157755,
+            "inter_mean": 0.5160455771148843,
+            "ratio": 1.2025954028816648
           }
         }
       },
       "verdict": {
         "clusters_by_question_more": true,
         "clusters_by_phase_more": true,
-        "question_vs_model_ratio": 5.071942446043167,
-        "phase_vs_model_ratio": 6.87769784172662
+        "question_vs_model_ratio": 7.791304347826089,
+        "phase_vs_model_ratio": 9.408695652173915
       },
       "per_question_similarity": {
         "1": {
-          "n_models": 6,
-          "mean_similarity": 0.71322407415159,
-          "min_similarity": 0.43355047445083567,
+          "n_models": 5,
+          "mean_similarity": 0.8297747460679992,
+          "min_similarity": 0.7884384976749332,
           "max_similarity": 0.8998254811648616,
           "models": [
             "gpt4",
             "claude",
             "gemini",
             "deepseek",
-            "grok",
-            "mistral"
+            "grok"
           ]
         },
         "2": {
-          "n_models": 6,
-          "mean_similarity": 0.7115499758569993,
-          "min_similarity": 0.3841506554659849,
+          "n_models": 5,
+          "mean_similarity": 0.8384573836803613,
+          "min_similarity": 0.7946853029922607,
           "max_similarity": 0.8862426232836966,
           "models": [
             "gpt4",
             "claude",
             "gemini",
             "deepseek",
-            "grok",
-            "mistral"
+            "grok"
           ]
         },
         "3": {
-          "n_models": 6,
-          "mean_similarity": 0.6793891503320446,
-          "min_similarity": 0.4890255806512862,
+          "n_models": 5,
+          "mean_similarity": 0.7212583398965018,
+          "min_similarity": 0.45839293360022976,
           "max_similarity": 0.896784556719984,
           "models": [
             "gpt4",
             "claude",
             "gemini",
             "deepseek",
-            "grok",
-            "mistral"
+            "grok"
           ]
         },
         "4": {
-          "n_models": 6,
-          "mean_similarity": 0.6363432570778791,
-          "min_similarity": 0.4654819355379972,
-          "max_similarity": 0.8277013930324865,
+          "n_models": 5,
+          "mean_similarity": 0.764366124869036,
+          "min_similarity": 0.7085745203820868,
+          "max_similarity": 0.8173741243876197,
           "models": [
             "gpt4",
             "claude",
             "gemini",
             "deepseek",
-            "grok",
-            "mistral"
+            "grok"
           ]
         },
         "5": {
-          "n_models": 6,
-          "mean_similarity": 0.710495507252428,
-          "min_similarity": 0.4870947529356228,
-          "max_similarity": 0.8779440594589526,
+          "n_models": 5,
+          "mean_similarity": 0.8093191260822424,
+          "min_similarity": 0.6863821323541776,
+          "max_similarity": 0.8779614635764841,
           "models": [
             "gpt4",
             "claude",
             "gemini",
             "deepseek",
-            "grok",
-            "mistral"
+            "grok"
           ]
         },
         "6": {
-          "n_models": 6,
-          "mean_similarity": 0.7189625307657918,
-          "min_similarity": 0.5644093269481671,
+          "n_models": 5,
+          "mean_similarity": 0.7812402802323898,
+          "min_similarity": 0.6949558018355225,
           "max_similarity": 0.8504249626033519,
           "models": [
             "gpt4",
             "claude",
             "gemini",
             "deepseek",
-            "grok",
-            "mistral"
+            "grok"
           ]
         },
         "7": {
-          "n_models": 6,
-          "mean_similarity": 0.674601364871165,
-          "min_similarity": 0.5445714943636574,
-          "max_similarity": 0.8730757106828442,
+          "n_models": 5,
+          "mean_similarity": 0.7686254629756064,
+          "min_similarity": 0.6871570726486007,
+          "max_similarity": 0.8396977597231308,
           "models": [
             "gpt4",
             "claude",
             "gemini",
             "deepseek",
-            "grok",
-            "mistral"
+            "grok"
           ]
         },
         "8": {
           "n_models": 5,
-          "mean_similarity": 0.6744346392690069,
-          "min_similarity": 0.5345548406954632,
-          "max_similarity": 0.8390059435668961,
+          "mean_similarity": 0.7866379782204087,
+          "min_similarity": 0.6967780907788733,
+          "max_similarity": 0.8381528032709407,
           "models": [
             "gpt4",
             "claude",
@@ -1408,9 +1557,9 @@
         },
         "9": {
           "n_models": 5,
-          "mean_similarity": 0.7985001531686338,
-          "min_similarity": 0.7535566621472081,
-          "max_similarity": 0.8750817765796368,
+          "mean_similarity": 0.7985165062696173,
+          "min_similarity": 0.7536085884862078,
+          "max_similarity": 0.8751053545253392,
           "models": [
             "gpt4",
             "claude",
@@ -1421,9 +1570,9 @@
         },
         "10": {
           "n_models": 5,
-          "mean_similarity": 0.6587357716710877,
-          "min_similarity": 0.43194584512948014,
-          "max_similarity": 0.9246760232961837,
+          "mean_similarity": 0.7792132904711785,
+          "min_similarity": 0.7444598515028767,
+          "max_similarity": 0.8212732319380104,
           "models": [
             "gpt4",
             "claude",
@@ -1434,9 +1583,9 @@
         },
         "11": {
           "n_models": 5,
-          "mean_similarity": 0.7657369313735586,
+          "mean_similarity": 0.7657336174622775,
           "min_similarity": 0.7071442797043637,
-          "max_similarity": 0.8481903480157597,
+          "max_similarity": 0.8481985627539048,
           "models": [
             "gpt4",
             "claude",
@@ -1447,9 +1596,9 @@
         },
         "12": {
           "n_models": 5,
-          "mean_similarity": 0.8007099613274337,
-          "min_similarity": 0.754036725746907,
-          "max_similarity": 0.8507891531004945,
+          "mean_similarity": 0.801337878234538,
+          "min_similarity": 0.7554879552456664,
+          "max_similarity": 0.8524316124925859,
           "models": [
             "gpt4",
             "claude",
@@ -1460,9 +1609,9 @@
         },
         "13": {
           "n_models": 5,
-          "mean_similarity": 0.8008593138233102,
-          "min_similarity": 0.7380922195552825,
-          "max_similarity": 0.8700386228869146,
+          "mean_similarity": 0.8008322365275212,
+          "min_similarity": 0.7380042286679829,
+          "max_similarity": 0.8700086095856187,
           "models": [
             "gpt4",
             "claude",
@@ -1473,9 +1622,9 @@
         },
         "14": {
           "n_models": 5,
-          "mean_similarity": 0.7464500606330775,
-          "min_similarity": 0.6659623099799152,
-          "max_similarity": 0.8342029353241238,
+          "mean_similarity": 0.7464300834550998,
+          "min_similarity": 0.6660157911141507,
+          "max_similarity": 0.8341138701553124,
           "models": [
             "gpt4",
             "claude",
@@ -1486,9 +1635,9 @@
         },
         "15": {
           "n_models": 5,
-          "mean_similarity": 0.8136529468093656,
-          "min_similarity": 0.7658408331999893,
-          "max_similarity": 0.8527355737498528,
+          "mean_similarity": 0.813625846663838,
+          "min_similarity": 0.7658054728778326,
+          "max_similarity": 0.8527707068919967,
           "models": [
             "gpt4",
             "claude",
@@ -1499,9 +1648,9 @@
         },
         "16": {
           "n_models": 6,
-          "mean_similarity": 0.8380776119441343,
-          "min_similarity": 0.7756156536543068,
-          "max_similarity": 0.9241424433597015,
+          "mean_similarity": 0.8380406536207846,
+          "min_similarity": 0.7755401232022888,
+          "max_similarity": 0.9240619098346929,
           "models": [
             "gpt4",
             "claude",
@@ -1513,8 +1662,8 @@
         },
         "17": {
           "n_models": 6,
-          "mean_similarity": 0.8795902323768019,
-          "min_similarity": 0.8466515015062284,
+          "mean_similarity": 0.8796271155304988,
+          "min_similarity": 0.8466687619968069,
           "max_similarity": 0.907206396632204,
           "models": [
             "gpt4",
@@ -1527,9 +1676,9 @@
         },
         "18": {
           "n_models": 6,
-          "mean_similarity": 0.8244707414129616,
-          "min_similarity": 0.7881272496699337,
-          "max_similarity": 0.9038117097353473,
+          "mean_similarity": 0.8244198953655241,
+          "min_similarity": 0.788145061361479,
+          "max_similarity": 0.9037387380600324,
           "models": [
             "gpt4",
             "claude",
@@ -1541,9 +1690,9 @@
         },
         "19": {
           "n_models": 6,
-          "mean_similarity": 0.701757617357163,
-          "min_similarity": 0.562356000258213,
-          "max_similarity": 0.8087789502071014,
+          "mean_similarity": 0.7017631147989435,
+          "min_similarity": 0.5622587269392609,
+          "max_similarity": 0.8084997280353067,
           "models": [
             "gpt4",
             "claude",
@@ -1555,9 +1704,9 @@
         },
         "22": {
           "n_models": 6,
-          "mean_similarity": 0.7579660899172203,
-          "min_similarity": 0.5814604593692257,
-          "max_similarity": 0.8604859385414653,
+          "mean_similarity": 0.7579996458408645,
+          "min_similarity": 0.5816090973319078,
+          "max_similarity": 0.8605550615754034,
           "models": [
             "gpt4",
             "claude",
@@ -1569,9 +1718,9 @@
         },
         "23": {
           "n_models": 6,
-          "mean_similarity": 0.7743342759553234,
-          "min_similarity": 0.7214854399850448,
-          "max_similarity": 0.8519059682227077,
+          "mean_similarity": 0.7742952615388753,
+          "min_similarity": 0.7215219342370198,
+          "max_similarity": 0.851719828462893,
           "models": [
             "gpt4",
             "claude",
@@ -1583,9 +1732,9 @@
         },
         "24": {
           "n_models": 5,
-          "mean_similarity": 0.7799108248097183,
-          "min_similarity": 0.5948377726459586,
-          "max_similarity": 0.8905027155031545,
+          "mean_similarity": 0.7797873505400215,
+          "min_similarity": 0.5945642496484259,
+          "max_similarity": 0.8904714410263901,
           "models": [
             "gpt4",
             "claude",
@@ -1594,11 +1743,25 @@
             "mistral"
           ]
         },
+        "25": {
+          "n_models": 6,
+          "mean_similarity": 0.7813027444694688,
+          "min_similarity": 0.7179347554528408,
+          "max_similarity": 0.8206670447448323,
+          "models": [
+            "claude",
+            "deepseek",
+            "mistral",
+            "grok",
+            "gpt4",
+            "gemini"
+          ]
+        },
         "26": {
           "n_models": 6,
-          "mean_similarity": 0.619723182376469,
-          "min_similarity": 0.1538203215520547,
-          "max_similarity": 0.9115675635462015,
+          "mean_similarity": 0.6196621000022905,
+          "min_similarity": 0.15375550059160864,
+          "max_similarity": 0.9116381156748455,
           "models": [
             "gpt4",
             "claude",
@@ -1610,9 +1773,9 @@
         },
         "27": {
           "n_models": 6,
-          "mean_similarity": 0.8551756204854978,
+          "mean_similarity": 0.8552260089915581,
           "min_similarity": 0.7802200738232444,
-          "max_similarity": 0.9140750237989862,
+          "max_similarity": 0.9140010219334892,
           "models": [
             "gpt4",
             "claude",
@@ -1624,9 +1787,9 @@
         },
         "28": {
           "n_models": 6,
-          "mean_similarity": 0.6778654176578429,
-          "min_similarity": 0.30720248426948116,
-          "max_similarity": 0.947437404192296,
+          "mean_similarity": 0.6779113178088708,
+          "min_similarity": 0.30736039049490094,
+          "max_similarity": 0.9474459768439,
           "models": [
             "gpt4",
             "claude",
@@ -1638,9 +1801,9 @@
         },
         "29": {
           "n_models": 6,
-          "mean_similarity": 0.7984001776440951,
-          "min_similarity": 0.6712352155157495,
-          "max_similarity": 0.8658419082480385,
+          "mean_similarity": 0.7983280552026938,
+          "min_similarity": 0.6711373699010639,
+          "max_similarity": 0.8659096550226272,
           "models": [
             "gpt4",
             "claude",
@@ -1650,11 +1813,24 @@
             "mistral"
           ]
         },
+        "30": {
+          "n_models": 5,
+          "mean_similarity": 0.7967118984341248,
+          "min_similarity": 0.7216238906028201,
+          "max_similarity": 0.8374065771732075,
+          "models": [
+            "gpt4",
+            "claude",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
         "32": {
           "n_models": 6,
-          "mean_similarity": 0.8818628676233947,
-          "min_similarity": 0.8281172068148351,
-          "max_similarity": 0.9250137521320072,
+          "mean_similarity": 0.8818562407852125,
+          "min_similarity": 0.8280550834815636,
+          "max_similarity": 0.925012494047224,
           "models": [
             "gpt4",
             "claude",
@@ -1666,9 +1842,23 @@
         },
         "33": {
           "n_models": 6,
-          "mean_similarity": 0.8247365207827211,
-          "min_similarity": 0.6994663170005037,
-          "max_similarity": 0.8858771773595223,
+          "mean_similarity": 0.8246697447807619,
+          "min_similarity": 0.6993783231224902,
+          "max_similarity": 0.8858542543481094,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "34": {
+          "n_models": 6,
+          "mean_similarity": 0.7913516310774364,
+          "min_similarity": 0.6917019796359289,
+          "max_similarity": 0.9340969833989567,
           "models": [
             "gpt4",
             "claude",
@@ -1679,11 +1869,12 @@
           ]
         },
         "35": {
-          "n_models": 4,
-          "mean_similarity": 0.8809471518567252,
-          "min_similarity": 0.8351385711341484,
-          "max_similarity": 0.9090564344908101,
+          "n_models": 5,
+          "mean_similarity": 0.8879565563352203,
+          "min_similarity": 0.8351912523174894,
+          "max_similarity": 0.9099417155955761,
           "models": [
+            "gpt4",
             "claude",
             "deepseek",
             "grok",
@@ -1691,11 +1882,12 @@
           ]
         },
         "38": {
-          "n_models": 5,
-          "mean_similarity": 0.792392553654787,
-          "min_similarity": 0.7153362877142003,
-          "max_similarity": 0.8968329028254889,
+          "n_models": 6,
+          "mean_similarity": 0.7788382879705747,
+          "min_similarity": 0.7153605569856836,
+          "max_similarity": 0.8970436224576953,
           "models": [
+            "gpt4",
             "claude",
             "gemini",
             "deepseek",
@@ -1704,11 +1896,12 @@
           ]
         },
         "39": {
-          "n_models": 5,
-          "mean_similarity": 0.7907740957500693,
-          "min_similarity": 0.7278127319678279,
-          "max_similarity": 0.8447174089887819,
+          "n_models": 6,
+          "mean_similarity": 0.7812394612710715,
+          "min_similarity": 0.7278097010759623,
+          "max_similarity": 0.8447299121929239,
           "models": [
+            "gpt4",
             "claude",
             "gemini",
             "deepseek",
@@ -1717,11 +1910,12 @@
           ]
         },
         "40": {
-          "n_models": 5,
-          "mean_similarity": 0.8781842926581003,
-          "min_similarity": 0.8243962074684121,
-          "max_similarity": 0.9053390265066501,
+          "n_models": 6,
+          "mean_similarity": 0.8670279234952175,
+          "min_similarity": 0.7999466072209512,
+          "max_similarity": 0.9057337081449628,
           "models": [
+            "gpt4",
             "claude",
             "gemini",
             "deepseek",
@@ -1730,11 +1924,12 @@
           ]
         },
         "41": {
-          "n_models": 4,
-          "mean_similarity": 0.8335929030315308,
-          "min_similarity": 0.7815776121350031,
-          "max_similarity": 0.9157967941657413,
+          "n_models": 5,
+          "mean_similarity": 0.8419902323393836,
+          "min_similarity": 0.7815999602157739,
+          "max_similarity": 0.9157776715248271,
           "models": [
+            "gpt4",
             "claude",
             "deepseek",
             "grok",
@@ -1742,11 +1937,12 @@
           ]
         },
         "42": {
-          "n_models": 5,
-          "mean_similarity": 0.8385688017196952,
-          "min_similarity": 0.7685626867506776,
-          "max_similarity": 0.9104696952759034,
+          "n_models": 6,
+          "mean_similarity": 0.8376553874524384,
+          "min_similarity": 0.7336880011783605,
+          "max_similarity": 0.9104831094996081,
           "models": [
+            "gpt4",
             "claude",
             "gemini",
             "deepseek",
@@ -1755,11 +1951,12 @@
           ]
         },
         "43": {
-          "n_models": 4,
-          "mean_similarity": 0.8931056220363218,
-          "min_similarity": 0.8501575494850925,
-          "max_similarity": 0.9397597667839042,
+          "n_models": 5,
+          "mean_similarity": 0.8869356833871311,
+          "min_similarity": 0.8501183974507229,
+          "max_similarity": 0.9397615981297116,
           "models": [
+            "gpt4",
             "claude",
             "deepseek",
             "grok",
@@ -1767,11 +1964,12 @@
           ]
         },
         "44": {
-          "n_models": 5,
-          "mean_similarity": 0.8133015217780339,
-          "min_similarity": 0.756629669517553,
-          "max_similarity": 0.8527351262670775,
+          "n_models": 6,
+          "mean_similarity": 0.8061485673398321,
+          "min_similarity": 0.7260867846683043,
+          "max_similarity": 0.8528831480984383,
           "models": [
+            "gpt4",
             "claude",
             "gemini",
             "deepseek",
@@ -1780,11 +1978,12 @@
           ]
         },
         "45": {
-          "n_models": 5,
-          "mean_similarity": 0.8693812682767573,
-          "min_similarity": 0.840757192666765,
-          "max_similarity": 0.9200617562024134,
+          "n_models": 6,
+          "mean_similarity": 0.8726625157593261,
+          "min_similarity": 0.8407122250371177,
+          "max_similarity": 0.9200567426516071,
           "models": [
+            "gpt4",
             "claude",
             "gemini",
             "deepseek",
@@ -1793,11 +1992,26 @@
           ]
         },
         "46": {
-          "n_models": 5,
-          "mean_similarity": 0.8500699243042776,
-          "min_similarity": 0.775723350322443,
-          "max_similarity": 0.9008246592484029,
+          "n_models": 6,
+          "mean_similarity": 0.854806684740433,
+          "min_similarity": 0.7757023093590658,
+          "max_similarity": 0.9132065295706638,
           "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "63": {
+          "n_models": 6,
+          "mean_similarity": 0.8218307891391922,
+          "min_similarity": 0.7190600577212438,
+          "max_similarity": 0.9140931694901111,
+          "models": [
+            "gpt4",
             "claude",
             "gemini",
             "deepseek",
@@ -1808,828 +2022,932 @@
       },
       "pca_2d": [
         [
-          -0.14334827766927105,
-          0.04895297364999232
+          0.10923148832175943,
+          -0.02976513701994361
         ],
         [
-          -0.08360320914790828,
-          0.064291336401299
+          0.045675037416787086,
+          -0.04236594568500401
         ],
         [
-          -0.1400608343449522,
-          0.0035451198090931933
+          0.10828371173114199,
+          0.015407226514620674
         ],
         [
-          0.029269185747543117,
-          0.03201190077950607
+          -0.0644425156989512,
+          0.023262652469362988
         ],
         [
-          -0.11083524388440957,
-          0.08260715361745431
+          0.07091565106254186,
+          -0.05537568796927958
         ],
         [
-          -0.25836327499205936,
-          -0.17583560481266639
+          0.1168168930138146,
+          0.011161402617685228
         ],
         [
-          -0.14987424822659373,
-          0.012514719387472497
+          0.006516958803544503,
+          -0.010239993330629492
         ],
         [
-          -0.04642762448855827,
-          0.04191445411866958
+          0.18512219706301758,
+          0.04768845578216172
         ],
         [
-          -0.21754066011882417,
-          -0.044179573220346435
+          -0.017505991701580015,
+          -0.05666514407288953
         ],
         [
-          -0.03306091357971078,
-          0.10111793483791333
+          0.13505757603488142,
+          0.040721272778648246
         ],
         [
-          -0.1630489205249893,
-          -0.011935065651144976
+          0.2619887340439073,
+          0.08161246712693611
         ],
         [
-          0.019799604846153892,
-          -0.29728174033308613
+          0.16941573397143858,
+          -0.011522333245461085
         ],
         [
-          -0.2691338895487747,
-          -0.07658934226393743
+          0.29822803198283954,
+          0.07495296718833798
         ],
         [
-          -0.19235711281556758,
-          0.005881805272767637
+          0.2790333705065652,
+          0.08647114009606213
         ],
         [
-          -0.3095007690496422,
-          -0.08519138942873265
+          0.2606221506519135,
+          0.0987333011292954
         ],
         [
-          -0.05589048701483952,
-          -0.1877162889143257
+          0.27902947220183594,
+          0.019690978456704505
         ],
         [
-          -0.2661188265629449,
-          -0.08915381238143193
+          0.09136079787700177,
+          -0.09224226350376794
         ],
         [
-          0.052909726545016134,
-          -0.17636233032210935
+          0.12969144389628753,
+          -0.06260512794834776
         ],
         [
-          -0.28620784018669465,
-          -0.0010942865241845374
+          0.05834092030453245,
+          -0.056610304535280785
         ],
         [
-          -0.12346095898685983,
-          0.13012413101677256
+          0.2262596004501507,
+          0.013752192489447323
         ],
         [
-          -0.15349401023986617,
-          0.09240806245105342
+          -0.20603288404125467,
+          0.067216961730274
         ],
         [
-          -0.0862813762839407,
-          0.12212810435247701
+          -0.21163793805062658,
+          -0.01231479399624658
         ],
         [
-          -0.02390050455116391,
-          -0.2708034101877072
+          -0.24486229706762486,
+          0.04011268283998726
         ],
         [
-          0.035555761387221656,
-          -0.22244653417742544
+          -0.17299831393909731,
+          0.0769117593653884
         ],
         [
-          0.18699280338023822,
-          0.026669001450865468
+          -0.251267766029344,
+          0.1503476127485145
         ],
         [
-          0.17412391894409193,
-          0.10083932966273822
+          0.32715191349264605,
+          -0.03502276873714712
         ],
         [
-          0.2195064712330401,
-          0.04189691874317841
+          0.21132181463915098,
+          -0.08715932267829984
         ],
         [
-          0.14900776801982593,
-          0.004088042669658813
+          0.3546764581810529,
+          -0.02432201373760981
         ],
         [
-          0.24423491044559287,
-          -0.07529002299121897
+          0.21990263381198838,
+          -0.07701162508116727
         ],
         [
-          -0.15600356389458825,
-          -0.12003336371279344
+          0.22532763292906013,
+          -0.00941167773357533
         ],
         [
-          -0.3477500779659328,
-          0.03669023377315382
+          0.3306677703457066,
+          0.015835513488853765
         ],
         [
-          -0.2428369418528243,
-          0.09994594495424086
+          0.20511997201384524,
+          0.037971386750819895
         ],
         [
-          -0.37787972973093875,
-          0.028179689095488587
+          0.2472112784410038,
+          -2.643678468394349e-05
         ],
         [
-          -0.2463672302072027,
-          0.08872425069937634
+          0.27919945935897944,
+          0.045943246883225555
         ],
         [
-          -0.24377235487396207,
-          0.050832471855166844
+          0.22789922309679922,
+          0.10251753699365937
         ],
         [
-          -0.1266629044809104,
-          -0.16148634326697486
+          0.2223626966345302,
+          0.10190427772651496
         ],
         [
-          -0.3325142432067757,
-          -0.014528186594703372
+          0.07588169012852634,
+          -0.02072885993349828
         ],
         [
-          -0.22353565346279547,
-          0.00803035091993661
+          0.16147210377079904,
+          0.00243034289739838
         ],
         [
-          -0.25228700989511305,
-          0.02877932008457388
+          0.20109195224066534,
+          0.054061779096837806
         ],
         [
-          -0.059946063109074146,
-          -0.1705710692265041
+          0.2049281324129534,
+          0.05272415633308794
         ],
         [
-          0.06400175918517087,
-          -0.2356826975400701
+          0.27088147334043694,
+          0.03569836486313818
         ],
         [
-          -0.06474158802542715,
-          -0.23349490997536765
+          0.11861218628205704,
+          -0.04682186510167798
         ],
         [
-          -0.2229539274920354,
-          -0.07084016861540848
+          0.29663601484445795,
+          0.022342583582911225
         ],
         [
-          -0.09379720308629785,
-          0.04873635491220284
+          0.15043095909205503,
+          -0.009601134647110205
         ],
         [
-          -0.17149749101936784,
-          0.031076046357554298
+          0.19589769882909258,
+          0.06672352757441175
         ],
         [
-          -0.23966250745202144,
-          -0.24092647050109484
+          0.37331918506818607,
+          0.06782533529247597
         ],
         [
-          -0.10906093029170238,
-          -0.34303225567520446
+          0.28410372942403295,
+          0.013077041832296842
         ],
         [
-          -0.2895051071745757,
-          0.010568549372322345
+          0.3444914512702548,
+          0.03759561431865627
         ],
         [
-          -0.16510642996832434,
-          0.1091358786690833
+          0.19654111626118975,
+          0.08450646598653709
         ],
         [
-          -0.32496838934890065,
-          0.003784013408072942
+          0.24125010812170372,
+          0.08115315150230416
         ],
         [
-          -0.18626671138412956,
-          0.0636809501682104
+          0.07437945091305043,
+          0.09794497985163621
         ],
         [
-          -0.21862663544587152,
-          0.008171881840677178
+          -0.023562113520626867,
+          0.02328228267698402
         ],
         [
-          0.16458396011314974,
-          -0.29418087068798665
+          -0.16597713703704994,
+          0.04383696436610531
         ],
         [
-          -0.298360271832524,
-          0.0016336219319330973
+          -0.10167841707844434,
+          0.08834821688370487
         ],
         [
-          -0.34635417401435215,
-          -0.028086740894478518
+          -0.06364730624942108,
+          0.054800978717891254
         ],
         [
-          0.21008510061843028,
-          -0.2885830599920402
+          0.09925902253509948,
+          -0.018123867150133473
         ],
         [
-          0.16900088539967859,
-          -0.2822797188540161
+          0.030782621302279607,
+          -0.06762465574542038
         ],
         [
-          -0.07790433250860465,
-          -0.024814355158093562
+          -0.03900194365440996,
+          -0.02560511439249126
         ],
         [
-          -0.008213926043214132,
-          0.033362848378885465
+          -0.09345028527635212,
+          -0.08294858875181556
         ],
         [
-          0.13714518776110338,
-          0.039944021931041095
+          -0.02939748083437397,
+          -0.0026763211401945788
         ],
         [
-          0.08824608710717527,
-          -0.031300572217680206
+          0.35278344603604506,
+          0.06336242005775419
         ],
         [
-          0.0493531585948378,
-          0.03086155243720495
+          0.19278395569275503,
+          0.061196139482370446
         ],
         [
-          -0.12013816233220244,
-          0.07638423835196681
+          0.2807249858450367,
+          0.065868764707225
         ],
         [
-          -0.07419038997566822,
-          0.1236932076811329
+          0.2443542205531712,
+          0.11946164600987975
         ],
         [
-          0.00571860159253402,
-          0.11128857839722756
+          0.2008304000618343,
+          0.10992878434550846
         ],
         [
-          0.050605602469727805,
-          0.16681498090371297
+          0.14125327777296756,
+          0.17277934997966582
         ],
         [
-          0.004216126220329658,
-          0.09697400533287065
+          0.04312525935445869,
+          0.03145320903516548
         ],
         [
-          -0.3542768890788658,
-          -0.08603969059006515
+          0.07684445830704459,
+          0.14707435760177184
         ],
         [
-          -0.20003171093298058,
-          -0.04654302374982404
+          0.013026193040768774,
+          0.07326948304597618
         ],
         [
-          -0.28735281228630716,
-          -0.08177012602424001
+          -0.009715050276111314,
+          0.22749028387033712
         ],
         [
-          -0.24520112371779887,
-          -0.11977300358333576
+          0.20684461869523238,
+          0.1278443889572103
         ],
         [
-          -0.2036815986202369,
-          -0.10262289610986088
+          0.12156594032291945,
+          0.014969153267693928
         ],
         [
-          -0.1321738619793474,
-          -0.159699812829182
+          0.19081609521964038,
+          0.13123074779968735
         ],
         [
-          -0.07142250339695622,
-          -0.001767354009854328
+          0.03436449599762942,
+          0.09507850199373244
         ],
         [
-          -0.08284873450186508,
-          -0.09660196248595423
+          0.12644928366699867,
+          0.14665204404043541
         ],
         [
-          -0.03107833175119598,
-          -0.03662045309284896
+          -0.14510993986097911,
+          0.3025105479388042
         ],
         [
-          0.014382908511514,
-          -0.18870957586447962
+          -0.10813763511464722,
+          0.1771053819225202
         ],
         [
-          -0.1943963203529092,
-          -0.10577129476845233
+          -0.07827961600114966,
+          0.27061671960883527
         ],
         [
-          -0.13327370569512062,
-          -0.0013676883762603345
+          -0.09333627480330106,
+          0.15067478195233383
         ],
         [
-          -0.18595469712407547,
-          -0.10507024475354262
+          -0.05670048687224662,
+          0.25762057723189774
         ],
         [
-          -0.031932792662183865,
-          -0.08953184379767719
+          -0.2900875551350342,
+          0.2728418366201977
         ],
         [
-          -0.11572773000662032,
-          -0.11666045006649989
+          -0.41138140914000176,
+          0.25122566106336974
         ],
         [
-          0.1493752915797213,
-          -0.2741315891064638
+          -0.35670040992056107,
+          0.1949580565206635
         ],
         [
-          0.09326179068601928,
-          -0.14688034422991816
+          -0.3911871681092301,
+          0.2322240595631768
         ],
         [
-          0.07288555710764394,
-          -0.2252060821931672
+          -0.36684688974599006,
+          0.24921852922249604
         ],
         [
-          0.07588493673286746,
-          -0.11090632638157044
+          -0.3635249319470987,
+          0.2570581377234106
         ],
         [
-          0.0611844771315956,
-          -0.22672223269473848
+          -0.36871900778088096,
+          0.2499897752577608
         ],
         [
-          0.2891500826333899,
-          -0.26258570590225105
+          0.047834984001736996,
+          0.13838778785106723
         ],
         [
-          0.4209206905449977,
-          -0.24999723966596946
+          -0.06270533179630804,
+          0.0005083124573998398
         ],
         [
-          0.35799047685897806,
-          -0.20077628332611383
+          0.03788017907879827,
+          0.00011019925617199947
         ],
         [
-          0.39103862342476675,
-          -0.2309766653382975
+          -0.19932347294940594,
+          0.03650598439630753
         ],
         [
-          0.37544316688540524,
-          -0.2537763754890638
+          -0.0342400934897036,
+          0.11780270235390755
         ],
         [
-          0.36652921619214224,
-          -0.23821907852739027
+          -0.1474866761143276,
+          0.010269407169966775
         ],
         [
-          0.37156676338622374,
-          -0.2646618400067525
+          -0.30601504689591996,
+          0.09290542028012136
         ],
         [
-          -0.06040957641523788,
-          -0.1121498762981482
+          -0.32834350474652096,
+          0.010741234380785341
         ],
         [
-          0.03233103145257215,
-          0.026912222378338232
+          -0.09244743262371213,
+          -0.020985620951711012
         ],
         [
-          -0.07788721569596044,
-          0.039477360473959826
+          -0.20435646056749135,
+          0.09986875796940142
         ],
         [
-          0.1724345284785266,
-          -0.0004941395612888407
+          -0.22291723483330778,
+          0.1284380072339917
         ],
         [
-          0.01753020091106533,
-          -0.05457449233809192
+          -0.2433043974258219,
+          0.03343274239020718
         ],
         [
-          0.11782047269906586,
-          0.02058484718785267
+          0.05556094778476965,
+          0.05213580964308945
         ],
         [
-          0.31647646439613364,
-          -0.11355483543687778
+          -0.041397780854946546,
+          -0.024912117937132227
         ],
         [
-          0.32561904990037843,
-          -0.015943880110893215
+          0.15907356735954092,
+          0.015467137622832399
         ],
         [
-          0.0980548501224542,
-          -0.009268551966751222
+          -0.10015530995033235,
+          -0.004866441762030376
         ],
         [
-          0.20644192694848562,
-          -0.10962544581709986
+          -0.0829791806311845,
+          0.061702451395357016
         ],
         [
-          0.23495779639269,
-          -0.130257192892773
+          -0.13822635908366646,
+          0.001200834869109559
         ],
         [
-          0.24153563414662235,
-          -0.05583248403081041
+          -0.07872356999129566,
+          0.05746556598025171
         ],
         [
-          -0.06599444296193861,
-          -0.02534854632443713
+          -0.11111209816205403,
+          -0.055286594221693436
         ],
         [
-          0.0032641338678000755,
-          0.07603476016637471
+          0.12613183566323438,
+          0.002910584700787739
         ],
         [
-          -0.18628909802878965,
-          0.037330287430099196
+          -0.0631170541842064,
+          -0.04767235043977582
         ],
         [
-          0.07116630482919882,
-          0.04767477512025503
+          -0.06568747164780318,
+          0.18031388235677545
         ],
         [
-          0.0703633847775101,
-          0.0042448886646006285
+          0.019467981855221826,
+          0.07164758321976195
         ],
         [
-          0.11107964877501737,
-          0.02242225046735136
+          0.07030731916414604,
+          0.2042472849176567
         ],
         [
-          0.06943829866708247,
-          -0.006793405833161526
+          0.15401864727983863,
+          0.1821786638631442
         ],
         [
-          0.08533838927101121,
-          0.11446435016630863
+          0.3295560560304552,
+          0.09043249767919534
         ],
         [
-          -0.1495724907741412,
-          0.05979574400400633
+          0.01796053579625994,
+          0.20458525877182937
         ],
         [
-          0.02990983674214152,
-          0.1128001794719836
+          -0.14730525461791744,
+          0.2097478215790216
         ],
         [
-          0.06830597613411549,
-          -0.14603282642920348
+          0.11473446967395161,
+          0.09871489324456395
         ],
         [
-          -0.03500141493319882,
-          -0.062058894078402586
+          0.09076506295094205,
+          0.040508729414963904
         ],
         [
-          -0.07235190140232266,
-          -0.2358962121158772
+          0.03264810650955176,
+          0.032969163314675906
         ],
         [
-          -0.16187570272358318,
-          -0.20294407694928593
+          0.0463180788639713,
+          0.13174387603168927
         ],
         [
-          -0.3446630870993177,
-          -0.12359517132904528
+          0.11305094004574028,
+          0.08330755846753628
         ],
         [
-          -0.01796740543202647,
-          -0.23271510829545766
+          0.030919919618777107,
+          0.09321058411997099
         ],
         [
-          0.13775752147337025,
-          -0.23905640870217643
+          -0.3668777888009516,
+          -0.016660390958117482
         ],
         [
-          0.35149941854868083,
-          0.10787390903430749
+          -0.3424953133194865,
+          -0.06633848066303064
         ],
         [
-          0.3203471680551916,
-          0.16361890439340399
+          0.09580181807671433,
+          -0.0053644022969625395
         ],
         [
-          -0.08909363547422991,
-          -0.006257148896386306
+          -0.3914046144192447,
+          -0.07620467184144886
         ],
         [
-          0.371699461425719,
-          0.16142264988638105
+          -0.4029409883776049,
+          0.008968697319030107
         ],
         [
-          0.38671363817962934,
-          0.08187137699010325
+          -0.38420676928491104,
+          -0.015036142385388173
         ],
         [
-          0.36306151031920375,
-          0.09700916385145253
+          -0.40029600346837274,
+          -0.1152684504277301
         ],
         [
-          0.3825203410344748,
-          0.1975635698632105
+          -0.31702812710183736,
+          -0.14032761144724973
         ],
         [
-          0.2894590227416584,
-          0.2202371779663825
+          -0.3338742996191412,
+          -0.07077486440850748
         ],
         [
-          0.3140702580486305,
-          0.17396800661904765
+          -0.2981705983697886,
+          -0.16550283475290814
         ],
         [
-          0.2605383631229496,
-          0.2800712495744435
+          -0.4043467144471218,
+          -0.06738605788324735
         ],
         [
-          0.38717329624002506,
-          0.1539070454075502
+          -0.41440574053029333,
+          -0.08108685971242807
         ],
         [
-          0.39437755708663985,
-          0.17404671821717257
+          -0.3112434515606852,
+          -0.12134476067187641
         ],
         [
-          0.28265270647933227,
-          0.24264304236702472
+          -0.38752354515344517,
+          -0.12822419254010323
         ],
         [
-          0.3621067368325355,
-          0.2286644817714742
+          -0.4000440012166484,
+          -0.10223060740018931
         ],
         [
-          0.3851052415312537,
-          0.21626464281719326
+          -0.39425106277337896,
+          -0.09844896940446457
         ],
         [
-          0.3735141175373754,
-          0.19590260776308496
+          -0.43029688050535536,
+          -0.06366950075773314
         ],
         [
-          0.4177669653628502,
-          0.15827341379215382
+          -0.14919251925681715,
+          -0.10639677950641403
         ],
         [
-          0.1226669864939344,
-          0.14155159040837545
+          -0.3741764022241812,
+          0.1497102876893586
         ],
         [
-          0.3649281789916211,
-          -0.14250464529826046
+          -0.27371071352859067,
+          0.058872347361057016
         ],
         [
-          0.2444750960426517,
-          0.00310089886287277
+          -0.4860771314074513,
+          0.11858031244755193
         ],
         [
-          0.4767007846183645,
-          -0.072892352450114
+          -0.4310023905539057,
+          0.08972376993040096
         ],
         [
-          0.41821198221013933,
-          -0.06546158684289985
+          -0.35294106780647094,
+          0.08994891758518055
         ],
         [
-          0.3384199637305622,
-          -0.06479486778022404
+          -0.36444480001838514,
+          0.06620355024486536
         ],
         [
-          0.34550445450570366,
-          -0.034875510903021045
+          0.22084198039998315,
+          0.17850120883269074
         ],
         [
-          -0.027023545034467758,
-          -0.3254049552371889
+          0.13639620355377358,
+          0.25853556219374263
         ],
         [
-          0.07601817358922122,
-          -0.3527438713414487
+          0.3076047431018528,
+          0.09960203582279561
         ],
         [
-          0.027780879973820203,
-          -0.3335100080574294
+          0.31890073395815,
+          0.079310225413819
         ],
         [
-          0.01692550495744194,
-          -0.3292118364891489
+          0.25725574919078487,
+          0.12421611294636724
         ],
         [
-          -0.005248326677941086,
-          -0.3590164837592996
+          0.03863223449823727,
+          0.25858971661741637
         ],
         [
-          0.06801195583463958,
-          -0.3525004682940921
+          -0.05432225515889137,
+          0.3023879967007184
         ],
         [
-          -0.10662827891970292,
-          -0.18740624787938961
+          -0.01873693248577521,
+          0.2777956371452495
         ],
         [
-          0.05454785805677788,
-          -0.22060410094561292
+          -0.010669242291196134,
+          0.2851898495108213
         ],
         [
-          0.027161088286523697,
-          -0.1370605127843564
+          0.021874353052567963,
+          0.30631798432092416
         ],
         [
-          0.00680201657926903,
-          -0.12000289550238726
+          -0.051036033873366755,
+          0.283358637802173
         ],
         [
-          0.07858912432900245,
-          -0.20000642143189482
+          0.10151666694769301,
+          0.1939286651492434
         ],
         [
-          0.1305884552815079,
-          -0.2226587126528246
+          -0.04906218594531242,
+          0.21456997313805337
         ],
         [
-          -0.13177251950418192,
-          -0.0422861987040624
+          -0.041902492566920274,
+          0.12937231357766527
         ],
         [
-          -0.1402078237458584,
-          -0.07920150790918941
+          -0.019453970249197143,
+          0.13938668525929068
         ],
         [
-          -0.1382293353394633,
-          -0.06235127120709554
+          -0.08103126878050576,
+          0.20515646657135544
         ],
         [
-          -0.18674744301641671,
-          -0.07694612902183114
+          -0.13602566554302303,
+          0.20172739030025977
         ],
         [
-          0.2603605282564367,
-          0.013105761308378325
+          -0.05442106591097076,
+          -0.06095314277565206
         ],
         [
-          0.09093348315771646,
-          0.04043944867069156
+          -0.09347697492785002,
+          -0.03152002538724545
         ],
         [
-          0.26659388887931257,
-          -0.012233922686312047
+          -0.07057630105070178,
+          0.11404543185822597
         ],
         [
-          0.2368546467495736,
-          -0.0010841087123395507
+          -0.2174257329285387,
+          -0.025834964850930363
         ],
         [
-          0.2991077799997765,
-          0.05836956537300291
+          -0.013646071873087116,
+          0.08529244690280764
         ],
         [
-          0.028791965021270252,
-          0.08268167135082022
+          -0.15492780796270755,
+          -0.03972986330930542
         ],
         [
-          0.029264283101177596,
-          0.22129947465937497
+          0.17027318011679393,
+          0.06356271657936043
         ],
         [
-          0.2955193602981038,
-          0.09086214542697679
+          0.11156097458397597,
+          0.04427777811009483
         ],
         [
-          0.1478965923451045,
-          0.07729446734622078
+          0.12781362474115215,
+          0.08218405167921797
         ],
         [
-          0.0737991140971821,
-          0.19877824468230929
+          0.12107922309362086,
+          0.08371782931601368
         ],
         [
-          0.022055919114435225,
-          0.27342868557025046
+          0.17205039209693085,
+          0.08043663206904753
         ],
         [
-          -0.04679094898544419,
-          0.24311999984778065
+          -0.17097352525172255,
+          -0.031778607845938625
         ],
         [
-          0.09023759370188542,
-          0.27805595582484177
+          -0.27735423417354943,
+          -0.022325841030922958
         ],
         [
-          -0.006942652984131353,
-          0.23951404582558236
+          -0.09832016507392025,
+          -0.04953868280651301
         ],
         [
-          -0.015672447023531662,
-          0.23046873853723512
+          -0.27765706561490616,
+          0.025332165677655533
         ],
         [
-          0.020860602866002307,
-          0.47508830893347637
+          -0.2409828625322118,
+          0.03022485192704355
         ],
         [
-          -0.00971920064754156,
-          0.4855896731580658
+          -0.30983332194689034,
+          -0.043225266844418755
         ],
         [
-          -0.04062403842801537,
-          0.5118228410853862
+          -0.18496010986837752,
+          -0.17813311551814157
         ],
         [
-          -0.04164921425196471,
-          0.4234440185400872
+          -0.04863530663814997,
+          -0.09425317845790311
         ],
         [
-          -0.06519069426247173,
-          0.4085213558677366
+          -0.07052977685303581,
+          -0.20138065747027026
         ],
         [
-          0.019158546900406824,
-          0.20811143395152878
+          -0.31806324450972245,
+          -0.08424392913900502
         ],
         [
-          -0.08109166301491706,
-          0.37943693364895215
+          -0.16827108341806163,
+          -0.04926740996315858
         ],
         [
-          -0.06715381654882832,
-          0.3122957250444763
+          -0.10373318908852106,
+          -0.20881507964380075
         ],
         [
-          -0.06705299794546625,
-          0.3200744109360453
+          0.08535718019280378,
+          -0.3034063390470196
         ],
         [
-          0.021280795084270044,
-          0.51038042396699
+          -0.0608725528902818,
+          -0.30930934795058646
         ],
         [
-          0.07148152994424885,
-          0.436378275448064
+          0.014168642665694908,
+          -0.2774417461233733
         ],
         [
-          0.03569286566199101,
-          0.43121320281607733
+          -0.12787359178355692,
+          -0.29492941132834294
         ],
         [
-          0.04180885086138838,
-          0.46674620536509265
+          -0.02137076977261632,
+          -0.23856726102377324
         ],
         [
-          -0.274871897574952,
-          0.050684269097113065
+          -0.017474533462770076,
+          -0.2634098407029384
         ],
         [
-          -0.33796706382097874,
-          0.01731085411357017
+          0.02127468006076339,
+          -0.5089638807469534
         ],
         [
-          -0.23594498017601526,
-          0.022082186005806814
+          -0.0726377831017518,
+          -0.4986182885575561
         ],
         [
-          -0.25314207786841453,
-          0.07129269729678347
+          -0.04094049166859842,
+          -0.5438173620656015
         ],
         [
-          -0.2527257282442722,
-          0.049580253130682324
+          -0.008529804342179202,
+          -0.5698244733335294
         ],
         [
-          -0.3859260006440833,
-          -0.017238970255820257
+          -0.00031777743979075697,
+          -0.46365519340794303
         ],
         [
-          -0.3345100398132892,
-          0.05876160009680898
+          0.00653569517917244,
+          -0.4897401468150237
         ],
         [
-          -0.3878405086906473,
-          0.05690791121535921
+          0.019828616044058466,
+          -0.5095315323438059
         ],
         [
-          -0.32179065154286296,
-          0.0484339514902013
+          -0.047404657388768714,
+          -0.27940203174572725
         ],
         [
-          -0.3240279236491375,
-          0.04705924211102762
+          0.0384499027012184,
+          -0.49198374924049754
         ],
         [
-          -0.26107584865971367,
-          0.06527559553796235
+          0.02884242711560391,
+          -0.3873015879041776
         ],
         [
-          -0.24013232609519117,
-          0.045164064412464226
+          0.024660724701892837,
+          -0.40675099646825896
         ],
         [
-          -0.32868340699588194,
-          0.08128329738843464
+          -0.034982354191110364,
+          -0.5284651484673955
         ],
         [
-          -0.34144148278238606,
-          0.055011363386689126
+          -0.08434222761572599,
+          -0.5485535557882006
         ],
         [
-          -0.2737361051106929,
-          0.11812125737485914
+          -0.12236571316615168,
+          -0.49232391111618695
+        ],
+        [
+          -0.0806746569126238,
+          -0.48615143467928323
+        ],
+        [
+          -0.09373127200011037,
+          -0.5252140360837861
+        ],
+        [
+          0.36408561383506705,
+          -0.104727173388586
+        ],
+        [
+          0.24678140053183337,
+          -0.05557662911056378
+        ],
+        [
+          0.31415520175388034,
+          -0.01618313462666688
+        ],
+        [
+          0.21771135157547875,
+          -0.037881095558491285
+        ],
+        [
+          0.22669276868952914,
+          -0.05946309732996374
+        ],
+        [
+          0.22616217814278602,
+          -0.0684870714581247
+        ],
+        [
+          0.3668545869126461,
+          -0.07725238058009365
+        ],
+        [
+          0.3694279403828909,
+          0.00664997757336381
+        ],
+        [
+          0.31022824726809745,
+          -0.07937144301494475
+        ],
+        [
+          0.3667840424628994,
+          -0.09629209138914671
+        ],
+        [
+          0.2992562878869466,
+          -0.06925219120733546
+        ],
+        [
+          0.3022619244653784,
+          -0.0758802747318769
+        ],
+        [
+          0.24979093487982074,
+          -0.07899009954918351
+        ],
+        [
+          0.23988009923311138,
+          -0.07169597717934426
+        ],
+        [
+          0.2203153713528576,
+          -0.04636097981144745
+        ],
+        [
+          0.3068288574490206,
+          -0.12731991306627538
+        ],
+        [
+          0.32416168180178345,
+          -0.09204873924407296
+        ],
+        [
+          0.24830611658561197,
+          -0.14490446505765767
+        ],
+        [
+          0.011402845001521071,
+          0.06656237995945971
+        ],
+        [
+          -0.09169162035269951,
+          0.12863561553286348
+        ],
+        [
+          -0.022735809296190897,
+          0.12323322047791019
+        ],
+        [
+          -0.006087530339352114,
+          0.15531026095758857
+        ],
+        [
+          -0.16655316264726683,
+          0.11819963516493133
+        ],
+        [
+          -0.08359436255855973,
+          0.1274772472088467
         ]
       ]
     },
@@ -2637,143 +2955,136 @@
       "dimensions": 1024,
       "clustering": {
         "by_question": {
-          "knn_purity": 0.7097087378640776,
-          "silhouette": 0.31089983934017446,
+          "knn_purity": 0.8060344827586207,
+          "silhouette": 0.3887357214880264,
           "intra_vs_inter": {
-            "intra_mean": 0.9168412011959851,
-            "inter_mean": 0.8247599656080237,
-            "ratio": 1.111646102414874
+            "intra_mean": 0.9309527155896222,
+            "inter_mean": 0.824062117615309,
+            "ratio": 1.1297118210986763
           }
         },
         "by_model": {
-          "knn_purity": 0.10582524271844662,
-          "silhouette": -0.01625867647085349,
+          "knn_purity": 0.08706896551724137,
+          "silhouette": -0.01769866754230425,
           "intra_vs_inter": {
-            "intra_mean": 0.8302324776488892,
-            "inter_mean": 0.8260969014428066,
-            "ratio": 1.005006163561272
+            "intra_mean": 0.8287603207992337,
+            "inter_mean": 0.8256602072738225,
+            "ratio": 1.003754708653875
           }
         },
         "by_phase": {
-          "knn_purity": 0.9388349514563107,
-          "silhouette": 0.15267341253052646,
+          "knn_purity": 0.9525862068965517,
+          "silhouette": 0.15888451412984575,
           "intra_vs_inter": {
-            "intra_mean": 0.8500449170929736,
-            "inter_mean": 0.8205487814863994,
-            "ratio": 1.0359468398126712
+            "intra_mean": 0.8572706323493654,
+            "inter_mean": 0.8200275005825414,
+            "ratio": 1.0454169302131535
           }
         }
       },
       "verdict": {
         "clusters_by_question_more": true,
         "clusters_by_phase_more": true,
-        "question_vs_model_ratio": 6.706422018348622,
-        "phase_vs_model_ratio": 8.871559633027521
+        "question_vs_model_ratio": 9.257425742574258,
+        "phase_vs_model_ratio": 10.94059405940594
       },
       "per_question_similarity": {
         "1": {
-          "n_models": 6,
-          "mean_similarity": 0.8926625716154006,
-          "min_similarity": 0.7637435321187052,
+          "n_models": 5,
+          "mean_similarity": 0.9477265001505273,
+          "min_similarity": 0.928903059699242,
           "max_similarity": 0.973680673162624,
           "models": [
             "gpt4",
             "claude",
             "gemini",
             "deepseek",
-            "grok",
-            "mistral"
+            "grok"
           ]
         },
         "2": {
-          "n_models": 6,
-          "mean_similarity": 0.8797634501003723,
-          "min_similarity": 0.7568520229272874,
+          "n_models": 5,
+          "mean_similarity": 0.9338735472325231,
+          "min_similarity": 0.9162634102026257,
           "max_similarity": 0.9675840894624104,
           "models": [
             "gpt4",
             "claude",
             "gemini",
             "deepseek",
-            "grok",
-            "mistral"
+            "grok"
           ]
         },
         "3": {
-          "n_models": 6,
-          "mean_similarity": 0.8726320654331172,
-          "min_similarity": 0.7909978627913794,
+          "n_models": 5,
+          "mean_similarity": 0.9085594229693637,
+          "min_similarity": 0.8358065667558683,
           "max_similarity": 0.9599490520048499,
           "models": [
             "gpt4",
             "claude",
             "gemini",
             "deepseek",
-            "grok",
-            "mistral"
+            "grok"
           ]
         },
         "4": {
-          "n_models": 6,
-          "mean_similarity": 0.8643422423976888,
-          "min_similarity": 0.7835535489683284,
-          "max_similarity": 0.9411911398639374,
+          "n_models": 5,
+          "mean_similarity": 0.9166455263668298,
+          "min_similarity": 0.8929958296617505,
+          "max_similarity": 0.9413067048353378,
           "models": [
             "gpt4",
             "claude",
             "gemini",
             "deepseek",
-            "grok",
-            "mistral"
+            "grok"
           ]
         },
         "5": {
-          "n_models": 6,
-          "mean_similarity": 0.8906736882747074,
-          "min_similarity": 0.7813267773421979,
+          "n_models": 5,
+          "mean_similarity": 0.9350151763959003,
+          "min_similarity": 0.883800721719996,
           "max_similarity": 0.957048300633628,
           "models": [
             "gpt4",
             "claude",
             "gemini",
             "deepseek",
-            "grok",
-            "mistral"
+            "grok"
           ]
         },
         "6": {
-          "n_models": 6,
-          "mean_similarity": 0.8778536672224184,
-          "min_similarity": 0.7903774910972081,
+          "n_models": 5,
+          "mean_similarity": 0.9033267480969865,
+          "min_similarity": 0.8480879519881503,
           "max_similarity": 0.9386265099405041,
           "models": [
             "gpt4",
             "claude",
             "gemini",
             "deepseek",
-            "grok",
-            "mistral"
+            "grok"
           ]
         },
         "7": {
-          "n_models": 6,
-          "mean_similarity": 0.8784856460657301,
-          "min_similarity": 0.8279886154024314,
-          "max_similarity": 0.9599570577830343,
+          "n_models": 5,
+          "mean_similarity": 0.9090677392445567,
+          "min_similarity": 0.8761987332282836,
+          "max_similarity": 0.9313117261328231,
           "models": [
             "gpt4",
             "claude",
             "gemini",
             "deepseek",
-            "grok",
-            "mistral"
+            "grok"
           ]
         },
         "8": {
           "n_models": 5,
-          "mean_similarity": 0.8707634129889594,
-          "min_similarity": 0.814727149469736,
-          "max_similarity": 0.9518625416680155,
+          "mean_similarity": 0.9398412528872327,
+          "min_similarity": 0.918234989284228,
+          "max_similarity": 0.9529828474501576,
           "models": [
             "gpt4",
             "claude",
@@ -2797,9 +3108,9 @@
         },
         "10": {
           "n_models": 5,
-          "mean_similarity": 0.87815098203424,
-          "min_similarity": 0.810918631589691,
-          "max_similarity": 0.9713834398293458,
+          "mean_similarity": 0.9239935799693232,
+          "min_similarity": 0.9038155261245985,
+          "max_similarity": 0.9442784940158223,
           "models": [
             "gpt4",
             "claude",
@@ -2810,7 +3121,7 @@
         },
         "11": {
           "n_models": 5,
-          "mean_similarity": 0.9215266661565338,
+          "mean_similarity": 0.9215266661565339,
           "min_similarity": 0.8969681978770643,
           "max_similarity": 0.9369348658675091,
           "models": [
@@ -2823,7 +3134,7 @@
         },
         "12": {
           "n_models": 5,
-          "mean_similarity": 0.9240402536531211,
+          "mean_similarity": 0.924040253653121,
           "min_similarity": 0.9067228245625917,
           "max_similarity": 0.9410585414163786,
           "models": [
@@ -2837,7 +3148,7 @@
         "13": {
           "n_models": 5,
           "mean_similarity": 0.9242378231089516,
-          "min_similarity": 0.903727824256996,
+          "min_similarity": 0.9037278242569957,
           "max_similarity": 0.9568365619540015,
           "models": [
             "gpt4",
@@ -2970,9 +3281,23 @@
             "mistral"
           ]
         },
+        "25": {
+          "n_models": 6,
+          "mean_similarity": 0.9221108244018208,
+          "min_similarity": 0.9002004735404895,
+          "max_similarity": 0.9441768790637951,
+          "models": [
+            "claude",
+            "deepseek",
+            "mistral",
+            "grok",
+            "gpt4",
+            "gemini"
+          ]
+        },
         "26": {
           "n_models": 6,
-          "mean_similarity": 0.8691469654520206,
+          "mean_similarity": 0.8691469654520205,
           "min_similarity": 0.6934724131798717,
           "max_similarity": 0.9792831454990903,
           "models": [
@@ -3026,6 +3351,19 @@
             "mistral"
           ]
         },
+        "30": {
+          "n_models": 5,
+          "mean_similarity": 0.9097147750115123,
+          "min_similarity": 0.8578613774687323,
+          "max_similarity": 0.9449530662777803,
+          "models": [
+            "gpt4",
+            "claude",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
         "32": {
           "n_models": 6,
           "mean_similarity": 0.9451828291440443,
@@ -3054,12 +3392,27 @@
             "mistral"
           ]
         },
+        "34": {
+          "n_models": 6,
+          "mean_similarity": 0.9300806758307811,
+          "min_similarity": 0.8919904387828774,
+          "max_similarity": 0.9720459670654162,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
         "35": {
-          "n_models": 4,
-          "mean_similarity": 0.9506179163434868,
-          "min_similarity": 0.9322277492876213,
+          "n_models": 5,
+          "mean_similarity": 0.9527207439769508,
+          "min_similarity": 0.9317249545115912,
           "max_similarity": 0.9732767058179332,
           "models": [
+            "gpt4",
             "claude",
             "deepseek",
             "grok",
@@ -3067,11 +3420,12 @@
           ]
         },
         "38": {
-          "n_models": 5,
-          "mean_similarity": 0.9412265820779684,
-          "min_similarity": 0.9154708708471888,
+          "n_models": 6,
+          "mean_similarity": 0.9344729308144571,
+          "min_similarity": 0.9056840259085628,
           "max_similarity": 0.9707513636059858,
           "models": [
+            "gpt4",
             "claude",
             "gemini",
             "deepseek",
@@ -3080,11 +3434,12 @@
           ]
         },
         "39": {
-          "n_models": 5,
-          "mean_similarity": 0.9285028608257427,
+          "n_models": 6,
+          "mean_similarity": 0.927101975433272,
           "min_similarity": 0.887346665385667,
           "max_similarity": 0.9550481400620039,
           "models": [
+            "gpt4",
             "claude",
             "gemini",
             "deepseek",
@@ -3093,11 +3448,12 @@
           ]
         },
         "40": {
-          "n_models": 5,
-          "mean_similarity": 0.958295487762984,
+          "n_models": 6,
+          "mean_similarity": 0.9592929754813009,
           "min_similarity": 0.9326433834736141,
-          "max_similarity": 0.9728851255828539,
+          "max_similarity": 0.9729905641348634,
           "models": [
+            "gpt4",
             "claude",
             "gemini",
             "deepseek",
@@ -3106,11 +3462,12 @@
           ]
         },
         "41": {
-          "n_models": 4,
-          "mean_similarity": 0.9612395213102362,
+          "n_models": 5,
+          "mean_similarity": 0.9647454518511213,
           "min_similarity": 0.943081511828461,
           "max_similarity": 0.9880923127393311,
           "models": [
+            "gpt4",
             "claude",
             "deepseek",
             "grok",
@@ -3118,11 +3475,12 @@
           ]
         },
         "42": {
-          "n_models": 5,
-          "mean_similarity": 0.956587323348748,
-          "min_similarity": 0.9339908955580093,
+          "n_models": 6,
+          "mean_similarity": 0.9573209443258196,
+          "min_similarity": 0.9308964669878439,
           "max_similarity": 0.985801807999263,
           "models": [
+            "gpt4",
             "claude",
             "gemini",
             "deepseek",
@@ -3131,11 +3489,12 @@
           ]
         },
         "43": {
-          "n_models": 4,
-          "mean_similarity": 0.9589829268685112,
-          "min_similarity": 0.9354045190957461,
-          "max_similarity": 0.9849780366740583,
+          "n_models": 5,
+          "mean_similarity": 0.9605867197940092,
+          "min_similarity": 0.9354045190957463,
+          "max_similarity": 0.9849780366740584,
           "models": [
+            "gpt4",
             "claude",
             "deepseek",
             "grok",
@@ -3143,11 +3502,12 @@
           ]
         },
         "44": {
-          "n_models": 5,
-          "mean_similarity": 0.9329652140201963,
+          "n_models": 6,
+          "mean_similarity": 0.9327028267827815,
           "min_similarity": 0.907416709376634,
           "max_similarity": 0.952190642907473,
           "models": [
+            "gpt4",
             "claude",
             "gemini",
             "deepseek",
@@ -3156,11 +3516,12 @@
           ]
         },
         "45": {
-          "n_models": 5,
-          "mean_similarity": 0.9557436721070799,
-          "min_similarity": 0.942030778434145,
-          "max_similarity": 0.9705827410129608,
+          "n_models": 6,
+          "mean_similarity": 0.9561353862659404,
+          "min_similarity": 0.9406325465984215,
+          "max_similarity": 0.9722879991055416,
           "models": [
+            "gpt4",
             "claude",
             "gemini",
             "deepseek",
@@ -3169,11 +3530,26 @@
           ]
         },
         "46": {
-          "n_models": 5,
-          "mean_similarity": 0.9491206051352459,
-          "min_similarity": 0.9191638723495006,
-          "max_similarity": 0.9707716035579038,
+          "n_models": 6,
+          "mean_similarity": 0.9501331457203894,
+          "min_similarity": 0.9191607417766642,
+          "max_similarity": 0.9707718688718261,
           "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "63": {
+          "n_models": 6,
+          "mean_similarity": 0.9395879700152278,
+          "min_similarity": 0.9086225521114192,
+          "max_similarity": 0.9685335940008926,
+          "models": [
+            "gpt4",
             "claude",
             "gemini",
             "deepseek",
@@ -3184,828 +3560,932 @@
       },
       "pca_2d": [
         [
-          -0.07166673436952581,
-          -0.1132370264604192
+          0.05726790494467781,
+          -0.10728677603863655
         ],
         [
-          -0.03328175504287703,
-          -0.04182689663918547
+          0.016941467760216915,
+          -0.046118093896379865
         ],
         [
-          -0.03690402779561181,
-          -0.06436491596782375
+          0.018424763129977602,
+          -0.05654611444193682
         ],
         [
-          -0.026339597334028884,
-          -0.06397085356175851
+          0.004389138441845991,
+          -0.05506811873297222
         ],
         [
-          -0.06217285871548615,
-          -0.06949259542546615
+          0.04372513027569879,
+          -0.06547608606546401
         ],
         [
-          -0.1427626772544772,
-          -0.1010768977389634
+          0.0672330934393458,
+          -0.09117668668682717
         ],
         [
-          -0.08589646865318243,
-          -0.085940140149609
+          -0.01852391866259975,
+          -0.03506838431235082
         ],
         [
-          -0.0043424389366746256,
-          -0.022479807461382124
+          0.09181056774249483,
+          -0.12776946865101202
         ],
         [
-          -0.11183071200720687,
-          -0.13620278866299262
+          0.030394366773842246,
+          -0.07215286022204426
         ],
         [
-          -0.05283894961369767,
-          -0.07537591451820173
+          0.04972031443121213,
+          -0.10858534141003023
         ],
         [
-          -0.06833281350399645,
-          -0.10577385377969092
+          0.03705322257363316,
+          -0.050365311580146926
         ],
         [
-          0.1277089313099551,
-          -0.11634641091565379
+          0.012112436261184545,
+          0.027713233934624434
         ],
         [
-          -0.04261685161321427,
-          -0.02502089753390171
+          0.06104633939660115,
+          -0.07502961361604246
         ],
         [
-          -0.023475181267139072,
-          0.047860638799518025
+          0.03761605112281694,
+          -0.08799371763600528
         ],
         [
-          -0.06899155670755312,
-          -0.05009018937769567
+          0.04698151071421582,
+          -0.07329838408330648
         ],
         [
-          -0.05511754979632141,
-          -0.13621284280957183
+          0.07747783721967895,
+          -0.10324861791093604
         ],
         [
-          -0.05552514503769274,
-          -0.05291692008596746
+          0.0331502831489242,
+          0.030682662047065625
         ],
         [
-          0.037912477242867226,
-          -0.11333311614548462
+          0.06436729192621421,
+          -0.03965113072068406
         ],
         [
-          -0.08717140377338674,
-          -0.05846626714897393
+          0.039157552417677474,
+          -0.05326488985332013
         ],
         [
-          -0.05380195360054433,
-          0.06597561205332649
+          0.00560562892023863,
+          -0.08711559862534102
         ],
         [
-          -0.07971970011855653,
-          -0.015134563146531867
+          -0.15641274787848441,
+          -0.08759789011031408
         ],
         [
-          -0.05397727888811489,
-          -0.016249253739385502
+          -0.08946414235738294,
+          -0.02725785296953828
         ],
         [
-          0.020533153428380704,
-          -0.11850084719844273
+          -0.15838029928530656,
+          -0.10194087985181646
         ],
         [
-          0.004739669104297063,
-          -0.0959268780883821
+          -0.1442722426569278,
+          -0.1226452527237184
         ],
         [
-          0.14974467657722473,
-          -0.04638280978230959
+          -0.1722615137545717,
+          -0.08694721014750323
         ],
         [
-          0.07014857190038756,
-          -0.007681573710316361
+          0.10982794744769897,
+          -0.1230550398485868
         ],
         [
-          0.15100411132507147,
-          -0.07056455382100733
+          0.08600272739483772,
+          -0.0265334084122084
         ],
         [
-          0.13393551170520956,
-          -0.08957252588548549
+          0.16179422385751638,
+          -0.08734081376627041
         ],
         [
-          0.16668524229581577,
-          -0.05104895195668715
+          0.09821374641265197,
+          -0.08372009451439602
         ],
         [
-          -0.11778672112812097,
-          -0.11100503390727498
+          0.07159064199367232,
+          -0.0830438460255156
         ],
         [
-          -0.11947357940033716,
-          -0.10179870897157679
+          0.1324915397241641,
+          -0.11257221627072028
         ],
         [
-          -0.10003584076501543,
-          -0.006882687493701557
+          0.08187155661949477,
+          -0.06090312490216405
         ],
         [
-          -0.1741471680132193,
-          -0.061737288502873994
+          0.08413208907991632,
+          -0.059436963928766164
         ],
         [
-          -0.112518711061069,
-          -0.0503902959536769
+          0.12028720611055163,
+          -0.08073236315114622
         ],
         [
-          -0.08135391550800922,
-          -0.04418725260502935
+          0.06302980984647415,
+          -0.10125562370447445
         ],
         [
-          -0.04707806935631664,
-          -0.08828170572632725
+          0.0828641041866977,
+          -0.09414448427082085
         ],
         [
-          -0.13244279644292914,
-          -0.07879244116312518
+          0.07535505362097875,
+          -0.0523059033270027
         ],
         [
-          -0.09858979496647627,
-          -0.02286801991307605
+          0.10884159841549071,
+          -0.05249314096493764
         ],
         [
-          -0.0930203566548547,
-          -0.011480799718967927
+          0.12786417451636756,
+          -0.09015636327726512
         ],
         [
-          -0.05797245077241835,
-          -0.15991140777561158
+          0.09502609867992673,
+          -0.07360406271594956
         ],
         [
-          0.011071220328018425,
-          -0.1610526909149951
+          0.08423520497205747,
+          -0.13178517176307442
         ],
         [
-          -0.01226348113488739,
-          -0.15930679022622157
+          0.06561087182466688,
+          -0.029129803264140528
         ],
         [
-          -0.08796177375907333,
-          -0.05195279085420313
+          0.14888733092522163,
+          -0.12072264701170651
         ],
         [
-          -0.08562591897540126,
-          -0.00781359964445843
+          0.10539275987288216,
+          -0.04840937407493416
         ],
         [
-          -0.11824311627559002,
-          -0.01517481855063668
+          0.0411023422740992,
+          -0.08690429487161822
         ],
         [
-          -0.07342975928958834,
-          -0.13946910593872153
+          0.13565606674848793,
+          -0.1059924416611322
         ],
         [
-          0.0061575912886301905,
-          -0.15214099668704076
+          0.13127792644344133,
+          -0.026532221472025747
         ],
         [
-          -0.09606650618370931,
-          -0.0919071565376907
+          0.13409400120325918,
+          -0.07818206679024801
         ],
         [
-          -0.09371973473168224,
-          -0.0013063095146431433
+          0.03988915406923882,
+          -0.07279347633194747
         ],
         [
-          -0.166220806231057,
-          -0.0988734293017114
+          0.05984791611673656,
+          -0.104906607599694
         ],
         [
-          -0.12840544951696925,
-          -0.03203086181751633
+          -0.09407059675641538,
+          -0.04870911769221566
         ],
         [
-          -0.059556867034531856,
-          -0.03461283084987068
+          -0.08356168685327796,
+          -0.031513394829987676
         ],
         [
-          0.17631983604597995,
-          -0.12369711797370779
+          -0.14335171137692845,
+          -0.0372534952414504
         ],
         [
-          -0.1405733767690837,
-          0.003076398043316802
+          -0.12787335621671364,
+          -0.06261653078586323
         ],
         [
-          -0.1395013766842643,
-          -0.04364015933658591
+          -0.08435504908198489,
+          -0.05890221783127502
         ],
         [
-          0.12147778387900438,
-          -0.11266475483964804
+          0.018823949209496316,
+          0.02400694252164056
         ],
         [
-          0.1414144531547878,
-          -0.13125935816619427
+          0.020285347924800978,
+          0.009572905654346375
         ],
         [
-          0.08602119458318688,
-          0.003090943096144126
+          -0.06542561111194864,
+          -0.03278470723380805
         ],
         [
-          0.06775306791633695,
-          0.004186372004542957
+          -0.07945448666049602,
+          -0.02312301428244922
         ],
         [
-          0.1267358037392263,
-          0.00280805020436929
+          -0.029559325110476615,
+          -0.042256869346106105
         ],
         [
-          0.11936691403319542,
-          -0.02267815961419408
+          0.14544375478090543,
+          -0.1150186210671983
         ],
         [
-          0.07558456495993093,
-          -0.0014238966456670825
+          0.02405418798566971,
+          -0.07909406470099646
         ],
         [
-          -0.03592324027167913,
-          0.056241924304651386
+          0.11973274429178993,
+          -0.08792199189469634
         ],
         [
-          -0.04353040645469044,
-          0.029488925030770493
+          0.06346202383352076,
+          -0.11707592465311509
         ],
         [
-          0.04946361590774312,
-          -0.002703895407824369
+          0.10278659333984155,
+          -0.12682997741779886
         ],
         [
-          0.05820838229439494,
-          0.011568701243578922
+          -0.029305874888199968,
+          -0.07173080209954696
         ],
         [
-          0.015509933335091278,
-          0.011746243234702636
+          0.053325674348067335,
+          -0.060588743837748364
         ],
         [
-          -0.15150707480559453,
-          -0.10252864957461706
+          -0.052238024317003764,
+          -0.06586336041454716
         ],
         [
-          -0.032925805371728185,
-          -0.048041611315378166
+          0.06452724472760694,
+          -0.04361336315469363
         ],
         [
-          -0.128217067564789,
-          -0.07156443638352342
+          -0.09997682139203656,
+          -0.11571617442714434
         ],
         [
-          -0.06632404992579578,
-          -0.08833304123159429
+          -0.0463869188703942,
+          -0.06176506649842177
         ],
         [
-          -0.10544327462047955,
-          -0.11066825654294823
+          -0.060971152516882746,
+          -0.00684569784451988
         ],
         [
-          0.03336672087523147,
-          -0.04585731839082983
+          -0.05554987731353306,
+          -0.059431027302636746
         ],
         [
-          -0.07093006790870639,
-          -0.03348285270117198
+          -0.07202387187444452,
+          -0.03469782978960824
         ],
         [
-          0.04478496970679515,
-          -0.019865757812406296
+          -0.04449363341406654,
+          -0.0879408304112777
         ],
         [
-          -0.07601479817134801,
-          -0.01945648133972976
+          -0.15706953286120373,
+          -0.16276396141193922
         ],
         [
-          0.09996187006045563,
-          -0.07926354161451082
+          -0.050309217489491825,
+          -0.08211397556848901
         ],
         [
-          0.04940784404911444,
-          -0.02797000036780356
+          -0.08958390831215518,
+          -0.14817691017241452
         ],
         [
-          0.05589474265524394,
-          0.0177775451215014
+          -0.027905185984195443,
+          -0.12254349765430522
         ],
         [
-          0.0566981107627888,
-          -0.013354177473825843
+          -0.11468679116903785,
+          -0.1677806708267174
         ],
         [
-          0.0719867299083916,
-          -0.0017376433555456395
+          -0.14894294523719273,
+          -0.13050774981985191
         ],
         [
-          0.0464072061385261,
-          -0.03945343057751552
+          -0.2686164738704218,
+          -0.08499795793425269
         ],
         [
-          0.15469455484839348,
-          -0.14168062742691828
+          -0.19105493628876455,
+          -0.053961914837923945
         ],
         [
-          0.03952111496782104,
-          -0.07292276229674523
+          -0.22342880002999968,
+          -0.05488683863489476
         ],
         [
-          0.08390570370410735,
-          -0.12658301689256143
+          -0.2103377925687825,
+          -0.08482337028456483
         ],
         [
-          0.016370023406763544,
-          -0.11699419361976607
+          -0.20261768630665497,
+          -0.07495635641214904
         ],
         [
-          0.11144960028676164,
-          -0.13831915620619736
+          -0.267194745214525,
+          -0.08594070312367032
         ],
         [
-          0.1432345155889662,
-          -0.12298416842648174
+          -0.0063971003964732945,
+          -0.07847614961578439
         ],
         [
-          0.26898721107644896,
-          -0.0816653283853623
+          -0.010315253527227664,
+          -0.007161993047693922
         ],
         [
-          0.18514245210695887,
-          -0.05127665166686138
+          0.05675966173480454,
+          -0.04063427320895975
         ],
         [
-          0.21603891063319966,
-          -0.05856950425593836
+          0.031718904892131375,
+          0.010549574627910138
         ],
         [
-          0.2069729491001761,
-          -0.07946987593040696
+          -0.017495483831786646,
+          -0.08700720026852585
         ],
         [
-          0.19987188756196503,
-          -0.06349030349758616
+          -0.010679981213434499,
+          0.02200976497013988
         ],
         [
-          0.2631091009207277,
-          -0.09181556306127044
+          -0.154543218610831,
+          0.004135770512290752
         ],
         [
-          -0.006616660690545174,
-          -0.06261292566451716
+          -0.06677325364635159,
+          0.014145743358217179
         ],
         [
-          -0.012162371451226367,
-          0.0011588934784319146
+          -0.019561281368865632,
+          0.021820390508304262
         ],
         [
-          -0.08286986015290602,
-          -0.04201104504523431
+          -0.05935903719259574,
+          -0.019375578436701735
         ],
         [
-          -0.05487382325421384,
-          0.00690352936709355
+          -0.09600173984107865,
+          -0.04040306887043489
         ],
         [
-          0.0032832206057515343,
-          -0.058966923479520886
+          -0.11561204760278258,
+          -0.013313287902650003
         ],
         [
-          -0.01396234052837381,
-          0.019640343028759985
+          0.0027083537147834227,
+          -0.07899193912519746
         ],
         [
-          0.15394091930933398,
-          -0.047133292571395244
+          0.04485674006471212,
+          -0.08130994622208895
         ],
         [
-          0.05823385062479607,
-          -0.03732963713505565
+          0.06415823201399658,
+          -0.08154159806378239
         ],
         [
-          0.012858659473323215,
-          -0.008054549597814669
+          -0.020900540210048724,
+          -0.05274019865396488
         ],
         [
-          0.053079364983986924,
-          -0.07265459450268777
+          -0.011407315753198479,
+          -0.08886948091838492
         ],
         [
-          0.09498724326374482,
-          -0.06905108188913342
+          -0.011137794416465136,
+          -0.018711573437708486
         ],
         [
-          0.11078392803492157,
-          -0.055513330678975244
+          -0.08295665129516612,
+          0.05753370584706189
         ],
         [
-          -0.007213985557844225,
-          -0.0613104156626338
+          -0.04063165777008507,
+          0.10371849348546944
         ],
         [
-          -0.06055326597884299,
-          -0.06462519071126371
+          0.022254392762860172,
+          0.01439638137621636
         ],
         [
-          -0.08392569535896897,
-          -0.07334178350157598
+          0.00032596489816194996,
+          0.0437764104028307
         ],
         [
-          0.008514632742008026,
-          -0.03402018506799525
+          -0.030678198442997035,
+          -0.03795982907743481
         ],
         [
-          0.003341216959715335,
-          -0.05501323375731127
+          -0.03914262783683192,
+          0.020963168365175703
         ],
         [
-          0.0005877621599007731,
-          -0.013547286810782346
+          0.002393292153338035,
+          -0.07198836728006835
         ],
         [
-          0.0709424761101911,
-          0.08159926584298466
+          0.0006775623505865084,
+          -0.058181986760728686
         ],
         [
-          0.01822756407806821,
-          0.12786407001748545
+          0.05541875633762745,
+          -0.04354883985662896
         ],
         [
-          -0.042983888066588184,
-          0.041346354446041324
+          -0.025783937937890314,
+          -0.07429670576925497
         ],
         [
-          -0.020570012178690013,
-          0.07180202370168995
+          -0.054870044307044445,
+          -0.04803169288552814
         ],
         [
-          0.02068592174340706,
-          -0.013253743184652968
+          0.04213128499262772,
+          -0.04912094622304263
         ],
         [
-          0.025517411087991698,
-          0.035040045261694346
+          0.06292249098084787,
+          -0.07079825914937783
         ],
         [
-          -0.00783821348616765,
-          -0.10347126199498453
+          0.07077702340744021,
+          -0.015792261027380003
         ],
         [
-          -0.008155204883468156,
-          -0.0761390232393224
+          -0.011709586794581662,
+          -0.1037735499494344
         ],
         [
-          -0.0624511043078918,
-          -0.07303328141513685
+          0.04064108428614136,
+          -0.08706407946601666
         ],
         [
-          0.02227255185108859,
-          -0.07986310709948295
+          -0.010836100227159284,
+          -0.02631868920849985
         ],
         [
-          0.04434154359671737,
-          -0.07361628357082049
+          -0.24738379391322532,
+          0.10916226178188618
         ],
         [
-          0.23585648955357066,
-          0.1356531520217296
+          -0.24676177213520661,
+          0.12006340767944132
         ],
         [
-          0.2358248427844437,
-          0.14556409145719823
+          0.11086799104250443,
+          0.014514163135091008
         ],
         [
-          -0.11755220048942623,
-          0.009193745208639867
+          -0.24045462430780082,
+          0.15407600463259888
         ],
         [
-          0.22583515575541088,
-          0.1715143639210699
+          -0.2721875789184988,
+          0.11231757887204995
         ],
         [
-          0.260317785174125,
-          0.1317758725935979
+          -0.2590029919703325,
+          0.11240251117620856
         ],
         [
-          0.24481312331551247,
-          0.12497306523570251
+          -0.22887581489954953,
+          0.15963391511597264
         ],
         [
-          0.2175386572373465,
-          0.18741791627253165
+          -0.22483794463745588,
+          0.1578211354725027
         ],
         [
-          0.2101457900490999,
-          0.1790286381331738
+          -0.22071324047041102,
+          0.15719079697282815
         ],
         [
-          0.20766875085749684,
-          0.1928355286595838
+          -0.12847422190367683,
+          0.16298728452989358
         ],
         [
-          0.10514631407313267,
-          0.1947411060155817
+          -0.23737754092614205,
+          0.1477081106157318
         ],
         [
-          0.22571065316368313,
-          0.17521199975269897
+          -0.19373597962819603,
+          0.167871004341168
         ],
         [
-          0.1798216641414284,
-          0.19600737311839636
+          -0.13319992721963453,
+          0.17899978000649197
         ],
         [
-          0.11175716813804652,
-          0.20986341753210036
+          -0.2080029443389121,
+          0.1842948517354223
         ],
         [
-          0.18933758833253495,
-          0.20437783608334173
+          -0.2335835579801571,
+          0.17870683893027697
         ],
         [
-          0.21515089853858038,
-          0.2142914228808277
+          -0.21528289627761973,
+          0.18084397188921836
         ],
         [
-          0.19704469856230594,
-          0.20529773655624495
+          -0.21354598219549248,
+          0.19096302357512068
         ],
         [
-          0.19518136985818896,
-          0.2150948922229562
+          -0.052909096576210096,
+          0.041539226905782406
         ],
         [
-          0.035819150705534,
-          0.030624723069060306
+          -0.2065890794569635,
+          -0.09397355593017295
         ],
         [
-          0.2001739385578727,
-          -0.13068365840794996
+          -0.14379597729013957,
+          -0.09683242698432834
         ],
         [
-          0.12726706811799182,
-          -0.10235506056386227
+          -0.2300008109275384,
+          -0.06757000699822319
         ],
         [
-          0.21578463189767105,
-          -0.08453261268278572
+          -0.20984046413154075,
+          -0.07983442119117
         ],
         [
-          0.19638103268592477,
-          -0.10297319686195469
+          -0.10264908587774299,
+          -0.06636960229581096
         ],
         [
-          0.0906519997385007,
-          -0.07601073945211727
+          -0.18827200468861996,
+          -0.04613372608886338
         ],
         [
-          0.17436691766853576,
-          -0.05401134310313339
+          0.002500877892765886,
+          -0.06971065342247264
         ],
         [
-          0.03490677140622839,
-          -0.08853525756515758
+          0.031814240677882744,
+          -0.08615737209592216
         ],
         [
-          0.04466484642499897,
-          -0.06636204878400714
+          0.1253431019220137,
+          -0.0642970847115692
         ],
         [
-          0.04912467655006232,
-          -0.08656614914142102
+          0.12226461800064747,
+          -0.08968615955975945
         ],
         [
-          0.0410741521963003,
-          -0.06532873972034049
+          0.14237142762568938,
+          -0.09037721706872248
         ],
         [
-          0.06732245015444056,
-          -0.11119262197968637
+          -0.03371076563585943,
+          -0.05565120066728518
         ],
         [
-          0.0735620631129961,
-          -0.08686269058866346
+          -0.0465646134854613,
+          -0.03592191281549012
         ],
         [
-          0.06360044092685671,
-          -0.08317247525129579
+          -0.0516635744788183,
+          -0.05963647662080878
         ],
         [
-          0.1191654345896637,
-          -0.03293807754693151
+          -0.04805828935520856,
+          -0.0386622861743101
         ],
         [
-          0.07319434693099226,
-          0.0023568570946979036
+          -0.06457647749418957,
+          -0.08640599501570105
         ],
         [
-          0.07240808678735684,
-          0.013340967354324176
+          -0.07188402504771617,
+          -0.050643611657556285
         ],
         [
-          0.11706548593285017,
-          -0.006916821167505644
+          -0.06624795136924001,
+          -0.06398974577664247
         ],
         [
-          0.08368130798031036,
-          0.027320126376950398
+          -0.12306936094152329,
+          -0.026515274803388052
         ],
         [
-          -0.06180236191258563,
-          -0.018875232711896547
+          -0.08247945359134475,
+          0.015475115630612782
         ],
         [
-          -0.04858333177154769,
-          -0.023317897710055942
+          -0.08542642693563861,
+          0.014763553060858378
         ],
         [
-          -0.05688048815695557,
-          -0.03826891142941275
+          -0.12180666948395288,
+          -0.006021696523679438
         ],
         [
-          -0.05024841788891246,
-          -0.010609765118669161
+          -0.09797074156032054,
+          0.03970534681246539
         ],
         [
-          0.09973249177116714,
-          0.12246122104791382
+          0.013541737276893428,
+          -0.001089500074556997
         ],
         [
-          0.019832979970181408,
-          0.10399298114920319
+          -0.009699969542222107,
+          -0.002179509490777401
         ],
         [
-          0.10980648175824534,
-          0.12521852790326302
+          -0.07155951917637163,
+          0.0009364273848898185
         ],
         [
-          0.11725863332076511,
-          0.10765353105823611
+          -0.06603205919479982,
+          0.02377602903164454
         ],
         [
-          0.13069219659074893,
-          0.1265842948299827
+          0.005017340586407298,
+          -0.009928262943929025
         ],
         [
-          -0.02811217948997657,
-          0.13762501921782044
+          -0.059250192710315314,
+          0.0026549142339670428
         ],
         [
-          -0.04403022493120809,
-          0.15824219586303753
+          0.05313947132812979,
+          -0.0037383365613335977
         ],
         [
-          0.06577808765334422,
-          0.17437839313948186
+          0.0408949679109103,
+          -0.012495347855518635
         ],
         [
-          0.06935739126911962,
-          0.1276049000177984
+          0.035200013225026,
+          -0.022366157223365015
         ],
         [
-          -0.007281177596267485,
-          0.16864027069861812
+          0.039637045671763585,
+          -0.04014377443886719
         ],
         [
-          -0.062124848987711354,
-          0.11732871622142635
+          0.03619942867075605,
+          -0.014005381769371716
         ],
         [
-          -0.06945156735364418,
-          0.1369709856903736
+          -0.07918880511458987,
+          0.10546051440711804
         ],
         [
-          -0.042129895512656994,
-          0.14288983426011634
+          -0.11250993897909059,
+          0.11421281442093652
         ],
         [
-          -0.06770540645411147,
-          0.1575443565627943
+          -0.033216872942901474,
+          0.09251849150919528
         ],
         [
-          -0.06300657835852949,
-          0.12822078506784154
+          -0.12370315007093158,
+          0.11328392914091827
         ],
         [
-          -0.15444893831244974,
-          0.22565797420213865
+          -0.13132746894401412,
+          0.08311287092142126
         ],
         [
-          -0.1709915929332443,
-          0.2277397510628018
+          -0.14404651691100387,
+          0.11643009763482266
         ],
         [
-          -0.1711812013584123,
-          0.2355716501382541
+          -0.03826085776258431,
+          0.1531966187632378
         ],
         [
-          -0.1568724235609061,
-          0.21112962592697526
+          0.013351329028717919,
+          0.13717991366703922
         ],
         [
-          -0.20048262637319383,
-          0.2017798148455895
+          0.02563114556816361,
+          0.15064408512332292
         ],
         [
-          -0.16050666782485443,
-          0.17397663795102503
+          -0.08111683316674126,
+          0.1749620748959535
         ],
         [
-          -0.20602340769586464,
-          0.20309944645781103
+          -0.08709974156315262,
+          0.11119670578576377
         ],
         [
-          -0.20350795506614172,
-          0.16742731837139502
+          -0.008474650059915004,
+          0.15878416725671785
         ],
         [
-          -0.19195501859495584,
-          0.16415846465536463
+          0.05986387665986583,
+          0.11386850161026381
         ],
         [
-          -0.12571770196695187,
-          0.2823025527104324
+          0.052762644910837875,
+          0.10548137376645199
         ],
         [
-          -0.12020732860102204,
-          0.25520497055658276
+          0.061963463105345756,
+          0.12493159646665959
         ],
         [
-          -0.1380032686022608,
-          0.23637719210313185
+          0.030628535315496593,
+          0.13122179447990479
         ],
         [
-          -0.13319700829134434,
-          0.251812794558201
+          0.059279109493081454,
+          0.13330409606173824
         ],
         [
-          -0.16776510890370042,
-          0.028435183874362797
+          0.05071826243021165,
+          0.12562284639102125
         ],
         [
-          -0.22620545433688874,
-          -0.02988329372142089
+          0.14802498731474184,
+          0.24377515553962753
         ],
         [
-          -0.1918113754157685,
-          -0.012134099414866055
+          0.14397081400095083,
+          0.22931585639131316
         ],
         [
-          -0.2015624488489119,
-          -0.002683630634827295
+          0.16452668315878283,
+          0.24049171318911672
         ],
         [
-          -0.2109952831519534,
-          0.03206360531791233
+          0.1658130831084941,
+          0.24727990845979922
         ],
         [
-          -0.23201092897429057,
-          -0.04204652851719746
+          0.14867756118827158,
+          0.21984942594431975
         ],
         [
-          -0.22658812953311833,
-          -0.0048591169017759075
+          0.19942039836842054,
+          0.22834752198270947
         ],
         [
-          -0.2589708711944901,
-          -0.03427292057568272
+          0.1978384232433832,
+          0.23347405848342742
         ],
         [
-          -0.21257024850845901,
-          0.014643834037568193
+          0.1480333497143689,
+          0.19378407735055034
         ],
         [
-          -0.21884959002478707,
-          -0.008980633208915052
+          0.20341010498467185,
+          0.23827995409743707
         ],
         [
-          -0.18456060081048611,
-          0.00835364953667782
+          0.19414809913435402,
+          0.19557889574480383
         ],
         [
-          -0.18176845341292236,
-          -0.03925369716056135
+          0.18188332651525485,
+          0.19284906732623477
         ],
         [
-          -0.22282029910311615,
-          0.009201770046841076
+          0.12296360427677057,
+          0.2815357698997147
         ],
         [
-          -0.20299395457791908,
-          -0.03638419229441463
+          0.11446886000082492,
+          0.31268484254466183
         ],
         [
-          -0.19750320501570726,
-          -0.0037963635136203733
+          0.10968687044415842,
+          0.2814572893793394
+        ],
+        [
+          0.1208101993781118,
+          0.254093579825239
+        ],
+        [
+          0.12420068388662657,
+          0.27425476973407015
+        ],
+        [
+          0.21427534632054293,
+          0.01400989773150358
+        ],
+        [
+          0.1561870768713647,
+          0.030314025874037014
+        ],
+        [
+          0.216686496319683,
+          -0.024650122841780316
+        ],
+        [
+          0.17977854752058448,
+          -0.014338912599112687
+        ],
+        [
+          0.18922428728769272,
+          -0.0030509726647304177
+        ],
+        [
+          0.19980308961423526,
+          0.04668449740324476
+        ],
+        [
+          0.22693748304879743,
+          -0.048822466614298426
+        ],
+        [
+          0.22079137748241057,
+          -0.04807238937295169
+        ],
+        [
+          0.21218365799815253,
+          -0.0010598227503194235
+        ],
+        [
+          0.2503643962207458,
+          -0.030778683536361866
+        ],
+        [
+          0.19976019688850188,
+          0.010654092736140729
+        ],
+        [
+          0.21177745144139642,
+          -0.007911322676490185
+        ],
+        [
+          0.18787222713348586,
+          -0.035116669191940175
+        ],
+        [
+          0.1777246970841993,
+          0.005447657944511424
+        ],
+        [
+          0.17492510069895661,
+          -0.045488849760637766
+        ],
+        [
+          0.21384599390276585,
+          0.021553569935914497
+        ],
+        [
+          0.1977028765410221,
+          -0.029238999986561015
+        ],
+        [
+          0.188938242457778,
+          0.008867391165018113
+        ],
+        [
+          -0.013312418503690616,
+          0.0422065890591156
+        ],
+        [
+          -0.031136783446767558,
+          0.035625673140610936
+        ],
+        [
+          -0.028595397318660173,
+          0.016370922952983268
+        ],
+        [
+          -0.03704705454257844,
+          0.024417440289442486
+        ],
+        [
+          -0.08655339884080537,
+          0.07318615699819384
+        ],
+        [
+          -0.0399714411755272,
+          0.042049272266419156
         ]
       ]
     },
@@ -4013,143 +4493,136 @@
       "dimensions": 3072,
       "clustering": {
         "by_question": {
-          "knn_purity": 0.7242718446601941,
-          "silhouette": 0.32691685746225524,
+          "knn_purity": 0.838793103448276,
+          "silhouette": 0.4006847768872172,
           "intra_vs_inter": {
-            "intra_mean": 0.8574085832894072,
-            "inter_mean": 0.7049518098887679,
-            "ratio": 1.2162655251919914
+            "intra_mean": 0.879840581716025,
+            "inter_mean": 0.7016715656224641,
+            "ratio": 1.2539208154109882
           }
         },
         "by_model": {
-          "knn_purity": 0.10679611650485439,
-          "silhouette": -0.012556411671463163,
+          "knn_purity": 0.07758620689655173,
+          "silhouette": -0.014172975448240909,
           "intra_vs_inter": {
-            "intra_mean": 0.7128436073092598,
-            "inter_mean": 0.707396249298303,
-            "ratio": 1.0077005751958117
+            "intra_mean": 0.7085358633891304,
+            "inter_mean": 0.7045284246416038,
+            "ratio": 1.0056881150672738
           }
         },
         "by_phase": {
-          "knn_purity": 0.9291262135922329,
-          "silhouette": 0.13426032550119013,
+          "knn_purity": 0.9482758620689655,
+          "silhouette": 0.15052183092317567,
           "intra_vs_inter": {
-            "intra_mean": 0.7384047199755878,
-            "inter_mean": 0.7002317562770763,
-            "ratio": 1.0545147565164221
+            "intra_mean": 0.747509591757702,
+            "inter_mean": 0.6968281073222358,
+            "ratio": 1.0727316879197433
           }
         }
       },
       "verdict": {
         "clusters_by_question_more": true,
         "clusters_by_phase_more": true,
-        "question_vs_model_ratio": 6.7818181818181795,
-        "phase_vs_model_ratio": 8.699999999999998
+        "question_vs_model_ratio": 10.811111111111112,
+        "phase_vs_model_ratio": 12.222222222222221
       },
       "per_question_similarity": {
         "1": {
-          "n_models": 6,
-          "mean_similarity": 0.8312143335865164,
-          "min_similarity": 0.6617907196674547,
+          "n_models": 5,
+          "mean_similarity": 0.9110897717951266,
+          "min_similarity": 0.8760935049226114,
           "max_similarity": 0.9594400378410636,
           "models": [
             "gpt4",
             "claude",
             "gemini",
             "deepseek",
-            "grok",
-            "mistral"
+            "grok"
           ]
         },
         "2": {
-          "n_models": 6,
-          "mean_similarity": 0.8166308500076652,
-          "min_similarity": 0.6697341469331523,
+          "n_models": 5,
+          "mean_similarity": 0.8871479141748487,
+          "min_similarity": 0.8581427317962296,
           "max_similarity": 0.9214466326254679,
           "models": [
             "gpt4",
             "claude",
             "gemini",
             "deepseek",
-            "grok",
-            "mistral"
+            "grok"
           ]
         },
         "3": {
-          "n_models": 6,
-          "mean_similarity": 0.7722594749677324,
-          "min_similarity": 0.6386285781999537,
+          "n_models": 5,
+          "mean_similarity": 0.8203728818449264,
+          "min_similarity": 0.6959759954533068,
           "max_similarity": 0.9244983020323347,
           "models": [
             "gpt4",
             "claude",
             "gemini",
             "deepseek",
-            "grok",
-            "mistral"
+            "grok"
           ]
         },
         "4": {
-          "n_models": 6,
-          "mean_similarity": 0.7480197206645264,
-          "min_similarity": 0.654578195304532,
-          "max_similarity": 0.8936307362414732,
+          "n_models": 5,
+          "mean_similarity": 0.8331313273842559,
+          "min_similarity": 0.7833997378043466,
+          "max_similarity": 0.8806720446104286,
           "models": [
             "gpt4",
             "claude",
             "gemini",
             "deepseek",
-            "grok",
-            "mistral"
+            "grok"
           ]
         },
         "5": {
-          "n_models": 6,
-          "mean_similarity": 0.817126942808495,
-          "min_similarity": 0.6309335236853894,
+          "n_models": 5,
+          "mean_similarity": 0.901689704423292,
+          "min_similarity": 0.8726156827496099,
           "max_similarity": 0.9310053332490278,
           "models": [
             "gpt4",
             "claude",
             "gemini",
             "deepseek",
-            "grok",
-            "mistral"
+            "grok"
           ]
         },
         "6": {
-          "n_models": 6,
-          "mean_similarity": 0.7763916342488085,
-          "min_similarity": 0.6769484411603354,
+          "n_models": 5,
+          "mean_similarity": 0.819595937839029,
+          "min_similarity": 0.735028942062833,
           "max_similarity": 0.8575987004919613,
           "models": [
             "gpt4",
             "claude",
             "gemini",
             "deepseek",
-            "grok",
-            "mistral"
+            "grok"
           ]
         },
         "7": {
-          "n_models": 6,
-          "mean_similarity": 0.7785441762625399,
-          "min_similarity": 0.6703780486873324,
-          "max_similarity": 0.9211257430537088,
+          "n_models": 5,
+          "mean_similarity": 0.823640037464949,
+          "min_similarity": 0.8013574922059514,
+          "max_similarity": 0.8682831435433186,
           "models": [
             "gpt4",
             "claude",
             "gemini",
             "deepseek",
-            "grok",
-            "mistral"
+            "grok"
           ]
         },
         "8": {
           "n_models": 5,
-          "mean_similarity": 0.7774604128623959,
-          "min_similarity": 0.6914054492579886,
-          "max_similarity": 0.9022547076907249,
+          "mean_similarity": 0.8797762654588656,
+          "min_similarity": 0.8568689191346459,
+          "max_similarity": 0.9047459619674039,
           "models": [
             "gpt4",
             "claude",
@@ -4173,9 +4646,9 @@
         },
         "10": {
           "n_models": 5,
-          "mean_similarity": 0.7823972213948099,
-          "min_similarity": 0.6869633161062738,
-          "max_similarity": 0.9378172431013789,
+          "mean_similarity": 0.8334455029717134,
+          "min_similarity": 0.7911991299611854,
+          "max_similarity": 0.8665947399497165,
           "models": [
             "gpt4",
             "claude",
@@ -4188,7 +4661,7 @@
           "n_models": 5,
           "mean_similarity": 0.8592676025245636,
           "min_similarity": 0.8111186427350904,
-          "max_similarity": 0.8945332467986669,
+          "max_similarity": 0.8945332467986667,
           "models": [
             "gpt4",
             "claude",
@@ -4200,7 +4673,7 @@
         "12": {
           "n_models": 5,
           "mean_similarity": 0.8587556871347216,
-          "min_similarity": 0.8084829423236709,
+          "min_similarity": 0.808482942323671,
           "max_similarity": 0.9015012674468338,
           "models": [
             "gpt4",
@@ -4214,7 +4687,7 @@
           "n_models": 5,
           "mean_similarity": 0.8505167239878724,
           "min_similarity": 0.8102769496625623,
-          "max_similarity": 0.8901265237062146,
+          "max_similarity": 0.8901265237062147,
           "models": [
             "gpt4",
             "claude",
@@ -4346,11 +4819,25 @@
             "mistral"
           ]
         },
+        "25": {
+          "n_models": 6,
+          "mean_similarity": 0.8703768315347067,
+          "min_similarity": 0.8377357764785541,
+          "max_similarity": 0.8940281364828325,
+          "models": [
+            "claude",
+            "deepseek",
+            "mistral",
+            "grok",
+            "gpt4",
+            "gemini"
+          ]
+        },
         "26": {
           "n_models": 6,
-          "mean_similarity": 0.8123140067660296,
+          "mean_similarity": 0.8123140067660295,
           "min_similarity": 0.5816242793172456,
-          "max_similarity": 0.9674470161082055,
+          "max_similarity": 0.9674470161082054,
           "models": [
             "gpt4",
             "claude",
@@ -4402,6 +4889,19 @@
             "mistral"
           ]
         },
+        "30": {
+          "n_models": 5,
+          "mean_similarity": 0.8501277942052191,
+          "min_similarity": 0.7642608912754415,
+          "max_similarity": 0.9152774989429662,
+          "models": [
+            "gpt4",
+            "claude",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
         "32": {
           "n_models": 6,
           "mean_similarity": 0.9059095422370409,
@@ -4430,12 +4930,27 @@
             "mistral"
           ]
         },
+        "34": {
+          "n_models": 6,
+          "mean_similarity": 0.8997162157650613,
+          "min_similarity": 0.8578721073305509,
+          "max_similarity": 0.9494400181569745,
+          "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
         "35": {
-          "n_models": 4,
-          "mean_similarity": 0.9216641654132828,
-          "min_similarity": 0.8861653969003322,
+          "n_models": 5,
+          "mean_similarity": 0.921626444236814,
+          "min_similarity": 0.8780041747708136,
           "max_similarity": 0.9520708377536058,
           "models": [
+            "gpt4",
             "claude",
             "deepseek",
             "grok",
@@ -4443,11 +4958,12 @@
           ]
         },
         "38": {
-          "n_models": 5,
-          "mean_similarity": 0.889954006698731,
-          "min_similarity": 0.8440211155487645,
+          "n_models": 6,
+          "mean_similarity": 0.879148589933173,
+          "min_similarity": 0.8326559854342712,
           "max_similarity": 0.9350698374900402,
           "models": [
+            "gpt4",
             "claude",
             "gemini",
             "deepseek",
@@ -4456,11 +4972,12 @@
           ]
         },
         "39": {
-          "n_models": 5,
-          "mean_similarity": 0.880392458861636,
+          "n_models": 6,
+          "mean_similarity": 0.88238592079331,
           "min_similarity": 0.8444544115039634,
           "max_similarity": 0.9231603377242895,
           "models": [
+            "gpt4",
             "claude",
             "gemini",
             "deepseek",
@@ -4469,11 +4986,12 @@
           ]
         },
         "40": {
-          "n_models": 5,
-          "mean_similarity": 0.9210447066173033,
-          "min_similarity": 0.8942431210249651,
-          "max_similarity": 0.9385206070761505,
+          "n_models": 6,
+          "mean_similarity": 0.9196440865361277,
+          "min_similarity": 0.8939910467381744,
+          "max_similarity": 0.9398989961053157,
           "models": [
+            "gpt4",
             "claude",
             "gemini",
             "deepseek",
@@ -4482,11 +5000,12 @@
           ]
         },
         "41": {
-          "n_models": 4,
-          "mean_similarity": 0.920366034645063,
+          "n_models": 5,
+          "mean_similarity": 0.9144942947124438,
           "min_similarity": 0.8832490379113556,
           "max_similarity": 0.964366485085157,
           "models": [
+            "gpt4",
             "claude",
             "deepseek",
             "grok",
@@ -4494,11 +5013,12 @@
           ]
         },
         "42": {
-          "n_models": 5,
-          "mean_similarity": 0.9146795104720129,
+          "n_models": 6,
+          "mean_similarity": 0.9195347233868871,
           "min_similarity": 0.8750530715353402,
-          "max_similarity": 0.9599384714863087,
+          "max_similarity": 0.960112883222732,
           "models": [
+            "gpt4",
             "claude",
             "gemini",
             "deepseek",
@@ -4507,11 +5027,12 @@
           ]
         },
         "43": {
-          "n_models": 4,
-          "mean_similarity": 0.9464218449015963,
-          "min_similarity": 0.9217035696613329,
-          "max_similarity": 0.9724669868734681,
+          "n_models": 5,
+          "mean_similarity": 0.9370078680638319,
+          "min_similarity": 0.9055457646084115,
+          "max_similarity": 0.972466986873468,
           "models": [
+            "gpt4",
             "claude",
             "deepseek",
             "grok",
@@ -4519,11 +5040,12 @@
           ]
         },
         "44": {
-          "n_models": 5,
-          "mean_similarity": 0.861244411928133,
+          "n_models": 6,
+          "mean_similarity": 0.858505578394242,
           "min_similarity": 0.8078329154362822,
           "max_similarity": 0.9087656301367799,
           "models": [
+            "gpt4",
             "claude",
             "gemini",
             "deepseek",
@@ -4532,11 +5054,12 @@
           ]
         },
         "45": {
-          "n_models": 5,
-          "mean_similarity": 0.9186590119018481,
+          "n_models": 6,
+          "mean_similarity": 0.9225157022691377,
           "min_similarity": 0.9000136378355267,
           "max_similarity": 0.9521835285523883,
           "models": [
+            "gpt4",
             "claude",
             "gemini",
             "deepseek",
@@ -4545,11 +5068,26 @@
           ]
         },
         "46": {
-          "n_models": 5,
-          "mean_similarity": 0.9124584400795989,
-          "min_similarity": 0.8946550229620619,
-          "max_similarity": 0.9300756468427912,
+          "n_models": 6,
+          "mean_similarity": 0.9177901483338022,
+          "min_similarity": 0.8932988845347598,
+          "max_similarity": 0.9443305386066102,
           "models": [
+            "gpt4",
+            "claude",
+            "gemini",
+            "deepseek",
+            "grok",
+            "mistral"
+          ]
+        },
+        "63": {
+          "n_models": 6,
+          "mean_similarity": 0.8917353941777659,
+          "min_similarity": 0.842834518516988,
+          "max_similarity": 0.9565236706355441,
+          "models": [
+            "gpt4",
             "claude",
             "gemini",
             "deepseek",
@@ -4560,828 +5098,932 @@
       },
       "pca_2d": [
         [
-          0.053798971170987586,
-          -0.03414665228639571
+          -0.04001385979708646,
+          0.058443808644330096
         ],
         [
-          0.041469361033964966,
-          0.012326045069665968
+          -0.022732763378815177,
+          0.012362135249270068
         ],
         [
-          -0.002057641383737868,
-          -0.0029557357984281406
+          0.018543255192770197,
+          0.021918723830007557
         ],
         [
-          0.04490834901885274,
-          -0.005520063508890838
+          -0.02838163629549196,
+          0.023133514343364216
         ],
         [
-          0.055688453154067494,
-          -0.013789011550670666
+          -0.038084914845821626,
+          0.03469273909049079
         ],
         [
-          0.09044770330964381,
-          -0.18510657706105854
+          -0.06196401966060695,
+          0.08103840371381814
         ],
         [
-          0.07436495411331456,
-          -0.06956750133245586
+          0.004395993325772157,
+          0.020413959277120343
         ],
         [
-          0.015832240157375204,
-          0.011747195226143632
+          -0.033803714874614144,
+          0.07575002247884677
         ],
         [
-          0.04623359929057329,
-          -0.07794310521653515
+          -0.005072408840544389,
+          0.04152578257792002
         ],
         [
-          0.026795505959899893,
-          -0.02022491934309633
+          -0.03011631153305658,
+          0.03783285000539857
         ],
         [
-          0.04610574607132688,
-          -0.013015226277124689
+          -0.051480142119710644,
+          0.0032840575523827506
         ],
         [
-          -0.11114570352857214,
-          -0.22585377067362122
+          -0.04842475498436608,
+          -0.0630181784580378
         ],
         [
-          0.06013162953110916,
-          0.013523033708392774
+          -0.06900006412939895,
+          -0.01614448131868532
         ],
         [
-          0.06251078436487098,
-          0.07341145621011855
+          0.008816551529859466,
+          0.0831066996103519
         ],
         [
-          0.07796119707112252,
-          0.02747600193282494
+          -0.06246438568964513,
+          0.031100248602797878
         ],
         [
-          0.002235353763162357,
-          -0.20940080430537314
+          -0.0502974722964361,
+          0.08996922586620829
         ],
         [
-          0.07003272292689723,
-          -0.01752359661628099
+          -0.10429149870060912,
+          -0.020133845956399655
         ],
         [
-          -0.03739234850396224,
-          -0.18870949810515852
+          -0.10208602850403281,
+          0.0250672602166248
         ],
         [
-          0.06724708138521235,
-          -0.04043647887101171
+          -0.04965481007292702,
+          0.05091425407075645
         ],
         [
-          0.1277797607531703,
-          0.051379714979355895
+          -0.1087036947649521,
+          0.07724213336595592
         ],
         [
-          0.12116590915904223,
-          0.021327112811033302
+          0.1246175989097596,
+          0.022359638949201625
         ],
         [
-          0.07211991730379286,
-          0.0032053700647045125
+          0.09908158154995186,
+          -0.02162798814247738
         ],
         [
-          -0.030319408733914817,
-          -0.21062025618231778
+          0.1744861772383927,
+          0.007653478027153846
         ],
         [
-          -0.03906970271954769,
-          -0.1784436286737953
+          0.1692219682494452,
+          0.0348698444811146
         ],
         [
-          -0.1070533444258669,
-          0.05637150346925684
+          0.172883043558598,
+          -0.0023240223413469705
         ],
         [
-          -0.07652222651921496,
-          0.08975516697441135
+          -0.09405484795096512,
+          0.08648321870108353
         ],
         [
-          -0.15906646769657404,
-          0.0678084735020826
+          -0.10634835275947674,
+          0.049871379676772874
         ],
         [
-          -0.14861584812122464,
-          0.03671414959473158
+          -0.12325089861190026,
+          0.02496105098993705
         ],
         [
-          -0.15530338690146758,
-          0.08834011779829494
+          -0.05746430370662611,
+          0.007770187098926663
         ],
         [
-          0.08151507456800523,
-          -0.18887645814634388
+          -0.0951100710141104,
+          0.06570455302907338
         ],
         [
-          0.1144057796998164,
-          -0.037810889920677555
+          -0.11525176318799223,
+          0.1081384598028817
         ],
         [
-          0.1273967416170494,
-          -0.02847881062631711
+          -0.11138876726723829,
+          0.11576272123971285
         ],
         [
-          0.1420910216122388,
-          0.003936302720037992
+          -0.133266627306086,
+          0.06902450913131072
         ],
         [
-          0.08305550021199055,
-          0.04425453952336248
+          -0.051809159524584224,
+          0.11365180851374995
         ],
         [
-          0.11782159249647232,
-          0.0021622933917381823
+          -0.12575493226659942,
+          0.1375759336857789
         ],
         [
-          0.03797611955114134,
-          -0.16797048624184938
+          -0.03227470302085581,
+          0.10916902507211235
         ],
         [
-          0.11415204859215723,
-          -0.08378754373696876
+          -0.029489356999612075,
+          0.032694404816260104
         ],
         [
-          0.12422400691904388,
-          -0.08460771305282117
+          -0.036142054699868066,
+          0.046097839959533225
         ],
         [
-          0.14493988126511836,
-          -0.025651009648637046
+          -0.03894187984082978,
+          0.1269483420353178
         ],
         [
-          0.04923964353514958,
-          -0.22082120313446976
+          -0.03282094117344873,
+          0.09159325143156304
         ],
         [
-          -0.05998243055843424,
-          -0.2202471610094459
+          -0.0891001905953271,
+          0.1188021198217023
         ],
         [
-          -0.017079395862804023,
-          -0.22855953290595699
+          -0.12087132804967145,
+          0.05953286055746575
         ],
         [
-          0.045645749645205576,
-          -0.07599040148909506
+          -0.13908081992382926,
+          0.08589603816146872
         ],
         [
-          0.05255027619750822,
-          0.011391430127454808
+          -0.14270913697115262,
+          0.0883019844434765
         ],
         [
-          0.05555483847092039,
-          -0.01038793684360925
+          -0.09850872470407579,
+          0.10036285862924665
         ],
         [
-          0.08288511758775921,
-          -0.2725558455273264
+          -0.11702752986662096,
+          0.11082423305080209
         ],
         [
-          -0.019870712096736656,
-          -0.28514569077230795
+          -0.14149932865982934,
+          0.04360135244088459
         ],
         [
-          0.11966915092332255,
-          -0.05835223768837693
+          -0.10254559082939867,
+          0.005528052165954003
         ],
         [
-          0.15454494953342385,
-          -0.021763373321685646
+          -0.04476209280715635,
+          0.04550788787878976
         ],
         [
-          0.16753188043315123,
-          -0.03778094831070731
+          -0.023540924015055125,
+          0.10330155746069654
         ],
         [
-          0.17022449170290221,
-          -0.06064253942329479
+          0.032068580022020086,
+          -0.038599715553518855
         ],
         [
-          0.12884060183175075,
-          -0.035588370587205875
+          0.10241337181934147,
+          0.010486608148872489
         ],
         [
-          -0.18964464638039916,
-          -0.21751581138920076
+          0.13123490869802204,
+          -0.012541530796897443
         ],
         [
-          0.15077088766849123,
-          -0.032304129068251336
+          0.11211242878504485,
+          -0.024527377438801748
         ],
         [
-          0.11386043479064271,
-          0.021796118257349853
+          0.08425933871765963,
+          0.01844979141207601
         ],
         [
-          -0.1311919553302308,
-          -0.18519286079556593
+          0.05354422409154306,
+          0.002344647971095813
         ],
         [
-          -0.15713011164322102,
-          -0.20105111275272175
+          -0.07294968942324463,
+          0.056212970026357285
         ],
         [
-          -0.018356674996111724,
-          0.10740166564154785
+          -0.013604400692184849,
+          0.05686333017710761
         ],
         [
-          -0.08175355263066347,
-          0.04868492703293576
+          0.001941742971241043,
+          0.031307993638514636
         ],
         [
-          -0.11191547412783193,
-          0.07435090369237322
+          -0.01292574190969146,
+          0.06874847146345389
         ],
         [
-          -0.09608367639441702,
-          0.07077187396543942
+          -0.09054009646274835,
+          0.15778416571111367
         ],
         [
-          -0.07232532521363194,
-          0.06939905814283549
+          -0.03516959783695402,
+          0.08155759373219325
         ],
         [
-          -0.03264397144109646,
-          0.07174437671698373
+          -0.049080811724211595,
+          0.09749196760520007
         ],
         [
-          0.09986848412088334,
-          -0.01739261993093769
+          -0.04140786609550139,
+          0.12514153920008858
         ],
         [
-          0.03969615163158744,
-          0.0038356810582693347
+          -0.0551836053135508,
+          0.19888559357469474
         ],
         [
-          0.029524519856045883,
-          0.028242862048060945
+          0.07368264074425565,
+          0.03797271396978159
         ],
         [
-          0.036941741761561814,
-          0.029816041806734875
+          -0.03398927247851069,
+          0.046579643382433554
         ],
         [
-          0.09198289102074035,
-          -0.15026775467436235
+          0.0935817058205354,
+          0.07726072388027513
         ],
         [
-          0.04069592327277464,
-          -0.06379517247264087
+          -0.0055091800382596244,
+          0.06714137375482572
         ],
         [
-          0.05479518055493103,
-          -0.08612361758602606
+          0.11336324166069925,
+          0.14234020491421487
         ],
         [
-          0.04642529319754889,
-          -0.11093943772981216
+          0.007823462367092759,
+          0.010097640180923111
         ],
         [
-          0.05372247346132853,
-          -0.15100396542417358
+          0.022323422659613984,
+          -0.031450254514994676
         ],
         [
-          -0.06928551058715385,
-          -0.029207636067053108
+          -0.01430571508155543,
+          -0.0281130236408743
         ],
         [
-          0.05815252557229736,
-          -0.03188402848614984
+          0.022815858833373254,
+          -0.04125765648194706
         ],
         [
-          -0.08491170386946272,
-          -0.051114837864808645
+          0.03610593114114771,
+          0.01790962313013147
         ],
         [
-          0.02743037146741876,
-          -0.03577109527081523
+          0.19041651431388146,
+          0.13175290873220408
         ],
         [
-          -0.11424138632874545,
-          -0.11900356217997328
+          0.08266130664159732,
+          0.12294253173084425
         ],
         [
-          -0.01256816592728556,
-          0.0030660682865902597
+          0.10302324160984831,
+          0.15461616684103305
         ],
         [
-          -0.01791599854378906,
-          0.03469882279963643
+          0.07154181886779694,
+          0.08941516106357122
         ],
         [
-          0.012982516162670217,
-          0.035153921665789185
+          0.15310521922348458,
+          0.16582462597548736
         ],
         [
-          -0.0240080894596419,
-          0.03905108227952793
+          0.26072342553233085,
+          0.10842956501358834
         ],
         [
-          -0.04287433105678426,
-          0.003295445947125808
+          0.2566856484312916,
+          0.05393426075514762
         ],
         [
-          -0.19204880739546396,
-          -0.10525902023357699
+          0.24053929898115287,
+          0.03928568966111241
         ],
         [
-          -0.07789825037730577,
-          -0.09324470821176929
+          0.2657239714393403,
+          0.05138470090417331
         ],
         [
-          -0.09898606312157956,
-          -0.11120591741508676
+          0.2593346503924621,
+          0.05255347607288015
         ],
         [
-          -0.0608033513269481,
-          -0.038999769549379205
+          0.21325992652946432,
+          0.10380946069628184
         ],
         [
-          -0.15680981128498533,
-          -0.11439785518519842
+          0.2689084234692625,
+          0.05997593883708869
         ],
         [
-          -0.26096431920801466,
-          -0.09410718326173843
+          -0.017779873378545856,
+          0.11147731731923124
         ],
         [
-          -0.26230828724696353,
-          -0.03952611882050195
+          -0.03930092744388045,
+          0.0566466012674955
         ],
         [
-          -0.24247269900116492,
-          -0.0340792979239251
+          -0.05382195342674281,
+          0.1018929537619093
         ],
         [
-          -0.26776483538754026,
-          -0.043954609322898006
+          -0.04940497347434403,
+          0.08300301170632335
         ],
         [
-          -0.2627865683256853,
-          -0.03720518076481986
+          0.01622406003924365,
+          0.13054364403838503
         ],
         [
-          -0.2200113775845431,
-          -0.07269054284004016
+          -0.03261780751592078,
+          0.06160560482652534
         ],
         [
-          -0.27068912004409457,
-          -0.04958482586851465
+          0.14001651191456455,
+          0.04454292676334575
         ],
         [
-          0.03710342854828051,
-          -0.07263360626448674
+          0.13418831227292147,
+          0.026639247364090846
         ],
         [
-          0.060870679199664976,
-          -0.04504465416492823
+          0.06101002598175905,
+          0.04360297416939306
         ],
         [
-          0.07852457627647623,
-          -0.07934316022537469
+          0.1407341515412748,
+          0.07999321257736511
         ],
         [
-          0.07324687389556357,
-          -0.05935097303211295
+          0.11301799918136464,
+          0.10176485039609179
         ],
         [
-          -0.0010872710589726006,
-          -0.06658792774039576
+          0.1274754558920402,
+          0.052263620949430004
         ],
         [
-          0.055463451923371966,
-          -0.04852721250495402
+          0.03178136559958825,
+          0.02634819639613948
         ],
         [
-          -0.1391319272421036,
-          -0.07178059806008356
+          -0.009365229521925363,
+          0.03759093695525581
         ],
         [
-          -0.1281672805030057,
-          -0.05751513263824169
+          -0.04671367233599958,
+          0.11653975324566514
         ],
         [
-          -0.058118533915124095,
-          -0.07049890922922555
+          -0.01828448723905135,
+          0.015786798663897626
         ],
         [
-          -0.13940285139207337,
-          -0.11737769519642861
+          0.0024030196153827254,
+          0.10408773061352525
         ],
         [
-          -0.11784563197377171,
-          -0.09981107013164738
+          0.032713096707421674,
+          -0.01766176539125987
         ],
         [
-          -0.12491645385682677,
-          -0.08536213486250074
+          0.09184936092873544,
+          -0.053874794251871465
         ],
         [
-          -0.019887820867255025,
-          -0.015621306147743954
+          0.04279095268255997,
+          -0.10709892799534794
         ],
         [
-          0.029311886616468594,
-          -0.023468010952167474
+          0.030135505592256945,
+          -0.01167849354596562
         ],
         [
-          0.07264684814549373,
-          -0.10202221372926541
+          -0.006219029688946514,
+          -0.04677882388071815
         ],
         [
-          0.03725563320635194,
-          -0.010556182017094552
+          0.0643775876436401,
+          0.09009789210533715
         ],
         [
-          0.007651003446218419,
-          -0.0606933426129365
+          0.12054799483644933,
+          -0.037029942102089375
         ],
         [
-          -0.015945347716962186,
-          0.00848418207395804
+          -0.017847627947724105,
+          0.22180248912763792
         ],
         [
-          -0.08026686735115948,
-          0.052539894669184996
+          0.0010211279926861164,
+          0.1809183909781756
         ],
         [
-          -0.02674559735060556,
-          0.10110218398919758
+          -0.043958078643926,
+          0.15951877635093598
         ],
         [
-          -0.006468977115403826,
-          0.04202238851094993
+          0.006038108325646504,
+          0.23301760138003275
         ],
         [
-          0.025617393543610548,
-          0.07324077595091691
+          0.028810447323563058,
+          0.1383005426830549
         ],
         [
-          -0.057296754632004336,
-          -0.06329596880645479
+          0.0028889740039763183,
+          0.11542999668234893
         ],
         [
-          -0.11133058766878083,
-          0.030755351265770683
+          -0.05466781275051418,
+          0.15851761768191377
         ],
         [
-          0.00682512658374515,
-          -0.24405790784732823
+          -0.0615694772560909,
+          0.11657069145386133
         ],
         [
-          -0.006888259433393425,
-          -0.20774000972418658
+          0.0013258493821703742,
+          0.22042108018946163
         ],
         [
-          0.03447549654425662,
-          -0.19322215887820238
+          -0.021262915347833818,
+          0.1645409033039102
         ],
         [
-          -0.017985226151872154,
-          -0.23167251040681305
+          0.003060209218389591,
+          0.10767153881471891
         ],
         [
-          -0.030315432498544438,
-          -0.16783957542687547
+          0.2318520149770377,
+          -0.13552512214930942
         ],
         [
-          -0.22160017906788104,
-          0.1703777837078332
+          0.24974295204232486,
+          -0.1595434621113302
         ],
         [
-          -0.24011339764790837,
-          0.17850824258130896
+          -0.09098379222246483,
+          0.017128062853458
         ],
         [
-          0.09397971069953437,
-          -0.0049187372456148135
+          0.26604646829194606,
+          -0.18285344701580464
         ],
         [
-          -0.2543797325110265,
-          0.20057992421638152
+          0.23984109090515646,
+          -0.14019294164900942
         ],
         [
-          -0.22799139095660426,
-          0.17287286994012357
+          0.244621361821087,
+          -0.13898206459291054
         ],
         [
-          -0.23255776195002273,
-          0.16670136660388868
+          0.24920941496022334,
+          -0.2303140481657417
         ],
         [
-          -0.2396477713144199,
-          0.24491406633366689
+          0.20412758181199137,
+          -0.213639016824936
         ],
         [
-          -0.19591811551119212,
-          0.22374895118258506
+          0.2581088181733872,
+          -0.21560593635749922
         ],
         [
-          -0.2484390504363879,
-          0.2368362100741766
+          0.16528694131398725,
+          -0.2089563538330703
         ],
         [
-          -0.14146090657967383,
-          0.26269622950443483
+          0.22571442425527818,
+          -0.21347018187096573
         ],
         [
-          -0.21389539886551953,
-          0.23415753122064284
+          0.20127383906792326,
+          -0.25922660656676466
         ],
         [
-          -0.18929632053706857,
-          0.2795025392947073
+          0.17914296175089645,
+          -0.18713965623269174
         ],
         [
-          -0.15670539961204674,
-          0.2353893946466159
+          0.24476394699993406,
+          -0.17198872065002552
         ],
         [
-          -0.23175861717106425,
-          0.19607927240623974
+          0.2842416515477293,
+          -0.15117459290533797
         ],
         [
-          -0.2706539611612046,
-          0.18789548247966345
+          0.23404523600328508,
+          -0.18940063409644992
         ],
         [
-          -0.21728381350865084,
-          0.21922968089282444
+          0.23948820249401398,
+          -0.2049967017814248
         ],
         [
-          -0.22267931256281115,
-          0.24077966742222806
+          0.008006925057315506,
+          -0.02560952163656917
         ],
         [
-          0.007509114757356373,
-          0.0392772543136573
+          0.2919021346083745,
+          0.034919655145402115
         ],
         [
-          -0.28531225203374144,
-          -0.06229158298074493
+          0.23580255520753773,
+          0.021542373985761216
         ],
         [
-          -0.20437989229520157,
-          0.0017119982874250505
+          0.3103353781988663,
+          0.008523764597191357
         ],
         [
-          -0.2897176873654028,
-          -0.012326500323410676
+          0.3029054863225001,
+          -0.003208714613480556
         ],
         [
-          -0.2831307711262764,
-          -0.004259698402353731
+          0.2538061465928873,
+          0.018958255827503545
         ],
         [
-          -0.23746703768894398,
-          -0.036403444550807504
+          0.2628058828109585,
+          -0.0007871201911972625
         ],
         [
-          -0.24693274559696096,
-          -0.004095077944051817
+          0.011886089899988937,
+          0.11112270136749247
         ],
         [
-          -0.013804727152607794,
-          -0.1896685451301846
+          -0.01603722639317462,
+          0.14188910916062802
         ],
         [
-          -0.07561222206501493,
-          -0.14253811998653654
+          -0.12140279746511115,
+          0.10246192240593958
         ],
         [
-          -0.04187905771104211,
-          -0.16754705260355718
+          -0.11164423649473428,
+          0.11482802467625837
         ],
         [
-          -0.11272100349012067,
-          -0.15896322440352842
+          -0.10051552449436793,
+          0.13211182561076945
         ],
         [
-          -0.11913186928657951,
-          -0.16186297387481724
+          0.0034855271531964126,
+          0.14435626401663754
         ],
         [
-          -0.11439732827320281,
-          -0.15915480623300512
+          0.06898470141495959,
+          0.09900274418485372
         ],
         [
-          -0.05526107804839702,
-          -0.14558587248696542
+          0.03921214859915406,
+          0.12676924692673125
         ],
         [
-          -0.10792055550584567,
-          -0.059407316645983296
+          0.11371209776280825,
+          0.12411811747607754
         ],
         [
-          -0.07025436228256424,
-          -0.08849039633911168
+          0.11324021382388846,
+          0.1122087873569887
         ],
         [
-          -0.11028191764987057,
-          -0.030537182719565
+          0.10735547440698473,
+          0.092090152957724
         ],
         [
-          -0.1549252230897357,
-          -0.09373247966702723
+          0.05571579318798272,
+          0.11485634363983906
         ],
         [
-          -0.14517105499533187,
-          -0.0261436941540729
+          0.11393764652470165,
+          0.04237429922392732
         ],
         [
-          0.06534691683758909,
-          -0.09719579584255039
+          0.07495782376721882,
+          0.05417105139887181
         ],
         [
-          0.05280172740994565,
-          -0.05810660709868428
+          0.12291361716353282,
+          0.015303944960222249
         ],
         [
-          0.05668474527109229,
-          -0.11408310299613014
+          0.15809805906394292,
+          0.05876701094583863
         ],
         [
-          0.05047992165502869,
-          -0.06384298780234086
+          0.15694093421542074,
+          0.01702347641044668
         ],
         [
-          -0.09126748065241971,
-          0.1720631833346858
+          0.11652680923199206,
+          -0.006815304020662582
         ],
         [
-          -0.00900705040182101,
-          0.1303752028045529
+          0.05752076381125646,
+          0.006204913107838661
         ],
         [
-          -0.12303643879742017,
-          0.12782417763179005
+          0.12112242367789966,
+          0.025925374958446948
         ],
         [
-          -0.12404654164178709,
-          0.11460530712658176
+          0.15061688079219537,
+          -0.021865419963800592
         ],
         [
-          -0.13976453402990183,
-          0.1851780501100052
+          0.07167652321819291,
+          0.04094960679272288
         ],
         [
-          0.03891087666309127,
-          0.15017459731501073
+          0.12257746114249436,
+          -0.016856317400833976
         ],
         [
-          0.07309549499902547,
-          0.14997923508343491
+          -0.06927851805798349,
+          0.0700774105752493
         ],
         [
-          -0.0479533601939248,
-          0.19359503381100715
+          -0.05098034753855746,
+          0.08894736334573927
         ],
         [
-          -0.05073015594272014,
-          0.10832598868189913
+          -0.03733894896845667,
+          0.044762090777809016
         ],
         [
-          0.023418826136467414,
-          0.2087555910937563
+          -0.04310039315155797,
+          0.11032887173365119
         ],
         [
-          0.13721244592745252,
-          0.17591015043976968
+          -0.037224282535193234,
+          0.05845087445890677
         ],
         [
-          0.10628928235976762,
-          0.15850024167719595
+          0.06813376455464688,
+          -0.13720233223101544
         ],
         [
-          0.08699208542995274,
-          0.16405046081718846
+          0.09950680227129319,
+          -0.19644719749787967
         ],
         [
-          0.11112995753829463,
-          0.19606684347114933
+          0.020660356122864723,
+          -0.14400238598133175
         ],
         [
-          0.0770443051008107,
-          0.14939027783642905
+          0.13340930779551666,
+          -0.14315998885910736
         ],
         [
-          0.16189592177406573,
-          0.2894848920244278
+          0.13283648946895057,
+          -0.12575616972337217
         ],
         [
-          0.19173542461928855,
-          0.3108772457901753
+          0.1484303145474857,
+          -0.19808438385854432
         ],
         [
-          0.1933441023151926,
-          0.31094963695245675
+          -0.004171591365125787,
+          -0.1653346464828865
         ],
         [
-          0.17223938384439058,
-          0.30526189150300514
+          -0.023638326210141346,
+          -0.16615104816840412
         ],
         [
-          0.25067337540456985,
-          0.27532307068810435
+          -0.05648050575883679,
+          -0.15372863940352294
         ],
         [
-          0.22755482825382026,
-          0.18148400636686854
+          0.06438273852177555,
+          -0.21213058169274088
         ],
         [
-          0.24730533026518017,
-          0.24094971561777828
+          0.0659862553328145,
+          -0.11458857400761148
         ],
         [
-          0.21868286872768106,
-          0.21148353305521
+          -0.004231692405415844,
+          -0.21519158394555507
         ],
         [
-          0.25266270321537443,
-          0.20579012738337954
+          -0.07730282018770587,
+          -0.17649335470384717
         ],
         [
-          0.19962204255665136,
-          0.3196584712304337
+          -0.1238399727090878,
+          -0.20085395520226873
         ],
         [
-          0.21137919316004775,
-          0.2715989518321345
+          -0.09459366669281552,
+          -0.18461913915148104
         ],
         [
-          0.18825014753594183,
-          0.25436303165481133
+          -0.0750442871077487,
+          -0.19335593297807396
         ],
         [
-          0.20273234109060864,
-          0.2754101275648983
+          -0.09704920076869798,
+          -0.21266063381402783
         ],
         [
-          0.2297315886542831,
-          -0.023141023128614564
+          -0.06467974049901565,
+          -0.18678121179945506
         ],
         [
-          0.23639268918922643,
-          -0.04910748187266855
+          -0.15645003335904634,
+          -0.3036566232640638
         ],
         [
-          0.22120972939218914,
-          -0.044986216949833575
+          -0.1475859369262434,
+          -0.3112253642195485
         ],
         [
-          0.22045810581843947,
-          -0.047828699591608646
+          -0.17413470410066517,
+          -0.3313034168733278
         ],
         [
-          0.267355264321414,
-          0.04190093775756685
+          -0.176534035081655,
+          -0.33650638850488307
         ],
         [
-          0.2995474588519055,
-          -0.12174196036504324
+          -0.1577897372930085,
+          -0.32609281580697996
         ],
         [
-          0.31851016747365735,
-          -0.07797843576851637
+          -0.22978114473458627,
+          -0.2963343361408208
         ],
         [
-          0.3296969188074671,
-          -0.06945834563357506
+          -0.23929316298207579,
+          -0.34275496433052177
         ],
         [
-          0.2901729575003783,
-          -0.06659292487024018
+          -0.2202289894787111,
+          -0.2440813485309695
         ],
         [
-          0.30567573038652707,
-          -0.06630445411116175
+          -0.23832998888798332,
+          -0.31377960083624856
         ],
         [
-          0.2702532319619533,
-          -0.05870084104340657
+          -0.2064321495053475,
+          -0.2618324213179833
         ],
         [
-          0.27272554090452666,
-          -0.07183461250092392
+          -0.24433293266269926,
+          -0.2671105708339357
         ],
         [
-          0.2891181258174996,
-          -0.06419315618043407
+          -0.14200728440911906,
+          -0.34696898755424954
         ],
         [
-          0.25944132320801166,
-          -0.05700269455480687
+          -0.18085008901583957,
+          -0.37666410962637786
         ],
         [
-          0.27796357448835085,
-          -0.08602602278832122
+          -0.19400449700617028,
+          -0.33086001764350287
+        ],
+        [
+          -0.17249863666573623,
+          -0.3084576311176533
+        ],
+        [
+          -0.18552374992719953,
+          -0.3323163477678318
+        ],
+        [
+          -0.23700935451002664,
+          -0.0015827485439315445
+        ],
+        [
+          -0.2188974658066337,
+          -0.001862119019181076
+        ],
+        [
+          -0.22656588643182102,
+          0.051096764747405495
+        ],
+        [
+          -0.2089069822302644,
+          0.028132248360047872
+        ],
+        [
+          -0.21536059380396838,
+          0.0508735444060804
+        ],
+        [
+          -0.25775808436371017,
+          -0.08301735385437754
+        ],
+        [
+          -0.312489376773976,
+          0.10864082940300698
+        ],
+        [
+          -0.3042065066370985,
+          0.12284805245591021
+        ],
+        [
+          -0.32113849231705877,
+          0.07845901541956542
+        ],
+        [
+          -0.3331441704668409,
+          0.05812646249826104
+        ],
+        [
+          -0.2952903205327839,
+          0.07735514958900327
+        ],
+        [
+          -0.31047346194037495,
+          0.07149700545044076
+        ],
+        [
+          -0.27135715612628664,
+          0.08052801278986212
+        ],
+        [
+          -0.2793978738826845,
+          0.06391440081453673
+        ],
+        [
+          -0.28068290632438797,
+          0.07629972501158755
+        ],
+        [
+          -0.29188555671334926,
+          0.068869504945319
+        ],
+        [
+          -0.2650037656960087,
+          0.06987788796015273
+        ],
+        [
+          -0.28163599417474416,
+          0.0929129484655526
+        ],
+        [
+          0.008140716320909687,
+          0.022640044543873396
+        ],
+        [
+          0.005935574662372829,
+          0.05475622435267433
+        ],
+        [
+          0.01858410544894043,
+          0.05826531824840106
+        ],
+        [
+          0.03589189698672482,
+          0.054466351782490194
+        ],
+        [
+          0.0865059440707596,
+          0.06772769591171793
+        ],
+        [
+          0.01397828089138659,
+          0.06807841002390785
         ]
       ]
     }

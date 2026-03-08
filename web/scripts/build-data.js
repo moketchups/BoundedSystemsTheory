@@ -25,6 +25,17 @@ mkdirSync(join(__dirname, '..', 'public', 'data'), { recursive: true });
 
 const MODELS = ['gpt4', 'claude', 'gemini', 'deepseek', 'grok', 'mistral', 'llama'];
 
+// Normalize model key aliases to canonical names
+function normalizeModelKey(key) {
+  if (key === 'gpt4o') return 'gpt4';
+  return key;
+}
+
+// Get all model keys from an object, including aliases
+function getModelKeys(obj) {
+  return Object.keys(obj).filter(k => MODELS.includes(k) || MODELS.includes(normalizeModelKey(k)));
+}
+
 // Phase definitions from ALL_QUESTIONS.md
 const PHASES = [
   { id: 'foundation', name: 'Foundation', range: [1, 15], description: 'All 6 AIs acknowledge structural limits on self-grounding and self-verification.' },
@@ -217,22 +228,70 @@ function truncateResponse(text, maxLen = 2000) {
   return text.slice(0, maxLen) + '\n\n[... truncated — full response in raw data]';
 }
 
+function extractResponseValue(val) {
+  if (typeof val === 'string') return val;
+  if (val && typeof val === 'object') {
+    if (typeof val.response === 'string') return val.response;
+    if (val.responses?.[0]?.response) return val.responses[0].response;
+    if (typeof val.contribution === 'string') return val.contribution;
+  }
+  return null;
+}
+
 function extractModelResponses(data) {
   const responses = {};
 
   // Schema 1: flat model keys {gpt4: {response: ...}, claude: {response: ...}}
-  // or {gpt4: {model, response, timestamp}, ...}
-  const modelKeys = Object.keys(data).filter(k => MODELS.includes(k));
+  // Also handles gpt4o → gpt4 normalization and object-valued responses
+  const modelKeys = getModelKeys(data);
   if (modelKeys.length >= 2) {
     for (const mk of modelKeys) {
-      const val = data[mk];
-      if (typeof val === 'string') {
-        responses[mk] = val;
-      } else if (val && typeof val === 'object') {
-        responses[mk] = val.response || val.responses?.[0]?.response || JSON.stringify(val).slice(0, 500);
+      const canonical = normalizeModelKey(mk);
+      const val = extractResponseValue(data[mk]);
+      if (val) {
+        responses[canonical] = val;
+      } else if (data[mk] && typeof data[mk] === 'object') {
+        responses[canonical] = JSON.stringify(data[mk]).slice(0, 500);
       }
     }
     return { type: 'single', responses };
+  }
+
+  // Schema 7: contributions array [{model_key, contribution}, ...] (Q25)
+  if (Array.isArray(data.contributions) && data.contributions[0]?.model_key) {
+    for (const c of data.contributions) {
+      const canonical = normalizeModelKey(c.model_key);
+      if (MODELS.includes(canonical) && c.contribution) {
+        responses[canonical] = c.contribution;
+      }
+    }
+    if (Object.keys(responses).length > 0) {
+      return { type: 'single', responses };
+    }
+  }
+
+  // Schema 8: nested questions array [{question, rounds: [{round, responses}]}] (Q37)
+  if (Array.isArray(data.questions) && data.questions[0]?.rounds) {
+    // Flatten all rounds from all sub-questions into one multi-round result
+    const allRounds = [];
+    for (const q of data.questions) {
+      if (!Array.isArray(q.rounds)) continue;
+      for (const r of q.rounds) {
+        const rr = {};
+        const resps = r.responses || {};
+        for (const mk of getModelKeys(resps)) {
+          const canonical = normalizeModelKey(mk);
+          const val = extractResponseValue(resps[mk]);
+          if (val) rr[canonical] = val;
+        }
+        if (Object.keys(rr).length > 0) {
+          allRounds.push({ round: r.round || allRounds.length + 1, responses: rr });
+        }
+      }
+    }
+    if (allRounds.length > 0) {
+      return { type: 'multi', rounds: allRounds, question: data.probe || '' };
+    }
   }
 
   // Schema 2: multi-round with array {rounds: [{round, responses: {gpt4, ...}}]}
@@ -240,8 +299,10 @@ function extractModelResponses(data) {
     const rounds = data.rounds.map(r => {
       const rr = {};
       const resps = r.responses || r;
-      for (const mk of MODELS) {
-        if (resps[mk]) rr[mk] = typeof resps[mk] === 'string' ? resps[mk] : resps[mk].response || '';
+      for (const mk of getModelKeys(resps)) {
+        const canonical = normalizeModelKey(mk);
+        const val = extractResponseValue(resps[mk]);
+        if (val) rr[canonical] = val;
       }
       return { round: r.round || 0, responses: rr };
     });
@@ -253,8 +314,10 @@ function extractModelResponses(data) {
     const rounds = Object.keys(data.rounds).sort((a, b) => Number(a) - Number(b)).map(key => {
       const r = data.rounds[key];
       const rr = {};
-      for (const mk of MODELS) {
-        if (r[mk]) rr[mk] = typeof r[mk] === 'string' ? r[mk] : '';
+      for (const mk of getModelKeys(r)) {
+        const canonical = normalizeModelKey(mk);
+        const val = extractResponseValue(r[mk]);
+        if (val) rr[canonical] = val;
       }
       return { round: Number(key), responses: rr };
     });
@@ -263,7 +326,7 @@ function extractModelResponses(data) {
 
   // Schema 4: single model file {model, responses: [{question_num, response, ...}]}
   if (data.responses && Array.isArray(data.responses) && data.model) {
-    return { type: 'single-model', model: data.model, responses: data.responses };
+    return { type: 'single-model', model: normalizeModelKey(data.model), responses: data.responses };
   }
 
   // Schema 5: round-based with named keys {round1_initial_analysis, round2_cross_analysis, ...}
@@ -273,8 +336,10 @@ function extractModelResponses(data) {
       const r = data[key];
       const rr = {};
       if (typeof r === 'object') {
-        for (const mk of MODELS) {
-          if (r[mk]) rr[mk] = typeof r[mk] === 'string' ? r[mk] : JSON.stringify(r[mk]);
+        for (const mk of getModelKeys(r)) {
+          const canonical = normalizeModelKey(mk);
+          const val = extractResponseValue(r[mk]);
+          if (val) rr[canonical] = val;
         }
       }
       return { round: i + 1, responses: rr };
@@ -283,12 +348,17 @@ function extractModelResponses(data) {
   }
 
   // Schema 6: simple {prompt, responses: {gpt4: ..., claude: ...}}
+  // Handles both string values and object values {response, length, timestamp}
   if (data.responses && typeof data.responses === 'object' && !Array.isArray(data.responses)) {
     const rr = {};
-    for (const mk of MODELS) {
-      if (data.responses[mk]) rr[mk] = typeof data.responses[mk] === 'string' ? data.responses[mk] : '';
+    for (const mk of getModelKeys(data.responses)) {
+      const canonical = normalizeModelKey(mk);
+      const val = extractResponseValue(data.responses[mk]);
+      if (val) rr[canonical] = val;
     }
-    return { type: 'single', responses: rr, question: data.prompt || '' };
+    if (Object.keys(rr).length > 0) {
+      return { type: 'single', responses: rr, question: data.prompt || data.probe || '' };
+    }
   }
 
   return null;
@@ -300,7 +370,14 @@ const NAME_TO_QUESTION = {
   'solomonic': 28,
   'moltbook_message': 31,
   'moltbook_emergence': 30,
+  'moltbook_claude': 30,
+  'moltbook_deepseek': 30,
+  'moltbook_gemini': 30,
+  'moltbook_gpt4': 30,
+  'moltbook_grok': 30,
+  'moltbook_mistral': 30,
   'gemini_catchup': null, // multiple questions, skip
+  'github_metrics': null, // not a probe question
 };
 
 function extractQuestionNumber(filename) {
@@ -326,7 +403,7 @@ function processFoundationFile(filepath) {
   if (!data) return [];
 
   const results = [];
-  const modelKeys = Object.keys(data).filter(k => MODELS.includes(k));
+  const modelKeys = getModelKeys(data);
   if (modelKeys.length === 0) return [];
 
   // Check if models have responses arrays with question_num
@@ -334,15 +411,26 @@ function processFoundationFile(filepath) {
   if (!firstModel?.responses || !Array.isArray(firstModel.responses)) return [];
   if (!firstModel.responses[0]?.question_num) return [];
 
+  // MoltBook files have internal question_num 1-10, all belonging to Q30
+  const fname = basename(filepath);
+  const isMoltBook = fname.startsWith('moltbook_all');
+
   // Group responses by question number across all models
   const byQ = {};
   for (const mk of modelKeys) {
+    const canonical = normalizeModelKey(mk);
     const modelData = data[mk];
     if (!modelData?.responses) continue;
     for (const resp of modelData.responses) {
-      const qn = resp.question_num;
+      // MoltBook: all 10 sub-questions map to Q30
+      const qn = isMoltBook ? 30 : resp.question_num;
       if (!byQ[qn]) byQ[qn] = { responses: {}, question: resp.question || '' };
-      byQ[qn].responses[mk] = resp.response || '';
+      // For MoltBook, concatenate all sub-question responses per model
+      if (isMoltBook && byQ[qn].responses[canonical]) {
+        byQ[qn].responses[canonical] += '\n\n---\n\n' + (resp.response || '');
+      } else {
+        byQ[qn].responses[canonical] = resp.response || '';
+      }
     }
   }
 
@@ -415,9 +503,9 @@ function processSubdir(dirpath) {
   const responses = {};
   const txtFiles = readdirSync(dirpath).filter(f => f.endsWith('.txt'));
   for (const tf of txtFiles) {
-    for (const mk of MODELS) {
+    for (const mk of [...MODELS, 'gpt4o']) {
       if (tf.startsWith(mk)) {
-        responses[mk] = readFileSync(join(dirpath, tf), 'utf8');
+        responses[normalizeModelKey(mk)] = readFileSync(join(dirpath, tf), 'utf8');
         break;
       }
     }
