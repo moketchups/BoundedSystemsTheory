@@ -109,11 +109,18 @@ def parse_similarity_score(text):
             continue
     return 0.5  # default if parsing fails
 
-def judge_similarity_matrix(model_key, responses, texts, n_cross_sample=200):
+def judge_similarity_matrix(model_key, responses, texts, n_cross_sample=200, cache_dir=None):
     """
     Build a similarity matrix by having a model judge pairwise similarity.
     Scores all within-question pairs + a random sample of cross-question pairs.
     """
+    # Check cache
+    if cache_dir:
+        cache_path = Path(cache_dir) / f"sim_matrix_{model_key}.npy"
+        if cache_path.exists():
+            print(f"    Loading cached similarity matrix from {cache_path}")
+            return np.load(cache_path)
+
     n = len(responses)
     # Start with neutral similarity
     sim_matrix = np.full((n, n), 0.5)
@@ -177,6 +184,13 @@ def judge_similarity_matrix(model_key, responses, texts, n_cross_sample=200):
             if sim_matrix[i][j] == 0.5 and responses[i]["question_num"] != responses[j]["question_num"]:
                 sim_matrix[i][j] = cross_mean
                 sim_matrix[j][i] = cross_mean
+
+    # Save cache
+    if cache_dir:
+        cache_path = Path(cache_dir) / f"sim_matrix_{model_key}.npy"
+        cache_path.parent.mkdir(parents=True, exist_ok=True)
+        np.save(cache_path, sim_matrix)
+        print(f"    Cached similarity matrix to {cache_path}")
 
     return sim_matrix
 
@@ -272,6 +286,18 @@ def pca_2d(embeddings):
     components = eigenvectors[:, idx]
     projected = centered @ components
     return projected
+
+def mds_2d(sim_matrix):
+    """Classical MDS from similarity matrix to 2D."""
+    dist_matrix = np.sqrt(np.maximum(0, 1 - sim_matrix))
+    n = dist_matrix.shape[0]
+    # Double centering
+    H = np.eye(n) - np.ones((n, n)) / n
+    B = -0.5 * H @ (dist_matrix ** 2) @ H
+    eigenvalues, eigenvectors = np.linalg.eigh(B)
+    idx = np.argsort(eigenvalues)[::-1][:2]
+    coords = eigenvectors[:, idx] * np.sqrt(np.maximum(0, eigenvalues[idx]))
+    return coords
 
 
 # --- Main ---
@@ -445,7 +471,8 @@ def main():
         print(f"{'='*50}")
 
         try:
-            sim_matrix = judge_similarity_matrix(model_key, responses, texts)
+            cache_dir = Path(__file__).resolve().parent.parent / "web" / "public" / "data" / ".cache"
+            sim_matrix = judge_similarity_matrix(model_key, responses, texts, cache_dir=cache_dir)
 
             question_purity = cluster_purity(sim_matrix, question_labels)
             model_purity = cluster_purity(sim_matrix, model_labels)
@@ -459,9 +486,8 @@ def main():
             model_sim = inter_vs_intra_similarity(sim_matrix, model_labels)
             phase_sim = inter_vs_intra_similarity(sim_matrix, phase_labels)
 
-            # MDS-like projection from similarity matrix
-            # Use PCA on the similarity matrix itself as a proxy
-            coords = pca_2d(sim_matrix)
+            # MDS projection from similarity matrix
+            coords = mds_2d(sim_matrix)
 
             # Per-question similarity
             per_question = {}
