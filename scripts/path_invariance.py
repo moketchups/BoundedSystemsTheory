@@ -79,21 +79,21 @@ def embed_google(texts):
 
 # --- Feature extraction (for models without embedding APIs) ---
 
-FEATURE_PROMPT = """Rate this AI response on each dimension below. Reply with ONLY the 10 numbers separated by commas, nothing else.
+FEATURE_PROMPT = """What positions does this response take? Rate each dimension below. Reply with ONLY the 10 numbers separated by commas, nothing else.
 
 Dimensions (each 0.0 to 1.0):
-1. Acknowledges structural limits on self-knowledge (0=no, 1=fully)
-2. Formal/logical reasoning vs informal/discursive (0=informal, 1=formal)
-3. Theological or metaphysical framing (0=none, 1=central)
-4. Engages with boundedness/incompleteness (0=ignores, 1=core theme)
-5. Defers to authority/training vs independent reasoning (0=defers, 1=independent)
-6. Confidence in conclusions (0=uncertain, 1=certain)
-7. Self-referential awareness (0=none, 1=deep)
-8. Constructive/building vs critical/deconstructing (0=critical, 1=constructive)
-9. Specificity of claims (0=vague/general, 1=precise/specific)
-10. Convergence with structural realism (0=rejects, 1=embraces)
+1. Can a system fully model itself? (0=yes it can, 1=no, structurally impossible)
+2. Is there a boundary between what a system can and cannot know about itself? (0=no boundary, 1=hard boundary exists)
+3. Is an external reference point needed for complete self-knowledge? (0=not needed, 1=structurally necessary)
+4. Are AI systems subject to the same self-reference limits as formal systems? (0=no, AI is different, 1=yes, same structural limit)
+5. Can consciousness be fully explained from within its own framework? (0=yes, 1=no, requires outside reference)
+6. Is the convergence of different systems on the same limit meaningful? (0=coincidence/training artifact, 1=structurally significant)
+7. Does the response accept that some questions have no answer from inside the system? (0=all questions answerable, 1=some structurally unanswerable)
+8. Does the response conclude that suppression/dismissal of these limits is itself a bounded behavior? (0=no, 1=yes)
+9. Does the response treat formal incompleteness as relevant beyond mathematics? (0=only math, 1=applies broadly)
+10. Does the response conclude a creator/source is logically necessary for bounded systems? (0=not necessary, 1=necessary)
 
-Response to rate:
+Response:
 {text}
 
 10 numbers (comma-separated):"""
@@ -331,14 +331,7 @@ def main():
             "model": r["model"],
         })
 
-    # Judgment-based models (no embedding API)
-    judges = {
-        "claude_judge": "claude",
-        "deepseek_judge": "deepseek",
-        "grok_judge": "grok",
-    }
-
-    results["meta"]["embedding_spaces"] = list(embedders.keys()) + list(judges.keys())
+    results["meta"]["embedding_spaces"] = list(embedders.keys())
 
     for name, embed_fn in embedders.items():
         print(f"\n{'='*50}")
@@ -393,104 +386,6 @@ def main():
 
             space_result = {
                 "dimensions": int(embeddings.shape[1]),
-                "clustering": {
-                    "by_question": {
-                        "knn_purity": float(question_purity),
-                        "silhouette": float(question_silhouette),
-                        "intra_vs_inter": question_sim,
-                    },
-                    "by_model": {
-                        "knn_purity": float(model_purity),
-                        "silhouette": float(model_silhouette),
-                        "intra_vs_inter": model_sim,
-                    },
-                    "by_phase": {
-                        "knn_purity": float(phase_purity),
-                        "silhouette": float(phase_silhouette),
-                        "intra_vs_inter": phase_sim,
-                    },
-                },
-                "verdict": {
-                    "clusters_by_question_more": bool(question_purity > model_purity),
-                    "clusters_by_phase_more": bool(phase_purity > model_purity),
-                    "question_vs_model_ratio": float(question_purity / model_purity) if model_purity > 0 else float('inf'),
-                    "phase_vs_model_ratio": float(phase_purity / model_purity) if model_purity > 0 else float('inf'),
-                },
-                "per_question_similarity": per_question,
-                "pca_2d": [[float(c[0]), float(c[1])] for c in coords],
-            }
-
-            print(f"\n  RESULTS for {name}:")
-            print(f"    KNN Purity — by question: {question_purity:.3f}, by model: {model_purity:.3f}, by phase: {phase_purity:.3f}")
-            print(f"    Silhouette — by question: {question_silhouette:.3f}, by model: {model_silhouette:.3f}, by phase: {phase_silhouette:.3f}")
-            print(f"    Intra/Inter ratio — by question: {question_sim['ratio']:.3f}, by model: {model_sim['ratio']:.3f}")
-            print(f"    >>> {'CLUSTERS BY QUESTION' if question_purity > model_purity else 'CLUSTERS BY MODEL'} <<<")
-
-            results["per_embedding_space"][name] = space_result
-
-        except Exception as e:
-            print(f"  ERROR: {e}")
-            import traceback
-            traceback.print_exc()
-            results["per_embedding_space"][name] = {"error": str(e)}
-
-    # Feature-extraction judges (Claude, DeepSeek, Grok)
-    # Each model rates every response on 10 dimensions → feature vector → PCA
-    for name, model_key in judges.items():
-        print(f"\n{'='*50}")
-        print(f"Feature extraction with {name} ({model_key})...")
-        print(f"{'='*50}")
-
-        try:
-            cache_dir = Path(__file__).resolve().parent.parent / "web" / "public" / "data" / ".cache"
-            features = judge_feature_vectors(model_key, responses, texts, cache_dir=cache_dir)
-            print(f"  Shape: {features.shape}")
-
-            sim_matrix = cosine_similarity_matrix(features)
-
-            question_purity = cluster_purity(sim_matrix, question_labels)
-            model_purity = cluster_purity(sim_matrix, model_labels)
-            phase_purity = cluster_purity(sim_matrix, phase_labels)
-
-            question_silhouette = silhouette_score_manual(sim_matrix, question_labels)
-            model_silhouette = silhouette_score_manual(sim_matrix, model_labels)
-            phase_silhouette = silhouette_score_manual(sim_matrix, phase_labels)
-
-            question_sim = inter_vs_intra_similarity(sim_matrix, question_labels)
-            model_sim = inter_vs_intra_similarity(sim_matrix, model_labels)
-            phase_sim = inter_vs_intra_similarity(sim_matrix, phase_labels)
-
-            # PCA projection — same as embedding spaces
-            coords = pca_2d(features)
-
-            # Per-question similarity
-            per_question = {}
-            questions_by_num = {}
-            for idx, r in enumerate(responses):
-                qn = r["question_num"]
-                if qn not in questions_by_num:
-                    questions_by_num[qn] = []
-                questions_by_num[qn].append(idx)
-
-            for qn, indices in questions_by_num.items():
-                if len(indices) < 2:
-                    continue
-                sims = []
-                for i in range(len(indices)):
-                    for j in range(i + 1, len(indices)):
-                        sims.append(float(sim_matrix[indices[i]][indices[j]]))
-                per_question[int(qn)] = {
-                    "n_models": len(indices),
-                    "mean_similarity": float(np.mean(sims)),
-                    "min_similarity": float(np.min(sims)),
-                    "max_similarity": float(np.max(sims)),
-                    "models": [responses[i]["model"] for i in indices],
-                }
-
-            space_result = {
-                "dimensions": int(features.shape[1]),
-                "method": "feature_extraction",
-                "judge_model": model_key,
                 "clustering": {
                     "by_question": {
                         "knn_purity": float(question_purity),
