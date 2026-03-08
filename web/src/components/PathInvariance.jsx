@@ -213,7 +213,7 @@ export default function PathInvariance() {
                   : 'border-border text-muted hover:text-gray-300'
               }`}
             >
-              {s} ({data.per_embedding_space[s].dimensions === 'judgment' ? 'LLM judge' : data.per_embedding_space[s].dimensions + 'd'})
+              {s.replace('_judge', '').replace(/^\w/, c => c.toUpperCase())}
             </button>
           ))}
         </div>
