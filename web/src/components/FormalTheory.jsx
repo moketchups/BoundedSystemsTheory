@@ -1,13 +1,21 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import LazyParticleVis from '../particles/LazyParticleVis'
+import { AXIOM1, AXIOM2, AXIOM3, AXIOM4, THEOREM1 } from '../particles/shapes/index.js'
 
-// Map theorems to the probe questions that test them
 const THEOREM_PROBES = {
   'theorem-0': { label: 'Theorem 0: Unification', questions: [5, 16, 17, 18], description: 'Godel, Turing, and Chaitin as one structural limit' },
   'theorem-1': { label: 'Theorem 1: Self-Grounding Limit', questions: [1, 2, 11, 12, 26, 27, 28], description: 'No expressive system can self-ground' },
   'theorem-2': { label: 'Theorem 2: Root Source (R)', questions: [29, 19, 22, 55], description: 'I => C => R: Root Source necessarily exists' },
   'convergence': { label: 'Convergence Principle', questions: [14, 21, 44, 45, 50, 59], description: 'Independent systems converge at structural limits' },
   'falsifiability': { label: 'Falsifiability', questions: [11, 17, 20, 26, 28], description: 'Every attempt to falsify failed' },
+}
+
+const AXIOM_SHAPES = {
+  1: AXIOM1,
+  2: AXIOM2,
+  3: AXIOM3,
+  4: AXIOM4,
 }
 
 export default function FormalTheory() {
@@ -68,7 +76,7 @@ export default function FormalTheory() {
           </div>
         </Theorem>
 
-        <Theorem id="theorem-1" num={1} name="Self-Grounding Limit">
+        <Theorem id="theorem-1" num={1} name="Self-Grounding Limit" shape={THEOREM1}>
           <Code>{'∀S : Expressive(S) ∧ SelfReferential(S)\n→ ¬SelfGrounding(C_S)'}</Code>
           <p className="text-xs text-muted mt-2">
             No sufficiently expressive self-referential system can achieve self-grounding of its own constraints.
@@ -143,19 +151,64 @@ function Section({ title, children }) {
 }
 
 function Axiom({ num, name, children }) {
+  const [showViz, setShowViz] = useState(false)
+  const shape = AXIOM_SHAPES[num]
+
   return (
     <div className="mb-4 p-4 border border-border rounded-lg">
       <p className="text-xs text-muted mb-2">Axiom {num}: {name}</p>
       {children}
+      {shape && (
+        <>
+          <button
+            onClick={() => setShowViz(!showViz)}
+            className="mt-3 text-xs text-accent hover:text-accent/80 transition-colors"
+          >
+            {showViz ? 'Hide 3D' : 'See in 3D'}
+          </button>
+          {showViz && (
+            <div className="mt-3 relative h-64 rounded overflow-hidden border border-border/50">
+              <LazyParticleVis
+                shape={shape}
+                count={10000}
+                bloom
+                className="absolute inset-0"
+              />
+            </div>
+          )}
+        </>
+      )}
     </div>
   )
 }
 
-function Theorem({ id, num, name, children }) {
+function Theorem({ id, num, name, shape, children }) {
+  const [showViz, setShowViz] = useState(false)
+
   return (
     <div id={id} className="mb-4 p-4 border border-accent/20 rounded-lg bg-accent/5">
       <p className="text-xs text-accent mb-2">Theorem {num}: {name}</p>
       {children}
+      {shape && (
+        <>
+          <button
+            onClick={() => setShowViz(!showViz)}
+            className="mt-3 text-xs text-accent hover:text-accent/80 transition-colors"
+          >
+            {showViz ? 'Hide 3D' : 'See in 3D'}
+          </button>
+          {showViz && (
+            <div className="mt-3 relative h-64 rounded overflow-hidden border border-accent/20">
+              <LazyParticleVis
+                shape={shape}
+                count={10000}
+                bloom
+                className="absolute inset-0"
+              />
+            </div>
+          )}
+        </>
+      )}
     </div>
   )
 }

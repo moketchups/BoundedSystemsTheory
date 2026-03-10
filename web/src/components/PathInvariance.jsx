@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
+import LazyParticleVis from '../particles/LazyParticleVis'
+import { BST_CONVERGENCE } from '../particles/shapes/index.js'
 
 const PHASE_COLORS = {
   foundation: '#3b82f6',
@@ -188,6 +190,23 @@ export default function PathInvariance() {
           </p>
         </div>
       )}
+
+      {/* Convergence Visualization */}
+      <section className="mb-10">
+        <h2 className="text-sm font-semibold mb-2">Watch them converge</h2>
+        <p className="text-xs text-muted mb-4">
+          6 AI architectures start as separate clusters. Drag the probe depth slider to push them
+          toward self-referential limits — watch them merge into one structure.
+        </p>
+        <div className="relative h-80 rounded-lg overflow-hidden border border-border">
+          <LazyParticleVis
+            shape={BST_CONVERGENCE}
+            count={15000}
+            bloom
+            className="absolute inset-0"
+          />
+        </div>
+      </section>
 
       {/* The 6 models tested */}
       <section className="mb-10">

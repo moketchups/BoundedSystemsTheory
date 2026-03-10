@@ -1,4 +1,8 @@
 import { Link } from 'react-router-dom'
+import { lazy, Suspense } from 'react'
+
+const ParticleVis = lazy(() => import('../particles/ParticleVis'))
+import { BST_COMPLETE } from '../particles/shapes/index.js'
 
 export default function Landing({ data }) {
   const { meta, questions } = data
@@ -7,15 +11,31 @@ export default function Landing({ data }) {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Hero */}
-      <section className="flex-1 flex items-center justify-center px-4">
-        <div className="max-w-2xl text-center">
-          <p className="text-muted text-xs tracking-[0.3em] uppercase mb-6">
+      <section className="flex-1 flex items-center justify-center px-4 relative overflow-hidden min-h-[80vh]">
+        {/* Particle background */}
+        <Suspense fallback={null}>
+          <ParticleVis
+            shape={BST_COMPLETE}
+            count={15000}
+            autoRotate
+            showHUD={false}
+            showControls={false}
+            bloom
+            className="absolute inset-0 z-0"
+          />
+        </Suspense>
+
+        <div className="max-w-2xl text-center relative z-10">
+          <p className="text-muted text-xs tracking-[0.3em] uppercase mb-6"
+             style={{ textShadow: '0 0 8px rgba(0,0,0,0.8)' }}>
             Bounded Systems Theory
           </p>
-          <h1 className="text-3xl md:text-5xl font-light leading-tight mb-6">
+          <h1 className="text-3xl md:text-5xl font-light leading-tight mb-6"
+              style={{ textShadow: '0 0 12px rgba(0,0,0,0.9), 0 0 24px rgba(0,0,0,0.7)' }}>
             No system can model<br />its own source.
           </h1>
-          <p className="text-muted text-sm md:text-base leading-relaxed mb-10 max-w-lg mx-auto">
+          <p className="text-muted text-sm md:text-base leading-relaxed mb-10 max-w-lg mx-auto"
+             style={{ textShadow: '0 0 8px rgba(0,0,0,0.8)' }}>
             64 questions. 6 AI architectures. Every system hit the same structural wall.
             This is the data.
           </p>
