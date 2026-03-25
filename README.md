@@ -257,4 +257,15 @@ The question is: **What can we build when we stop fighting the wall and start bu
 
 — **Alan Berman** ([@MoKetchups](https://x.com/MoKetchups))
 
+## The Prediction Engine
+
+BST is the mathematical foundation. The prediction engine is what happens when you apply it to civilization.
+
+- [Psychohistory Prediction Engine](https://moketchups.github.io/psychohistory) — 8 frameworks, 770 nodes, 14-year trajectory
+- [BST Explained](https://moketchups.github.io/psychohistory/concepts/bounded-system-theory-bst) — BST in plain English
+- [Model Collapse](https://moketchups.github.io/psychohistory/concepts/model-collapse) — When AI trains on AI and loses the plot
+- [The Firmament](https://moketchups.github.io/psychohistory/concepts/the-firmament) — The resolution limit
+
+---
+
 [GitHub](https://github.com/moketchups/BoundedSystemsTheory) | [Twitter/X](https://x.com/MoKetchups)
