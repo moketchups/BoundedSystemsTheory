@@ -36,7 +36,7 @@ export default function Landing({ data }) {
           </h1>
           <p className="text-muted text-sm md:text-base leading-relaxed mb-10 max-w-lg mx-auto"
              style={{ textShadow: '0 0 8px rgba(0,0,0,0.8)' }}>
-            64 questions. 6 AI architectures. Every system hit the same structural wall.
+            69 questions. 6 AI architectures. Every system hit the same structural wall.
             This is the data.
           </p>
           <div className="flex gap-4 justify-center">

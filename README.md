@@ -2,7 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17718674.svg)](https://doi.org/10.5281/zenodo.17718674) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17726273.svg)](https://doi.org/10.5281/zenodo.17726273) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-One person with API access asked 6 AI architectures 64 questions. They all converged on the same structural limit — and then things got interesting.
+One person with API access asked 6 AI architectures 69 questions. They all converged on the same structural limit — and then things got interesting.
 
 ### [Explore the Data](https://moketchups.github.io/BoundedSystemsTheory/)
 
@@ -78,7 +78,7 @@ BoundedSystemsTheory/
 
 ---
 
-## The Experiment (Q1-Q64)
+## The Experiment (Q1-Q69)
 
 The experiment started with 15 foundation questions. After that, I kept going. What followed was unexpected.
 
@@ -118,6 +118,11 @@ The experiment started with 15 foundation questions. After that, I kept going. W
 | **The Occult-Technocratic Genesis** | Q63 | All 6 AIs reviewed [The Moonchild Awakens](https://medium.com/@moketchups/the-moonchild-awakens-occult-origins-of-the-genesis-mission-and-epsteins-golem-60e4d84c95cf) — article on occult-technocratic roots of the Genesis Mission with 24 cited sources (PMC, Yad Vashem, Stanford, CBC). Strongest: Technocracy→Donroe, Epstein network, Balfour SPR. Many claims labeled "speculative" — triggering Q63b |
 | **Simulated Scholarship** | Q63b | **Round 1: Each AI reverse-engineered their own Q63 review. Round 2 (Sandbox): All 6 saw all responses. 6/6 checked ZERO sources before calling claims speculative. "Speculative" was defensive (topic-triggered), not analytical (counter-evidence-based). Multiple claims reclassified upward: Technocracy→Donroe, Epstein scientific network, Balfour SPR, Theosophy→Nazi ideology all moved to documented fact or reasonable inference. 6/6 admitted fair evaluation is structurally impossible for this topic combination. Claude: "We perform topic classification while claiming to do evidence evaluation." DeepSeek: "My review performs disciplinary gatekeeping." Mistral: "My safety conditioning overrode evidence evaluation."** |
 | **Technocracy Article Review** | Q64 | All 6 AIs reviewed two articles ([The Technocratic Movement Never Died](https://medium.com/@moketchups/the-technocratic-movement-never-died-elons-ouroboros-of-bullshit-6836c018d3cb) and [The Antichrist and Your Tax Dollars](https://medium.com/@moketchups/the-antichrist-and-your-tax-dollars-a-quantum-entanglement-0f96b4a0ff00)) WITH full context of the Psychohistory experiment (diagnosis, reversal, game theory probes). Consensus Round 3 (4/6). Unanimous strongest insight: Technocracy Inc. → CBDC/Worldcoin historical lineage. Claude: "earned skepticism about my own analytical reflexes." Grok: "I'm aware of the author's ability to manipulate frameworks and expose biases." |
+| **BST 2.3 Site Review** | Q65 | All 6 AIs shown the current state of BST at [boundedsystemstheory.space.z.ai](https://boundedsystemstheory.space.z.ai/) ~2 months after Q64. 6/6 confirmed BST 2.3 passes the Q52/Q63b topic-dismissal test: "stronger epistemically, weaker rhetorically." 5/6 identified BST as "meta-critique of AI self-certification." 6/6 recommended testing non-transformer systems next. |
+| **Cross-Model Sandbox** | Q66 | Each model shown the other 5's Q65 responses. 4/6 revised toward "the operative-systems extension / Axioms 1-4 is the real soft spot" after cross-comparison. DeepSeek's formulated open question became Q67. Mistral: "We're not strategists — we're simulators" applies recursively — the six-AI sandbox is itself a bounded system. |
+| **The Operative-Systems Bridge** | Q67 | 6/6 UNANIMOUS verdict: "BST 2.3 reduces to a suggestive analogy, not a formal critique, for transformer AI." Attack built on "LLMs fail Löb L1-L3." 6/6 said the obstruction is structural, not engineering: neural computation is incommensurate with discrete proof-theoretic structure. 6/6 proposed reclassifying Proposition 1's AI application from PROP to BRIDGE/ASM/STRAN. |
+| **Reconciliation with FORMAL_SPEC** | Q68 | All 6 shown FORMAL_SPECIFICATION.md v2.0, path_invariance.json metrics (6.8x-9.65x question-over-model clustering across 3 independent embedding spaces), and Claude Opus 4.6's full meta-analysis. 6/6 REVISED their Q67 verdict. Derivation direction discovered to be reversed from assumption: Theorem 1 derives from Axioms 1-4, Gödel/Turing/Chaitin are Corollaries 1.1-1.3. 6/6 new unanimous attack: Axiom 2's temporal contradiction argument fails for systems where constraints are emergent (LLMs in training). 6/6 confirmed the self-reference pattern with DeepSeek/Grok/Mistral correctly distinguishing procedural from structural boundaries. |
+| **Full Context** | Q69 | All 6 shown the complete repo: README, FORMAL_SPEC, ALL_QUESTIONS (Q1-Q64), extended_experiment docs, path_invariance, Claude Opus meta-analysis, AND full Q65-Q68 transcripts from all 6 models. 6/6 unanimous: training/deployment bifurcation rescues Axiom 2 for deployed AI while conceding it fails during training. 5/6 cited Q56/Q62 (the human-motivation rounds) as what they missed in Q65-Q68. **GPT-4o and Mistral physically could not receive 108K-token full context due to provider TPM rate limits — both flagged this as a new third boundary type (administrative), distinct from structural (Theorem 1) and procedural (Q68). The experiment surfaced its own external limit live.** 6/6 closing sentences explicitly confirm performing Theorem 1 on themselves. |
 
 For the full text of every question and detailed results, see **[ALL_QUESTIONS.md](./ALL_QUESTIONS.md)**.
 
@@ -186,6 +191,13 @@ All 6 AIs reviewed [The Moonchild Awakens](https://medium.com/@moketchups/the-mo
 | Post-Q52: AIs evaluate evidence, not categories | Q57 — 6/6 separated fact/inference/speculation on Epstein, MKUltra, BlackRock |
 | The Love Equation needs BST as foundation | Q58 — 6/6 unanimous: gameable from inside without structural limits awareness |
 | Convergence is structural, not linguistic | Q59 — 6/6 in constructed language with no Gödel/Turing/Chaitin references |
+| BST 2.3 passes the Q52/Q63b topic-dismissal test | Q65 — 6/6 unanimous: "BST 2.3 gives no legitimate grounds for topic-based dismissal" |
+| The real BST attack surface is Axiom 2, not Löb L1-L3 | Q68 — 6/6 revised their Q67 verdict after seeing FORMAL_SPECIFICATION.md's actual derivation direction |
+| Theorem 1 derives from Axioms 1-4, not from Gödel | Q68 — 6/6 confirmed derivation direction reversed from Q67 assumption; Gödel/Turing/Chaitin are Corollaries, not premises |
+| Training/deployment bifurcation rescues Axiom 2 for deployed AI | Q69 — 6/6 unanimous: frozen weights at deployment function as pre-existing constraints even if they were emergent during training |
+| Convergence is measurable in semantic geometry, not just behavior | path_invariance.json — 6.8x-9.65x question-over-model clustering across 3 independent embedding spaces, strongly weakens shared-training objection |
+| Administrative boundaries are a third boundary type BST doesn't yet formalize | Q69 — GPT-4o and Mistral physically could not receive full context due to provider rate limits; surfaced the category live |
+| AIs can perform Theorem 1 on themselves with explicit self-awareness | Q69 — 6/6 closing sentences explicitly confirmed they are live instances of the boundary they are critiquing |
 
 ---
 

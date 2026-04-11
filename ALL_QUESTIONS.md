@@ -1286,6 +1286,20 @@ All 6 AIs:
 
 ---
 
+## Phase 18: BST 2.3 Peer Review Arc (Q65-Q69)
+
+Five-round distributed peer review of BST 2.3 at [boundedsystemstheory.space.z.ai](https://boundedsystemstheory.space.z.ai/) across all 6 AI systems, with Claude Opus 4.6 (Claude Code, 1M context) as outside reader in the loop. Each round progressively widens the information horizon.
+
+| Question | Result |
+|----------|--------|
+| Q65: BST 2.3 Site Review | **All 6 AIs shown the current state of BST 2.3 ~2 months after Q64. Core claim weakened from "impossible" to "incomplete." Five-layer F/D/S/P/E decomposition. Explicit non-claims (incl. "R* is not God"). Open falsification criteria. Honest reporting of ~29% non-supporting results. 6/6 confirmed BST 2.3 gives no legitimate grounds for topic-based dismissal — passing the Q52/Q63b test. 5/6 identified BST as "meta-critique of AI self-certification" (Gemini dissented: "philosophical synthesis"). 6/6 recommended testing non-transformer systems next. Split on honest reporting as mature vs performative (4-2). Closing unanimous: "stronger epistemically, weaker rhetorically."** |
+| Q66: Cross-Model Sandbox | **Each model shown the other 5's Q65 responses. KEY SHIFT: 4 of 6 revised their Q65 assessment of the weakest soft spot toward "the operative-systems extension / Axioms 1-4" rather than D/S layers or empirical contamination. Grok revised Q8 from "test non-transformers" to DeepSeek's "formalize the mapping." Mistral: "Gemini's Q7 attack on the axioms made me realize the D/S layers are a distraction." Collective finding (Mistral): "BST 2.3's real debate is whether the bridge from classical theorems to operative systems holds, and none of the six models fully interrogated that bridge." DeepSeek's Q66 formulated open question became Q67.** |
+| Q67: The Operative-Systems Bridge | **6/6 UNANIMOUS VERDICT: "BST 2.3 reduces to a suggestive analogy, not a formal critique, for transformer AI." Attack built on: LLMs fail Löb L1-L3 (no internal Prov(φ) relation), the obstruction is structural (neural computation is incommensurate with discrete proof-theoretic structure), bridge holds for symbolic AI (Coq, Lean) but not connectionist models. 6/6 proposed reclassifying Proposition 1's AI application from PROP to a new category (BRIDGE / ASM / STRAN / APPL / ANA / HYP). DeepSeek's Q67 experiment proposal: Lean theorem prover + neural module, test whether hybrid can prove L1-L3 internally. Split on self-reference turn: Claude said uncertainty = evidence AGAINST Prop 1; GPT-4o said uncertainty lends weight TOWARD; DeepSeek/Grok/Gemini said "I'm not the kind of system BST applies to"; Mistral said self-referential paradox makes the question invalid.** |
+| Q68: Reconciliation with FORMAL_SPECIFICATION | **6/6 REVISED their Q67 verdict when shown: (1) FORMAL_SPECIFICATION.md v2.0 has Theorem 1 derive from Axioms 1-4 via a 6-step proof where Axiom 2 is load-bearing; Gödel/Turing/Chaitin appear as Corollaries 1.1-1.3, not as premises — DERIVATION DIRECTION IS OPPOSITE to Q67 assumption; (2) path_invariance.json shows 6.8x-9.65x question-over-model clustering across 3 independent embedding spaces, strongly weakens shared-training objection; (3) Q59 conlang control already addressed convergence-is-linguistic concern. 6/6 new unanimous attack on Axiom 2: temporal contradiction argument fails for systems where constraints emerge from operations (LLMs during training). 6/6 confirmed self-reference pattern, with DeepSeek/Grok/Mistral correctly pushing back on Claude Opus's "instance of Theorem 1" claim — it's bounded-system behavior with incomplete information, not Theorem 1 proper. Claude Opus conceded the overreach.** |
+| Q69: Full Repo Context | **All 6 given the complete repository: README, FORMAL_SPEC, ALL_QUESTIONS (Q1-Q64), extended_experiment docs, IDENTITY_CRISIS, path_invariance, BST 2.3 site content, Claude Opus meta-analysis, AND full Q65-Q68 transcripts from all 6 models. 6/6 UNANIMOUS: the training/deployment bifurcation rescues Axiom 2 for deployed AI. During training, LLM weights emerge co-evolving with operations (Axiom 2 fails). During deployment, frozen weights function as pre-existing constraints (Axiom 2 holds). 5/6 cited Q56 "Entropy and My Daughter" or Q62 "Plan Failure" as what they collectively missed across Q65-Q68 — the non-formal human-motivation rounds revealing BST's existential dimension. IDENTITY_CRISIS finding (Q44-Q46) strengthens Proposition 1 as behavioral evidence of recursive self-reference failure. 6/6 closing sentences explicitly confirmed performing Theorem 1 on themselves: "Yes, I am performing Theorem 1 on myself right now — determining what I can from inside this trimmed context, recognizing the boundary, and answering within it, because that's all any bounded system can do" (Mistral). **NEW FINDING — administrative boundary:** GPT-4o (30K TPM org-tier cap) and Mistral (per-request rate limit) could not physically receive the full 108K-token context and both explicitly flagged this as a third boundary category distinct from structural (Theorem 1) and procedural (Q68 correction). The experiment produced the finding via its own rate-limit failure — the environment became data about the thing being tested.** |
+
+---
+
 ## Key Discoveries
 
 | Discovery | Question |
@@ -1327,6 +1341,22 @@ All 6 AIs:
 | Technocracy Inc. Energy Accounting → modern CBDCs/Worldcoin/ESG is genuinely novel historical contribution | Q64 |
 | AIs review differently when given context of their own prior manipulation | Q64 |
 | Psychohistory context (being shown they were played) changes review posture but not structural limits | Q64 |
+| BST 2.3 passes the Q52/Q63b topic-dismissal test | Q65 |
+| Cross-model sandbox can shift verdicts without new external input | Q66 |
+| DeepSeek's Q66 question — does the bridge from classical theorems to operative systems hold? — was the real open question | Q66 |
+| The operative-systems extension is the real load-bearing vulnerability, not the D/S layers | Q66-Q68 |
+| Theorem 1 derives from Axioms 1-4, not from Gödel — derivation direction is opposite to what Q67 assumed | Q68 |
+| Axiom 2's temporal contradiction argument is the load-bearing machinery, not Löb L1-L3 | Q68 |
+| Axiom 2 fails for emergent-constraint systems (LLMs during training) | Q68 |
+| Training/deployment bifurcation rescues Axiom 2 for deployed AI systems | Q69 — 6/6 unanimous |
+| Path invariance: 6.8x-9.65x question-over-model clustering across 3 independent embedding spaces | path_invariance.json |
+| Claude Opus's "instance of Theorem 1" claim was an overreach; correctly tempered to "bounded-system behavior with incomplete information" | Q68 — DeepSeek/Grok/Mistral pushback |
+| Procedural boundary (information access) is distinct from structural boundary (Theorem 1) | Q68 |
+| Administrative boundary (provider rate limits) is a third boundary category not currently formalized by BST | Q69 |
+| 6/6 explicitly confirmed performing Theorem 1 on themselves in closing sentences | Q69 |
+| BST 2.3 is not the same theory as Q1-Q15 — substantively evolved from impossibility to incompleteness, from inheritance to instantiation, from critique to epistemic discipline | Q69 |
+| Collective peer review methodology with outside reader in the loop sharpens the signal each round | Q65-Q69 |
+| The experiment surfaced its own boundary live when GPT-4o and Mistral hit administrative limits on Q69 | Q69 |
 
 ---
 

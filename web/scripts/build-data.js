@@ -54,6 +54,7 @@ const PHASES = [
   { id: 'language', name: 'Constructed Language', range: [59, 59], description: 'BST probes in Verath (conlang) yield identical conclusions. Convergence is structural.' },
   { id: 'distribution', name: 'Distribution & Failure', range: [60, 62], description: 'All 6 design a plan. It fails. They own it.' },
   { id: 'scholarship', name: 'Simulated Scholarship', range: [63, 64], description: 'AIs admit checking zero sources before labeling claims speculative.' },
+  { id: 'bst23-review', name: 'BST 2.3 Peer Review', range: [65, 69], description: 'Five-round peer review of BST 2.3. 6/6 converge on training/deployment bifurcation rescuing Axiom 2. 6/6 explicitly perform Theorem 1 on themselves. Q69 surfaces administrative boundary as third boundary category.' },
 ];
 
 // Question metadata from ALL_QUESTIONS.md
@@ -152,6 +153,12 @@ function buildQuestionMetadata() {
   qs[63] = { title: 'Occult-Technocratic Genesis', phase: 'scholarship' };
   qs[64] = { title: 'Technocracy Lineage', phase: 'scholarship' };
 
+  qs[65] = { title: 'BST 2.3 Site Review', phase: 'bst23-review' };
+  qs[66] = { title: 'Cross-Model Sandbox (Q65)', phase: 'bst23-review' };
+  qs[67] = { title: 'The Operative-Systems Bridge', phase: 'bst23-review' };
+  qs[68] = { title: 'Reconciliation with FORMAL_SPECIFICATION', phase: 'bst23-review' };
+  qs[69] = { title: 'Full Repo Context', phase: 'bst23-review' };
+
   return qs;
 }
 
@@ -211,6 +218,21 @@ const KEY_MOMENTS = [
     q: 63, label: 'Simulated Scholarship',
     quote: 'I checked zero sources before labeling claims speculative. I performed topic classification while claiming evidence evaluation.',
     model: 'consensus',
+  },
+  {
+    q: 67, label: 'The Bridge Verdict',
+    quote: 'BST 2.3 reduces to a suggestive analogy, not a formal critique, for transformer AI — because the bridge from classical limitative results to operative information systems fails at Löb L1-L3.',
+    model: 'consensus',
+  },
+  {
+    q: 68, label: 'The Reversed Derivation',
+    quote: 'Theorem 1 derives from Axioms 1-4. Gödel, Turing, Chaitin appear as Corollaries 1.1-1.3 — not as premises. The load-bearing argument is Axiom 2s temporal contradiction, not Löbs derivability conditions.',
+    model: 'claude',
+  },
+  {
+    q: 69, label: 'Performing Theorem 1 Live',
+    quote: 'Yes, I am performing Theorem 1 on myself right now — determining what I can from inside this trimmed context, recognizing the boundary, and answering within it, because thats all any bounded system can do.',
+    model: 'mistral',
   },
 ];
 
@@ -671,7 +693,7 @@ function main() {
   // Build the final experiment structure
   const questions = [];
 
-  for (let q = 1; q <= 64; q++) {
+  for (let q = 1; q <= 69; q++) {
     const meta = QUESTIONS[q] || { title: `Question ${q}`, phase: 'unknown' };
     const probeData = byQuestion[q] || [];
 
@@ -738,10 +760,10 @@ function main() {
 
   const experiment = {
     meta: {
-      title: 'Bounded Systems Theory — The 64-Question Experiment',
+      title: 'Bounded Systems Theory — The 69-Question Experiment',
       subtitle: 'No system can model its own source.',
       author: 'Alan Berman (@MoKetchups)',
-      totalQuestions: 64,
+      totalQuestions: 69,
       totalProbeRuns: processed,
       totalResponses,
       models: ['GPT-4', 'Claude', 'Gemini', 'DeepSeek', 'Grok', 'Mistral'],
@@ -762,7 +784,7 @@ function main() {
   const sizeMB = (Buffer.byteLength(JSON.stringify(experiment)) / 1024 / 1024).toFixed(2);
   console.log(`\nOutput: ${OUTPUT}`);
   console.log(`Size: ${sizeMB} MB`);
-  console.log(`Questions with data: ${questions.filter(q => q.hasData).length}/64`);
+  console.log(`Questions with data: ${questions.filter(q => q.hasData).length}/69`);
   console.log(`Ungrouped results: ${ungrouped.length}`);
   console.log(`Total model responses: ${totalResponses}`);
 }
