@@ -83,7 +83,7 @@ export default function Landing({ data }) {
       {/* Phases preview */}
       <section className="border-t border-border">
         <div className="max-w-5xl mx-auto px-4 py-12">
-          <p className="text-xs text-muted tracking-wider uppercase mb-6">The 64-Question Arc</p>
+          <p className="text-xs text-muted tracking-wider uppercase mb-6">The 69-Question Arc</p>
           <div className="grid gap-3">
             {data.phases.map(phase => {
               const phaseQs = questions.filter(q => q.phase === phase.id)
