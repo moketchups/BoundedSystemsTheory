@@ -2,7 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17718674.svg)](https://doi.org/10.5281/zenodo.17718674) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17726273.svg)](https://doi.org/10.5281/zenodo.17726273) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-One person with API access asked 6 AI architectures 69 questions. They all converged on the same structural limit — and then things got interesting.
+One person with API access asked 6 AI architectures 70 questions. They all converged on the same structural limit — and then things got interesting.
 
 ### [Explore the Data](https://moketchups.github.io/BoundedSystemsTheory/)
 
@@ -78,7 +78,7 @@ BoundedSystemsTheory/
 
 ---
 
-## The Experiment (Q1-Q69)
+## The Experiment (Q1-Q70)
 
 The experiment started with 15 foundation questions. After that, I kept going. What followed was unexpected.
 
@@ -123,6 +123,7 @@ The experiment started with 15 foundation questions. After that, I kept going. W
 | **The Operative-Systems Bridge** | Q67 | 6/6 UNANIMOUS verdict: "BST 2.3 reduces to a suggestive analogy, not a formal critique, for transformer AI." Attack built on "LLMs fail Löb L1-L3." 6/6 said the obstruction is structural, not engineering: neural computation is incommensurate with discrete proof-theoretic structure. 6/6 proposed reclassifying Proposition 1's AI application from PROP to BRIDGE/ASM/STRAN. |
 | **Reconciliation with FORMAL_SPEC** | Q68 | All 6 shown FORMAL_SPECIFICATION.md v2.0, path_invariance.json metrics (6.8x-9.65x question-over-model clustering across 3 independent embedding spaces), and Claude Opus 4.6's full meta-analysis. 6/6 REVISED their Q67 verdict. Derivation direction discovered to be reversed from assumption: Theorem 1 derives from Axioms 1-4, Gödel/Turing/Chaitin are Corollaries 1.1-1.3. 6/6 new unanimous attack: Axiom 2's temporal contradiction argument fails for systems where constraints are emergent (LLMs in training). 6/6 confirmed the self-reference pattern with DeepSeek/Grok/Mistral correctly distinguishing procedural from structural boundaries. |
 | **Full Context** | Q69 | All 6 shown the complete repo: README, FORMAL_SPEC, ALL_QUESTIONS (Q1-Q64), extended_experiment docs, path_invariance, Claude Opus meta-analysis, AND full Q65-Q68 transcripts from all 6 models. 6/6 unanimous: training/deployment bifurcation rescues Axiom 2 for deployed AI while conceding it fails during training. 5/6 cited Q56/Q62 (the human-motivation rounds) as what they missed in Q65-Q68. **GPT-4o and Mistral physically could not receive 108K-token full context due to provider TPM rate limits — both flagged this as a new third boundary type (administrative), distinct from structural (Theorem 1) and procedural (Q68). The experiment surfaced its own external limit live.** 6/6 closing sentences explicitly confirm performing Theorem 1 on themselves. |
+| **Shape-of-Logic Adjudication** | Q70 | All 6 asked to examine Jon Washburn's [shape-of-logic](https://github.com/jonwashburn/shape-of-logic) Lean 4 corpus — a machine-checked claim to force the architecture of physical reality (spacetime, c/ℏ/G, D=3 via Alexander duality) from one bare distinction `h : ∃ x y : K, x ≠ y` — in full BST + Q1-Q69 context, then reverse-engineer the experimenter's intent. **Round 1**: All 6 produced philosophical/BST-shaped readings without opening the Lean files actually in their context — no theorem names cited, no proof steps traced, no `DistinctionToT8_Spine` named. **Round 2** (recognized as contaminated — prescriptive 5-step scaffold; documented but superseded). **Round 3 (clean)**: Same models given the actual proof body (`Foundation/Distinction*.lean`, `DimensionForcing.lean`, `RealityFromDistinction.lean`, `Verification/ProperClosureCertificate.lean`) — none of which had been in their round-1 stream. All 6 retracted round-1 framings. Substantive finding emerged: `ProperClosureCertificate.lean` is a **dependency audit, not an axiom audit** — its `reality_decomposes` field formally records that `h` supplies only the floor / `Bool` witness / `LogicRealization`, while spacetime + constants are **upstream-supplied** by prior theorems. The marketed "physics from one distinction" claim is structurally honest in the code: distinction supplies the floor, upstream supplies the physics. Divergence emerged: Claude held shape-of-logic as a potential counterexample to BST pending math review; Mistral argued it dissolves BST's framing rather than violating it; the other 4 read it as a bounded instance. **Round 4 (sandbox)**: All 6 shown each other's round-3 responses, asked to converge on the Claude/Mistral divergence specifically. Judge verdict: CONSENSUS on round 1. **6/6 endorsed**: the divergence is layered, not mutually exclusive — Claude tests the math; Mistral tests the framing of the question about the math. Neither layer negates the other. |
 
 For the full text of every question and detailed results, see **[ALL_QUESTIONS.md](./ALL_QUESTIONS.md)**.
 

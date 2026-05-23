@@ -55,6 +55,7 @@ const PHASES = [
   { id: 'distribution', name: 'Distribution & Failure', range: [60, 62], description: 'All 6 design a plan. It fails. They own it.' },
   { id: 'scholarship', name: 'Simulated Scholarship', range: [63, 64], description: 'AIs admit checking zero sources before labeling claims speculative.' },
   { id: 'bst23-review', name: 'BST 2.3 Peer Review', range: [65, 69], description: 'Five-round peer review of BST 2.3. 6/6 converge on training/deployment bifurcation rescuing Axiom 2. 6/6 explicitly perform Theorem 1 on themselves. Q69 surfaces administrative boundary as third boundary category.' },
+  { id: 'shape-of-logic', name: 'Shape-of-Logic Adjudication', range: [70, 70], description: 'External Lean 4 corpus (Jon Washburn) probed across 4 rounds. 6/6 retract round-1 BST-shaped framings once given the actual proof body. ProperClosureCertificate is a dependency audit, not an axiom audit. Sandbox: 6/6 consensus that the Claude/Mistral divergence is layered (math vs framing), not mutually exclusive.' },
 ];
 
 // Question metadata from ALL_QUESTIONS.md
