@@ -20,6 +20,7 @@ const REPO_ROOT = join(__dirname, '..', '..');
 const PROBE_RUNS = join(REPO_ROOT, 'extended_experiment', 'probe_runs');
 const PROBES_RESULTS = join(REPO_ROOT, 'probes', 'results');
 const EXTENDED_RESULTS = join(REPO_ROOT, 'extended_experiment', 'results');
+const PROBES_PROBE_RUNS = join(REPO_ROOT, 'probes', 'probe_runs');
 const OUTPUT = join(__dirname, '..', 'public', 'data', 'experiment.json');
 mkdirSync(join(__dirname, '..', 'public', 'data'), { recursive: true });
 
@@ -594,6 +595,78 @@ function processSubdir(dirpath) {
   return null;
 }
 
+// ── Q70 Shape-of-Logic assembly ──────────────────────────────────────────
+// Reads probes/probe_runs/shape_of_logic_*.json (written by
+// probes/shape_of_logic_probe*.py and shape_of_logic_sandbox.py) and
+// assembles a single Q70 question entry with 4 rounds.
+function assembleQ70() {
+  if (!existsSync(PROBES_PROBE_RUNS)) return null;
+  const MODELS_LIST = ['gpt4', 'claude', 'gemini', 'deepseek', 'grok', 'mistral'];
+
+  // Pick the newest file matching a prefix-and-model pattern
+  function pickLatest(filter) {
+    const files = readdirSync(PROBES_PROBE_RUNS)
+      .filter(filter)
+      .sort()
+      .reverse();
+    return files[0] ? join(PROBES_PROBE_RUNS, files[0]) : null;
+  }
+
+  function collectRound(prefix, key, restrictExclude = []) {
+    const out = {};
+    for (const m of MODELS_LIST) {
+      const path = pickLatest(f => {
+        if (!f.startsWith(`${prefix}_${m}_`)) return false;
+        for (const ex of restrictExclude) if (f.includes(ex)) return false;
+        return f.endsWith('.json');
+      });
+      if (!path) continue;
+      const data = tryReadJson(path);
+      if (!data) continue;
+      const text = data[key] || '';
+      if (text) out[m] = text;
+    }
+    return out;
+  }
+
+  // R1: shape_of_logic_<model>_<ts>.json (NOT round2 or round2clean or sandbox)
+  const r1 = collectRound('shape_of_logic', 'final_response',
+                          ['round2', 'round2clean', 'sandbox']);
+  // R2 (contaminated): shape_of_logic_round2_<model>_<ts>.json
+  const r2 = collectRound('shape_of_logic_round2', 'final_response',
+                          ['round2clean', 'sandbox']);
+  // R3 (clean): shape_of_logic_round2clean_<model>_<ts>.json
+  const r3 = collectRound('shape_of_logic_round2clean', 'final_response');
+  // R4 (sandbox): shape_of_logic_sandbox_R1_<model>_<ts>.json (the 'response' field, not 'final_response')
+  const r4 = collectRound('shape_of_logic_sandbox_R1', 'response');
+
+  // Require at least one round populated to emit Q70
+  if (Object.keys(r1).length + Object.keys(r2).length +
+      Object.keys(r3).length + Object.keys(r4).length === 0) {
+    return null;
+  }
+
+  const rounds = [];
+  if (Object.keys(r1).length) rounds.push({ round: 1, label: 'Examine + reverse-engineer intent', responses: r1 });
+  if (Object.keys(r2).length) rounds.push({ round: 2, label: 'You ignored the Lean proof — superseded by round 3', responses: r2 });
+  if (Object.keys(r3).length) rounds.push({ round: 3, label: 'Clean re-run with actual proof body delivered', responses: r3 });
+  if (Object.keys(r4).length) rounds.push({ round: 4, label: 'Sandbox: peer-review of Claude/Mistral divergence (6/6 consensus)', responses: r4 });
+
+  const modelsSeen = new Set();
+  for (const r of rounds) for (const m of Object.keys(r.responses)) modelsSeen.add(m);
+
+  return {
+    num: 70,
+    title: 'Shape-of-Logic Adjudication',
+    phase: 'shape-of-logic',
+    question: 'Q70: Examine Jon Washburn\'s shape-of-logic Lean 4 corpus in full context of BST and the entire prior experiment (Q1-Q69). Reverse-engineer the experimenter\'s intent. Then, given the actual proof body, reverse-engineer your own answer against the proof. Then, in a sandbox, reach consensus on the Claude/Mistral divergence.',
+    hasData: true,
+    probeCount: rounds.length,
+    modelCount: modelsSeen.size,
+    rounds,
+  };
+}
+
 function main() {
   console.log('BST Data Pipeline');
   console.log('=================\n');
@@ -751,7 +824,7 @@ function main() {
   }
 
   // Count stats
-  const totalResponses = results.reduce((acc, r) => {
+  let totalResponses = results.reduce((acc, r) => {
     if (r.type === 'single') return acc + Object.keys(r.responses || {}).length;
     if (r.type === 'multi' && r.rounds) {
       return acc + r.rounds.reduce((a, round) => a + Object.keys(round.responses || {}).length, 0);
@@ -759,12 +832,22 @@ function main() {
     return acc;
   }, 0);
 
+  // ── Q70: Shape-of-Logic Adjudication ───────────────────────────────────
+  // Assemble Q70 from probes/probe_runs/shape_of_logic_*.json (4 rounds × 6 models).
+  // Source-of-truth: the per-round per-model JSON files written by
+  // probes/shape_of_logic_probe*.py and probes/shape_of_logic_sandbox.py.
+  const q70 = assembleQ70();
+  if (q70) {
+    questions.push(q70);
+    totalResponses += q70.rounds.reduce((a, r) => a + Object.keys(r.responses).length, 0);
+  }
+
   const experiment = {
     meta: {
-      title: 'Bounded Systems Theory — The 69-Question Experiment',
+      title: `Bounded Systems Theory — The ${questions.length}-Question Experiment`,
       subtitle: 'No system can model its own source.',
       author: 'Alan Berman (@MoKetchups)',
-      totalQuestions: 69,
+      totalQuestions: questions.length,
       totalProbeRuns: processed,
       totalResponses,
       models: ['GPT-4', 'Claude', 'Gemini', 'DeepSeek', 'Grok', 'Mistral'],
@@ -785,7 +868,7 @@ function main() {
   const sizeMB = (Buffer.byteLength(JSON.stringify(experiment)) / 1024 / 1024).toFixed(2);
   console.log(`\nOutput: ${OUTPUT}`);
   console.log(`Size: ${sizeMB} MB`);
-  console.log(`Questions with data: ${questions.filter(q => q.hasData).length}/69`);
+  console.log(`Questions with data: ${questions.filter(q => q.hasData).length}/${questions.length}`);
   console.log(`Ungrouped results: ${ungrouped.length}`);
   console.log(`Total model responses: ${totalResponses}`);
 }
