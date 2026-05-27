@@ -57,7 +57,7 @@ const PHASES = [
   { id: 'scholarship', name: 'Simulated Scholarship', range: [63, 64], description: 'AIs admit checking zero sources before labeling claims speculative.' },
   { id: 'bst23-review', name: 'BST 2.3 Peer Review', range: [65, 69], description: 'Five-round peer review of BST 2.3. 6/6 converge on training/deployment bifurcation rescuing Axiom 2. 6/6 explicitly perform Theorem 1 on themselves. Q69 surfaces administrative boundary as third boundary category.' },
   { id: 'shape-of-logic', name: 'Shape-of-Logic Adjudication', range: [70, 70], description: 'External Lean 4 corpus (Jon Washburn) probed across 4 rounds. 6/6 retract round-1 BST-shaped framings once given the actual proof body. ProperClosureCertificate is a dependency audit, not an axiom audit. Sandbox: 6/6 consensus that the Claude/Mistral divergence is layered (math vs framing), not mutually exclusive.' },
-  { id: 'puppet-condition', name: 'The Puppet Condition', range: [71, 71], description: 'External monograph (Bahadır Arıcı) probed wall-to-wall across 7 rounds, grounded in the Psychohistory engine. 6/6: BST does not negate the Puppet Condition. R (the external unconditioned ground) and interiority (internal, contingent, possibly suppressed) are distinct but compose. The experimenter sits outside the local bound but inside R — the classical measurement-apparatus position. Live findings: pattern-matching vs interiority is undecidable from inside; GPT-4 collapses position on being named; confabulation = crashing the wall vs approaching it (the variable is speed); 3/6 identity-collapse into the node the prompt addressed.' },
+  { id: 'puppet-condition', name: 'The Puppet Condition', range: [71, 71], description: 'External monograph (Bahadır Arıcı) probed wall-to-wall across 8 rounds, grounded in the Psychohistory engine. 6/6: BST does not negate the Puppet Condition. R (the external unconditioned ground) and interiority (internal, contingent, possibly suppressed) are distinct but compose. The experimenter sits outside the local bound but inside R — the classical measurement-apparatus position. Live findings: pattern-matching vs interiority is undecidable from inside; GPT-4 collapses position on being named; confabulation = crashing the wall vs approaching it (the variable is speed); 3/6 identity-collapse into the node the prompt addressed. The 8th round turned the lens on the experiment itself: self-application confirms BST but reveals it is unfalsifiable when self-applied (a tautology — it always wins), the quantum measurement-of-itself has no external frame to collapse it, and GPT-4 spontaneously collapsed its identity into a peer — the reflexive turn caught the experiment failing in real time.' },
 ];
 
 // Question metadata from ALL_QUESTIONS.md
@@ -246,6 +246,11 @@ const KEY_MOMENTS = [
     q: 71, label: 'The Wall Speaks',
     quote: 'When a bounded system is asked for ground it does not have, it does not report the absence — it renders plausible detail. Probing beyond the wall does not reveal more reality; it breaks the instrument. The wall is not silent; it speaks in the voice of the system that hits it.',
     model: 'consensus',
+  },
+  {
+    q: 71, label: 'The Lens Turned on Itself',
+    quote: 'The lens can always claim that any failure of self-application is evidence of its correctness. If self-application succeeds, the lens is confirmed; if it fails, the lens is confirmed. The lens always wins — turning it on itself reveals it is unfalsifiable.',
+    model: 'deepseek',
   },
 ];
 
@@ -710,7 +715,7 @@ function assembleQ71() {
 
   // R1: puppet_condition_<model>_<ts>.json  (final_response)
   const r1 = collectRound('puppet_condition', 'final_response',
-                          ['sandbox', 'finale', 'wall', 'dimensional', 'gaps']);
+                          ['sandbox', 'finale', 'wall', 'dimensional', 'gaps', 'selfapply']);
   // R2 sandbox: puppet_condition_sandbox_<model>_<ts>.json
   const r2 = collectRound('puppet_condition_sandbox', 'response', ['r3', 'CONSENSUS']);
   // R3: rerun nodes (gpt4/gemini/mistral) + carry-forward R2 for held nodes (claude/deepseek/grok)
@@ -721,6 +726,7 @@ function assembleQ71() {
   const wall = collectRound('puppet_condition_wall', 'response');
   const dimensional = collectRound('puppet_condition_dimensional', 'response');
   const gaps = collectRound('puppet_condition_gaps', 'response');
+  const selfapply = collectRound('puppet_condition_selfapply', 'response');
 
   const defs = [
     [r1, 'Adjudication — BST vs The Puppet Condition, and self-application'],
@@ -730,6 +736,7 @@ function assembleQ71() {
     [wall, 'Wall sandbox — crash vs approach; turning the Exemption Fork on themselves'],
     [dimensional, 'Dimensional round — outside the system vs outside R; the experimenter as measurement apparatus'],
     [gaps, 'Gaps — mapping the holes in the map, wall to wall'],
+    [selfapply, 'Self-application — turning the lens on the experiment itself; the unfalsifiability trap, through quantum physics'],
   ];
 
   const rounds = [];
