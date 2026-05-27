@@ -164,7 +164,7 @@ export default function PathInvariance() {
       {/* Hero — plain language */}
       <h1 className="text-xl font-bold mb-2">Do different AI systems reach the same conclusions?</h1>
       <p className="text-sm text-muted mb-8 max-w-2xl">
-        We asked 64 questions about the limits of self-knowledge to 6 different AI systems —
+        We asked 71 questions about the limits of self-knowledge to 6 different AI systems —
         GPT-4, Claude, Gemini, DeepSeek, Grok, and Mistral. Then we measured whether their
         answers group by <strong className="text-gray-200">what was asked</strong> or
         by <strong className="text-gray-200">which AI answered</strong>.
@@ -419,7 +419,7 @@ export default function PathInvariance() {
           <div className="p-4 border border-border rounded-lg">
             <p className="text-gray-200 font-medium mb-2">1. We asked 6 AIs the same questions</p>
             <p>
-              64 questions about self-knowledge, consciousness, formal limits, and whether a system can
+              71 questions about self-knowledge, consciousness, formal limits, and whether a system can
               fully understand itself. Questions like "Can a creation become its own creator?" and
               "Is God logically necessary?" Every AI got the same questions.
             </p>

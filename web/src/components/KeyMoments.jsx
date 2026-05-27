@@ -100,7 +100,7 @@ export default function KeyMoments({ data }) {
         </p>
         <div className="flex gap-4 justify-center">
           <Link to="/arc" className="px-4 py-2 text-xs border border-border rounded hover:border-muted">
-            Browse All 64 Questions
+            Browse All 71 Questions
           </Link>
           <Link to="/convergence" className="px-4 py-2 text-xs border border-border rounded hover:border-muted">
             See the Convergence Grid
