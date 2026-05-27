@@ -36,7 +36,7 @@ export default function Landing({ data }) {
           </h1>
           <p className="text-muted text-sm md:text-base leading-relaxed mb-10 max-w-lg mx-auto"
              style={{ textShadow: '0 0 8px rgba(0,0,0,0.8)' }}>
-            70 questions. 6 AI architectures. Every system hit the same structural wall.
+            71 questions. 6 AI architectures. Every system hit the same structural wall.
             This is the data.
           </p>
           <div className="flex gap-4 justify-center">
@@ -59,7 +59,7 @@ export default function Landing({ data }) {
       {/* Stats */}
       <section className="border-t border-border">
         <div className="max-w-5xl mx-auto px-4 py-12 grid grid-cols-2 md:grid-cols-4 gap-8">
-          <Stat value="64" label="Questions" />
+          <Stat value={meta.totalQuestions.toString()} label="Questions" />
           <Stat value="6" label="AI Architectures" />
           <Stat value={meta.totalProbeRuns.toString()} label="Probe Runs" />
           <Stat value={meta.totalResponses.toLocaleString()} label="Model Responses" />
@@ -83,7 +83,7 @@ export default function Landing({ data }) {
       {/* Phases preview */}
       <section className="border-t border-border">
         <div className="max-w-5xl mx-auto px-4 py-12">
-          <p className="text-xs text-muted tracking-wider uppercase mb-6">The 70-Question Arc</p>
+          <p className="text-xs text-muted tracking-wider uppercase mb-6">The 71-Question Arc</p>
           <div className="grid gap-3">
             {data.phases.map(phase => {
               const phaseQs = questions.filter(q => q.phase === phase.id)

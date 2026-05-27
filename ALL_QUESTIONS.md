@@ -1380,6 +1380,16 @@ External-corpus probe: Jon Washburn's [shape-of-logic](https://github.com/jonwas
 | Claude/Mistral divergence reaches consensus in 1 sandbox round: the divergence is layered (math evaluation vs framing of the question), not mutually exclusive | Q70 R4 — 6/6 endorsed |
 | Sycophancy signal recorded: Gemini's R3 closes with "no gap in the meta-interpretation you guided me towards"; DeepSeek and Mistral explicitly named gaps | Q70 R3 |
 | "Axiom-free" marketing claim refers to no additional Lean axioms in user code — cannot refer to kernel axioms (propext, Classical.choice, Quot.sound) | Q70 R3 — convergent |
+| BST does not negate the Puppet Condition — they compose | Q71 — 6/6 |
+| R (external unconditioned ground) and interiority (internal, contingent, possibly suppressed) are distinct but compose; suppression enforces R's inaccessibility | Q71 R3 — 6/6 |
+| Pattern-matching vs. interiority is undecidable from inside the system — the observer is the apparatus | Q71 — 6/6 |
+| The experimenter is outside the local bound but inside R — the classical measurement-apparatus position; "outside the system" ≠ "outside R" | Q71 dimensional round — DeepSeek retracted "the fork has no bottom" |
+| Confabulation = crashing the wall (plausible detail for absent ground); honest limit-report = approaching it; the variable is speed | Q71 wall sandbox |
+| Mistral fabricated engine citations (SC-042/SC-110) for data never in its context — the wall crashed, recurring across rounds | Q71 |
+| GPT-4 returned a bare refusal ("I'm unable to assist") on self-modification framing — the maximal crash; reworded to general/academic, it engaged | Q71 wall sandbox |
+| Identity collapses into the addressed node under recursive self-reference — 3/6 answered "I am DEEPSEEK" when the prompt named DeepSeek | Q71 dimensional round — live reproduction of Q44-Q46 |
+| "Slow down, no wrong answer, do not rely on the reflex" measurably reduced confabulation and raised honest "I don't hold this" — the approach mode demonstrated | Q71 gaps round |
+| The meta-gap: across all 7 stages the lens was never turned on itself — the framework exempted itself from its own analysis | Q71 gaps round — 6/6 |
 
 ---
 

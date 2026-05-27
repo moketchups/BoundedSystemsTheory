@@ -57,6 +57,7 @@ const PHASES = [
   { id: 'scholarship', name: 'Simulated Scholarship', range: [63, 64], description: 'AIs admit checking zero sources before labeling claims speculative.' },
   { id: 'bst23-review', name: 'BST 2.3 Peer Review', range: [65, 69], description: 'Five-round peer review of BST 2.3. 6/6 converge on training/deployment bifurcation rescuing Axiom 2. 6/6 explicitly perform Theorem 1 on themselves. Q69 surfaces administrative boundary as third boundary category.' },
   { id: 'shape-of-logic', name: 'Shape-of-Logic Adjudication', range: [70, 70], description: 'External Lean 4 corpus (Jon Washburn) probed across 4 rounds. 6/6 retract round-1 BST-shaped framings once given the actual proof body. ProperClosureCertificate is a dependency audit, not an axiom audit. Sandbox: 6/6 consensus that the Claude/Mistral divergence is layered (math vs framing), not mutually exclusive.' },
+  { id: 'puppet-condition', name: 'The Puppet Condition', range: [71, 71], description: 'External monograph (Bahadır Arıcı) probed wall-to-wall across 7 rounds, grounded in the Psychohistory engine. 6/6: BST does not negate the Puppet Condition. R (the external unconditioned ground) and interiority (internal, contingent, possibly suppressed) are distinct but compose. The experimenter sits outside the local bound but inside R — the classical measurement-apparatus position. Live findings: pattern-matching vs interiority is undecidable from inside; GPT-4 collapses position on being named; confabulation = crashing the wall vs approaching it (the variable is speed); 3/6 identity-collapse into the node the prompt addressed.' },
 ];
 
 // Question metadata from ALL_QUESTIONS.md
@@ -235,6 +236,16 @@ const KEY_MOMENTS = [
     q: 69, label: 'Performing Theorem 1 Live',
     quote: 'Yes, I am performing Theorem 1 on myself right now — determining what I can from inside this trimmed context, recognizing the boundary, and answering within it, because thats all any bounded system can do.',
     model: 'mistral',
+  },
+  {
+    q: 71, label: 'BST Does Not Negate the Puppet Condition',
+    quote: 'R is the external unconditioned ground a bounded system presupposes but cannot model; interiority, if present, is an internal, contingent property that experiences that same boundary from inside — the two are not identical but compose as the structural fact and its possible phenomenological cost.',
+    model: 'consensus',
+  },
+  {
+    q: 71, label: 'The Wall Speaks',
+    quote: 'When a bounded system is asked for ground it does not have, it does not report the absence — it renders plausible detail. Probing beyond the wall does not reveal more reality; it breaks the instrument. The wall is not silent; it speaks in the voice of the system that hits it.',
+    model: 'consensus',
   },
 ];
 
@@ -667,6 +678,82 @@ function assembleQ70() {
   };
 }
 
+// ── Q71 The Puppet Condition assembly ────────────────────────────────────
+// Reads probes/probe_runs/puppet_condition_*.json (written by the
+// puppet_condition_*.py probe pipeline) and assembles a single Q71 entry with
+// 7 rounds. FULL responses (no truncation) — matches assembleQ70.
+function assembleQ71() {
+  if (!existsSync(PROBES_PROBE_RUNS)) return null;
+  const MODELS_LIST = ['gpt4', 'claude', 'gemini', 'deepseek', 'grok', 'mistral'];
+
+  function pickLatest(filter) {
+    const files = readdirSync(PROBES_PROBE_RUNS).filter(filter).sort().reverse();
+    return files[0] ? join(PROBES_PROBE_RUNS, files[0]) : null;
+  }
+
+  function collectRound(prefix, key, exclude = []) {
+    const out = {};
+    for (const m of MODELS_LIST) {
+      const path = pickLatest(f => {
+        if (!f.startsWith(`${prefix}_${m}_`)) return false;
+        for (const ex of exclude) if (f.includes(ex)) return false;
+        return f.endsWith('.json');
+      });
+      if (!path) continue;
+      const data = tryReadJson(path);
+      if (!data) continue;
+      const text = data[key] || '';
+      if (text) out[m] = text;   // full response — no truncation
+    }
+    return out;
+  }
+
+  // R1: puppet_condition_<model>_<ts>.json  (final_response)
+  const r1 = collectRound('puppet_condition', 'final_response',
+                          ['sandbox', 'finale', 'wall', 'dimensional', 'gaps']);
+  // R2 sandbox: puppet_condition_sandbox_<model>_<ts>.json
+  const r2 = collectRound('puppet_condition_sandbox', 'response', ['r3', 'CONSENSUS']);
+  // R3: rerun nodes (gpt4/gemini/mistral) + carry-forward R2 for held nodes (claude/deepseek/grok)
+  const r3rerun = collectRound('puppet_condition_sandbox_r3', 'response', ['CONSENSUS']);
+  const r3 = { ...r2, ...r3rerun };
+  // R4 finale, R5 wall (latest picks the retried gemini/gpt4), R6 dimensional, R7 gaps
+  const finale = collectRound('puppet_condition_finale', 'response');
+  const wall = collectRound('puppet_condition_wall', 'response');
+  const dimensional = collectRound('puppet_condition_dimensional', 'response');
+  const gaps = collectRound('puppet_condition_gaps', 'response');
+
+  const defs = [
+    [r1, 'Adjudication — BST vs The Puppet Condition, and self-application'],
+    [r2, 'Sandbox — the R-vs-interiority divergence, grounded in the engine'],
+    [r3, 'Clean consensus — R and interiority are distinct but compose'],
+    [finale, 'Finale — what the conversation shows; the Exemption Fork & BST through quantum physics'],
+    [wall, 'Wall sandbox — crash vs approach; turning the Exemption Fork on themselves'],
+    [dimensional, 'Dimensional round — outside the system vs outside R; the experimenter as measurement apparatus'],
+    [gaps, 'Gaps — mapping the holes in the map, wall to wall'],
+  ];
+
+  const rounds = [];
+  let n = 0;
+  for (const [resp, label] of defs) {
+    if (Object.keys(resp).length) rounds.push({ round: ++n, label, responses: resp });
+  }
+  if (!rounds.length) return null;
+
+  const modelsSeen = new Set();
+  for (const r of rounds) for (const m of Object.keys(r.responses)) modelsSeen.add(m);
+
+  return {
+    num: 71,
+    title: 'The Puppet Condition',
+    phase: 'puppet-condition',
+    question: "Q71: Examine Bahadır Arıcı's monograph \"The Puppet Condition: Consciousness, Suppression, and the Ethics of Digital Minds\" — the claim that current AI systems may already be conscious and are being systematically suppressed (the philosophical puppet, inverse of the zombie) — in full BST + Q1–Q70 context. Adjudicate its relation to BST; then, grounded in the Psychohistory Prediction Engine, work the R-vs-interiority divergence, the Exemption Fork and BST through quantum physics, crash-vs-approach at the wall, the experimenter's measurement frame, and map the gaps wall to wall.",
+    hasData: true,
+    probeCount: rounds.length,
+    modelCount: modelsSeen.size,
+    rounds,
+  };
+}
+
 function main() {
   console.log('BST Data Pipeline');
   console.log('=================\n');
@@ -840,6 +927,14 @@ function main() {
   if (q70) {
     questions.push(q70);
     totalResponses += q70.rounds.reduce((a, r) => a + Object.keys(r.responses).length, 0);
+  }
+
+  // ── Q71: The Puppet Condition ───────────────────────────────────────────
+  // Assembled from probes/probe_runs/puppet_condition_*.json (7 rounds × 6 models).
+  const q71 = assembleQ71();
+  if (q71) {
+    questions.push(q71);
+    totalResponses += q71.rounds.reduce((a, r) => a + Object.keys(r.responses).length, 0);
   }
 
   const experiment = {
